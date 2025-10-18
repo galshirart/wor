@@ -4,37 +4,15 @@
 
 <script>
 
-    // ✅ Replace this with your own sheet's "published to web" CSV link
-    const sheetURL =
-      'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSJvxIyP3Vxlfi9mDZTjpEGW3IMN5dj8EUHdtWDVzmj1EfMFax7sQw012GfmtNodQBkNFQiJ0Yag6c/pub?output=csv';
+const sheetId = '2PACX-1vRSJvxIyP3Vxlfi9mDZTjpEGW3IMN5dj8EUHdtWDVzmj1EfMFax7sQw012GfmtNodQBkNFQiJ0Yag6c';
+const sheetName = 'maps';
+const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
 
-    // Helper function: Convert CSV text into an array of objects
-    function csvToJSON(csv) {
-      const lines = csv.trim().split('\n');
-      const headers = lines[0].split(',').map(h => h.trim());
-      const rows = lines.slice(1);
-
-      return rows.map(line => {
-        const values = line.split(',');
-        const obj = {};
-        headers.forEach((header, i) => {
-          obj[header] = values[i] ? values[i].trim() : '';
-        });
-        return obj;
-      });
-    }
-
-    // Fetch the published CSV
-    fetch(sheetURL)
-      .then(response => response.text())
-      .then(csv => {
-        const data = csvToJSON(csv);
-        console.log('✅ Parsed Data:', data);
-        document.getElementById('output').textContent = JSON.stringify(data, null, 2);
-      })
-      .catch(err => {
-        console.error('❌ Error loading sheet:', err);
-        document.getElementById('output').textContent = 'Error loading data. See console for details.';
-      });
+fetch(url)
+  .then(res => res.text())
+  .then(text => {
+    const json = JSON.parse(text.substr(47).slice(0, -2));
+    console.log(json.table.rows);
+  });
 
 </script>
