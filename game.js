@@ -353,16 +353,16 @@ function enemyDeath(enemy) {
 	enemyType = $(enemy).attr('type')
 	itemType = enemies[enemyType].item
 	
-	if (enemies[enemyType].gold == true) {
+	if (enemies[enemyType].gold == 'TRUE') {
 		if (random(1,2) == 1) {
 			itemType = 'gold'
 		}
-		if (player.mp < player.maxMp/2 && random(1,10) == 1) {
-			itemType = 'mana-bless'
-		}
-		if (player.hp < player.maxHp/2 && random(1,10) == 1) {
-			itemType = 'health-bless'
-		}
+		// if (player.mp < player.maxMp/2 && random(1,10) == 1) {
+		// 	itemType = 'mana-bless'
+		// }
+		// if (player.hp < player.maxHp/2 && random(1,10) == 1) {
+		// 	itemType = 'health-bless'
+		// }
 	}
 
 	item = $('<div class="item"></div>').appendTo('.field').css({
@@ -695,6 +695,11 @@ function resetPlayer() {
 	player.maxMp = 10
 	save()
 	location.reload()
+}
+
+function teleport(location) {
+	player.location = location
+	enterMap(player.location)
 }
 
 function sound(sound) {
