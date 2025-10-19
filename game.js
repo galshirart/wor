@@ -1,21 +1,16 @@
-
 fetch('https://galshir.com/php/wor.php')
 .then(res => res.json())
 .then(data => {
-  console.log(data);
   gameData = data;
   initGame()
 })
 
-
-
-
-
-
 function initGame() {
-	mapBuffer = 0
-	mapBuffer = 400
 	player = JSON.parse(localStorage.getItem('player'))
+
+	if (!player) { resetPlayer() }
+
+	mapBuffer = 400
 
 	maps = gameData['maps']
 	enemies = gameData['enemies']
@@ -52,7 +47,6 @@ function initGame() {
 			$('[mode=walk]').attr('mode','rest');
 		}
 	}
-
 
 	setInterval(() => { 
 		walk(keyState)
@@ -200,7 +194,10 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
         $('.enemy[active=true]').each(function() {
             if ( x1 > i($(this),'left')+i($(this),'width') || x2 < i($(this),'left') ) return
 
-            attack = spread(equipments[player.equipments.weapon].attack*atkMultiplier,20)
+			attack = 1 // hitting with bare hands if there is no weapon equipped
+			if (equipments[player.equipments.weapon]) {
+            	attack = spread(equipments[player.equipments.weapon].attack*atkMultiplier,20)
+			}
 
             $(this).css('animation-name', 'enemy-hit')
             .attr('angry','true')
@@ -468,7 +465,7 @@ function sellItem(item) {
 			}
 		}
 
-		player.backpack.gold = player.backpack.gold+amount*calcItemPrice(item)
+		player.backpack.gold += amount*calcItemPrice(item)
 		sound('pickup-gold')
 		setHeroAndBackpack()
 
@@ -572,7 +569,7 @@ function openBuyMenu(item) {
 function itemStats(item) {
 	stats = ''
 	for (stat in equipments[item]) {
-		if ( stat == 'description' ) {
+		if ( stat == 'description' && equipments[item][stat] != '' ) {
 			stats+='<div class="flex stat"><div class="tip">'+equipments[item][stat]+'</tip></div>'
 		}
 		else if (stat != 'price' && equipments[item][stat] != 0) { 
@@ -620,9 +617,6 @@ function setHeroAndBackpack() {
 	if (player.equipments.weapon == '') { player.equipments.weapon = 'none' }
     hero.append('<img src="assets/weapon-' + (player.equipments.weapon || 'none') + '.png" class="weapon" />');
 
-	if (player.backpack.gold == undefined) { 
-		player.backpack.gold = 0
-	}
 	$('.bar.gold .value').html(player.backpack.gold);
 
     $('.backpack .thumb').remove();
@@ -636,7 +630,7 @@ function setHeroAndBackpack() {
             if (player.backpack[item] > 1) {
                 thumb.html('<span>' + player.backpack[item] + '</span>');
             }
-        } else {
+        } else if (item != 'gold') {
             delete player.backpack[item];
         }
     }
@@ -689,9 +683,10 @@ function closeCard(element) {
 function resetPlayer() {
 	player = {}
 	player.speed = 20
-	player.backpack = {'gold':0}
+	player.backpack = {}
+	player.backpack['gold'] = 0
 	player.equipments = {}
-	player.equipments.weapon = 'none'
+	player.equipments['weapon'] = 'none'
 	player.location = 'rookie-camp'
 	player.position = 600
 	player.hp = 10
