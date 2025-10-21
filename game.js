@@ -17,6 +17,7 @@ function initGame() {
 	equipments = gameData['equipments']
 	skills = gameData['skills']
 	npcs = gameData['npcs']
+	quests = gameData['quests']
 
 	keyState = {left: false, right: false};
 	heroDirection = 1
@@ -120,20 +121,25 @@ function enterMap(origin) {
 				.addClass(port)
 				.attr('target',maps[player.location].ports[port])
 				.appendTo('.field')
-			}
 
-			for (npc in maps[player.location].npc) {
-				npc = $("<div class='npc'></div>")
-				.css('left',maps[player.location].npc[npc])
-				.css('background-image','url(assets/npc-'+npc+'.png)')
-				.css({
-					'background-size': npcs[npc].size*3+'px',
-					'width': npcs[npc].size,
-					'height': npcs[npc].size
-				})
-				.attr('onclick','npcClick("'+npc+'")')
-				.html('<span>'+spcDash(npc)+'</span>')
+				sparkles = $("<div class='sparkles'></div>")
+				.addClass(port)
 				.appendTo('.field')
+			}
+			for (npc in maps[player.location].npc) {
+				$("<div class='npc'><div class='image'></div></div>")
+					.css('left', maps[player.location].npc[npc]+'%')
+					.find('.image')
+					.css({
+						'background-image': 'url(assets/npc-' + npc + '.png)',
+						'background-size': npcs[npc].size * 3 + 'px',
+						'width': npcs[npc].size,
+						'height': npcs[npc].size
+					})
+					.end()
+					.attr('onclick', 'npcClick("' + npc + '")')
+					.append('<span>' + spcDash(npc) + '</span>')
+					.appendTo('.field');
 			}
 
 			if (origin) {
@@ -155,6 +161,7 @@ function enterMap(origin) {
 				$('.overlay').css('opacity',0)
 				$('.mapsign').remove()
 				$('.window').append('<div class="mapsign"><span></span><span>'+spcDash(player.location)+'</span><span></span></div>')
+				log('Entered '+player.location, 'location')
 			},mapBuffer)
 		}, 50)
 
@@ -167,7 +174,7 @@ function jump() {
 	sound('jump')
 	hero.addClass('jumping')
 	setTimeout(() => { hero.removeClass('jumping') },300)
-	setTimeout(() => { mode('rest'); sound('land') },590)
+	setTimeout(() => { mode('rest'); sound('land') },599)
 }
 
 function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplier=1, maxTargets=1) {
@@ -199,16 +206,25 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
             	attack = spread(equipments[player.equipments.weapon].attack*atkMultiplier,20)
 			}
 
-            $(this).css('animation-name', 'enemy-hit')
+            $(this).attr('state', 'enemy-hit')
             .attr('angry','true')
             .attr('hp', $(this).attr('hp')-attack)
+			.attr('hit-count', $(this).attr('hit-count')*1+1)
+			.css({
+				'left': i($(this),'left')+heroDirection*5+'px',
+				'transition-duration': '0ms',
+			})
             .find('.bar').css('width', $(this).attr('hp')/enemies[$(this).attr('type')].hp*100+'%')
-        
+
+			$(this).attr('attacked','true')
+
             hit = $('<div class="hit">'+prettyNumber(attack,'yellow')+'</div>').css('left', i($(this),'left')).appendTo('.field')
             setTimeout((hit)=> { hit.remove() },800, hit)
 
             if ( $(this).attr('hp') <= 0 ) { enemyDeath($(this)) } 
-            else { setTimeout(() => {$('.enemy').css('animation-name', 'ping-pong')}, 200) }
+            else { setTimeout(() => {
+				enemyMove($(this), $(this).attr('hit-count'))
+			}, 200) }
         
             setTimeout(function() {
                 sound('hit-'+random(1,3)) 
@@ -233,7 +249,7 @@ function useSkill(key) {
     if (key == 'd') { skill = 'impact' }
 
     mpCost = (equipments[player.equipments.weapon].attack*skills[skill].atkMultiplier)/2
-    if (player.mp < mpCost) { shake($('.bar.mp')); return }
+    if (player.mp < mpCost) { shake($('.bar.mp').parent('.bar-container')); return }
     player.mp = player.mp-mpCost
     
     skillCooldown = true;
@@ -275,26 +291,33 @@ function enemySpawn(type,map) {
 	destination = random(800, i('.field .map','width')-800 )
 	yOffset = random(-6,6)
 
-	enemy = $('<div class="enemy" type="'+type+'"><div class="hpBar"><div class="bar"></div></div></div>')
+	enemy = $('<div class="enemy" type="'+type+'"><div class="image"></div><div class="hpBar"><div class="bar"></div></div></div>')
 	.css({
-		'background-image': 'url(assets/enemy-'+type+'.png)',
 		'left': destination,
-		'width': enemies[type].size[0],
-		'height': enemies[type].size[1],
 		'display':'none'
 	})
+	.find('.image').css({
+		'background-image': 'url(assets/enemy-'+type+'.png)',
+		'width': enemies[type].size[0],
+		'height': enemies[type].size[1],
+	})
+	.end()
 	.attr('hp',enemies[type].hp)
+	.attr('hit-count', 0)
 	.appendTo('.field')
 
 	$(enemy).fadeIn(1000).promise().done(function(enemy) {
 		enemy.attr('active','true')
 	})
 
-	enemyMove(enemy)
+	enemyMove(enemy, 0)
 }
 
-function enemyMove(enemy) {
-	if (enemies[enemy.attr('type')].speed == 0 || $(enemy).attr('active') == 'false') { return }
+function enemyMove(enemy, hitCount) {
+	if (enemies[enemy.attr('type')].speed == 0 
+	|| $(enemy).attr('active') == 'false'
+	|| hitCount < enemy.attr('hit-count'))
+	{ return }
 
 	attempts = 0
 	while (attempts < 100 ) {
@@ -311,8 +334,12 @@ function enemyMove(enemy) {
 	if ( enemy.attr('angry') == 'true' ) {
 		distance = player.position - i(enemy,'left')-i(enemy,'width')/2 + random(-100,100)
 		speed = speed/1.2
+		stand = 0
+	} else {
+		stand = random(1000,5000)
 	}
 
+	enemy.attr('state','move')
 	enemy.css({
 		'left': i(enemy,'left')+distance,
 		'transform': 'scaleX('+sign(distance)+')',
@@ -322,8 +349,13 @@ function enemyMove(enemy) {
 	.find('.hpBar').css('transform','scaleX('+sign(distance)+')')
 
 	setTimeout(function(enemy) {
-		enemyMove(enemy)
+		if (enemy.attr('angry') == 'true') return
+		enemy.attr('state','stand')
 	}, abs(distance)*speed, enemy)
+
+	setTimeout(function(enemy) {
+		enemyMove(enemy, hitCount)
+	}, abs(distance)*speed+stand, enemy)
 }
 
 function collide() {
@@ -341,6 +373,9 @@ function collide() {
 		hero.attr('in-damage','true')
 
 		player.hp = player.hp-attack
+
+		player.position = player.position-heroDirection*40
+        slideMap()
 
 		setTimeout(() => {
 			hero.attr('in-damage','false')
@@ -383,7 +418,11 @@ function enemyDeath(enemy) {
 		enemySpawn(enemyType, map)
 	}, random(10000,20000), enemyType, player.location)
 
+	if (enemies[enemyType].attack >= 1) {
+		player.enemiesSlained++
+	}
 	sound(enemies[enemyType].sound)
+	log('Slained '+enemyType, 'slain')
 }
 
 function pickUp() {
@@ -394,6 +433,7 @@ function pickUp() {
 
 		$(this).addClass('picked')
 		acquireItem($(this).attr('type'))
+		log('Picked '+$(this).attr('type'), $(this).attr('type'))
 
 		setTimeout(function(item) {
 			$(item).remove()
@@ -402,7 +442,7 @@ function pickUp() {
 	});
 }
 
-function acquireItem(item) {
+function acquireItem(item, amount = 1) {
 	if ( item == 'gold' ) {
 		sound('pickup-gold')
 	} else {
@@ -421,15 +461,17 @@ function acquireItem(item) {
 		return
 	}
 
-	player.backpack[item] = (player.backpack[item] || 0) + 1;
+	player.backpack[item] = (player.backpack[item] || 0) + amount;
 	setHeroAndBackpack()
 }
 
 function useItem(item) {
 	if (equipments.hasOwnProperty(item)) { 
 		itemType = equipments[item].type
-		player.equipments[itemType] = (player.equipments[itemType] == item) ? '' : item;
+		isEquipped = player.equipments[itemType] == item
+		player.equipments[itemType] = isEquipped ? '' : item;
 		sound('heavy-item')
+		log((isEquipped ? 'unequipped ' : 'equipped ') + item, item)
 	}
 	setHeroAndBackpack()
 	sound('click')
@@ -468,6 +510,9 @@ function sellItem(item) {
 		player.backpack.gold += amount*calcItemPrice(item)
 		sound('pickup-gold')
 		setHeroAndBackpack()
+
+		log('Sold '+amount+' '+item, item)
+		log('Received '+amount*calcItemPrice(item)+' gold', 'gold')
 
 		$('.npc.sell .speech ~ *').remove()
 		$('.npc.sell .speech div').html("Deal done. Great doing business with you! Anything else you'd like to sell?")
@@ -533,6 +578,33 @@ function npcClick(npc) {
 		$('.backpack').show()
 		card.append('<div><div class="tip">Click on an item from your backpack</div></div>')
 	}
+
+	if (npcs[npc].type == 'quest') {
+		questID = npcs[npc].questID
+		questCard = $('<div><div class="quest"><span class="checkbox"></span>'+quests[questID].task+'</div></div>')
+		.find('.quest').append('<div class="progress">'+Math.min(player[Object.keys(quests[questID].requirement)], Object.values(quests[questID].requirement))+'/'+Object.values(quests[questID].requirement)+'</div>').end()
+		.appendTo(card)
+
+		if (player[Object.keys(quests[questID].requirement)] >= Object.values(quests[questID].requirement)) {
+			questCard.find('.checkbox').addClass('completed')
+		}
+
+		if (player.completedQuests.includes(questID)) {
+			card.append('<label class="completed">Quest completed</label>')
+			return
+		}
+
+		card.append('<label>Reward</label>')
+		for (reward in quests[questID].reward) {
+			card.append(createItemRow(reward, quests[questID].reward[reward]))
+		}
+
+		card.append('<div class="actions"><div class="button yellow disabled">Complete Quest</div></div>')
+		if (player[Object.keys(quests[questID].requirement)] >= Object.values(quests[questID].requirement)) {
+			card.find('.actions .button').removeClass('disabled').attr('onclick','completeQuest("'+questID+'")')
+		}
+
+	}	
 	sound('click')
 }
 
@@ -542,7 +614,7 @@ function openBuyMenu(item) {
 	.append(createItemRow(item))
 	.append(itemStats(item))
 
-	card.append('<label>PRICE:</label>')
+	card.append('<label class="price">PRICE</label>')
 
 	actions = $('<div class="actions"><div class="button yellow">buy</div></div>')
 	actions.find('.button').attr('onclick','buy("'+item+'")')
@@ -573,7 +645,7 @@ function itemStats(item) {
 			stats+='<div class="flex stat"><div class="tip">'+equipments[item][stat]+'</tip></div>'
 		}
 		else if (stat != 'price' && equipments[item][stat] != 0) { 
-			stats+='<div class="flex stat"><label>'+stat+':</label><label>'+equipments[item][stat]+'</label></div>'
+			stats+='<div class="flex stat"><label>'+stat+'</label><label>'+equipments[item][stat]+'</label></div>'
 		}
 	}
 	return stats
@@ -583,6 +655,7 @@ function buy(item) {
 	for (requiredItem in equipments[item].price) {
 		amountRequired = equipments[item].price[requiredItem]
 		player.backpack[requiredItem] = player.backpack[requiredItem]-amountRequired
+		log('Paid '+amountRequired+' '+requiredItem, requiredItem)
 	}
 
 	acquireItem(item)
@@ -591,6 +664,7 @@ function buy(item) {
 	$('.card.backpack').show()
 	pop($('.card.backpack').find('[type='+item+']'))
 	sound('heavy-item')
+	log('Bought '+item, item)
 }
 
 function createItemRow(item, amount) {
@@ -601,6 +675,20 @@ function createItemRow(item, amount) {
     itemLabel = (amount != undefined) ? amount+' '+spcDash(item) : spcDash(item);
 		itemRow.append('<label>'+itemLabel+'</label>')
     return itemRow
+}
+
+function completeQuest(questID) {
+	player.completedQuests.push(questID)
+	log('Quest completed', 'crown')
+
+	for (reward in quests[questID].reward) {
+		let amount = quests[questID].reward[reward];
+		log('Rewarded '+(amount > 1 ? amount+' ' : '')+reward, reward)
+		acquireItem(reward, amount)
+	}
+
+	closeCard()
+	sound('quest')
 }
 
 function setHeroAndBackpack() {
@@ -617,7 +705,7 @@ function setHeroAndBackpack() {
 	if (player.equipments.weapon == '') { player.equipments.weapon = 'none' }
     hero.append('<img src="assets/weapon-' + (player.equipments.weapon || 'none') + '.png" class="weapon" />');
 
-	$('.bar.gold .value').html(player.backpack.gold);
+	$('.bar.gold .value').html(player.backpack.gold.toLocaleString());
 
     $('.backpack .thumb').remove();
     for (item in player.backpack) {
@@ -647,13 +735,13 @@ function setHeroAndBackpack() {
 
 function recover() {
 	player.hp = Math.min(player.hp + player.maxHp * 0.001, player.maxHp);
-	player.mp = Math.min(player.mp + player.maxMp * 0.002, player.maxMp);
+	player.mp = Math.min(player.mp + player.maxMp * 0.003, player.maxMp);
 
 	if (player.hp < 0) { player.hp = 0 }
 
-	$('.bar.hp').find('.value').html(Math.floor(player.hp)+'/'+player.maxHp)
+	$('.bar.hp').find('.value').html(Math.floor(player.hp))
 	$('.bar.hp').find('.fill').css('width', player.hp/player.maxHp*100+'%')
-	$('.bar.mp').find('.value').html(Math.floor(player.mp)+'/'+player.maxMp)
+	$('.bar.mp').find('.value').html(Math.floor(player.mp))
 	$('.bar.mp').find('.fill').css('width', player.mp/player.maxMp*100+'%')
 }
 
@@ -675,10 +763,18 @@ function setTooltips() {
 }
 
 function closeCard(element) {
-	$(element).parents('.card').remove()
+	$('.card.left').remove()
 	$('.card.middle').remove()
 	$('.card.backpack').hide()
 }
+
+$(document).on('click', function(e) {
+	if (!$(e.target).closest('.card').length 
+	&& !$(e.target).closest('.npc').length
+	&& !$(e.target).closest('.backpack').length) {
+		closeCard()
+	}
+})
 
 function resetPlayer() {
 	player = {}
@@ -693,6 +789,8 @@ function resetPlayer() {
 	player.mp = 10
 	player.maxHp = 10
 	player.maxMp = 10
+	player.completedQuests = []
+	player.enemiesSlained = 0
 	save()
 	location.reload()
 }
@@ -708,6 +806,17 @@ function sound(sound) {
 
 function save() {
 	localStorage.setItem('player', JSON.stringify(player))
+}
+
+function log(text, icon) {
+	logItem = $('<div>'+spcDash(text)+'</div>')
+	if (icon) {
+		logItem.prepend('<img src="assets/item-'+icon+'.png" />')
+	}
+	$('.log').append(logItem)
+	setTimeout(function(logItem) {
+		$(logItem).remove()
+	}, 6000, logItem)
 }
 
 function i(element, param) {

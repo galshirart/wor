@@ -13,11 +13,11 @@ body {
 	font-size:12px;
 }
 * {
+	cursor:url(assets/cursor.svg), auto;
 	animation-timing-function: step-end;
 	animation-fill-mode: both;
 	animation-duration: 400ms;
 	box-sizing: border-box;
-	cursor: default;
 	user-select: none;
 }
 .flex {
@@ -47,7 +47,7 @@ body {
 }
 .port {
 	position: absolute;
-	bottom:321px;
+	bottom:320px;
 	width:90px;
 	height:90px;
 	left:580px;
@@ -78,12 +78,26 @@ body {
 	border-radius: 100%;
 	border-top:1px solid rgba(64,0,0,0.05);
 }
-.port.right { left:auto; right:580px; }
-.port.middle { left:calc(50% - 45px) }
+.sparkles {
+	position: absolute;
+	z-index: 10;
+	bottom:320px;
+	width:90px;
+	height:90px;
+	left:580px;
+	background-image: url(assets/sparkles.png);
+	background-size:100%;
+	animation-name: sparkles;
+	animation-duration: 2s;
+	animation-timing-function: linear;
+	animation-iteration-count: infinite;
+}
 @keyframes sparkles {
 	0% { background-position:0 0;  }
 	100% { background-position:0 -90px; }
 }
+.port.right, .sparkles.right { left:auto; right:580px; }
+.port.middle, .sparkles.middle { left:calc(50% - 45px) }
 .overlay {
 	background:white;
 	width:100%;
@@ -143,20 +157,18 @@ body {
  	100% { max-width:30% }
  }
  /* SHADOWS */
-.hero:after, 
 .field .npc:after, 
 .field .enemy:after,
 .field .item:after {
 	content: " ";
-    width: 60%;
-    height: 8%;
+    width: 80%;
+    height: 10%;
     background: #400000;
     position: absolute;
     bottom: 0;
-    left: 20%;
+    left: 10%;
 	border-radius: 100%;
-    opacity: 0.2;
-	z-index: -2;
+    opacity: 0.3;
 }
 
 /************** UI **************/
@@ -198,7 +210,6 @@ h3 {
 	background-position: 50% 50%;
 	background-repeat: no-repeat;
 	background-size:30px;
-	cursor: pointer;
 	border:1px solid #400000;
 	background-color:#FFF6C1;
 	box-shadow: inset 0 -3px 0 rgba(64,0,0,0.2);
@@ -263,6 +274,7 @@ input:focus {
 }
 .card {
     position: absolute;
+	z-index:10;
     width: 386px;
     min-height: 240px;
     backdrop-filter: blur(10px);
@@ -287,7 +299,17 @@ input:focus {
     z-index: -80;
     display: block;
     border-radius: 4px;
-	box-shadow: -1px -1px 0 0 rgba(64, 0, 0, 0.2);
+	box-shadow: 2px 2px 4px 0 rgba(64, 0, 0, 0.3);
+}
+.card:after {
+	content:" ";
+	background-image:url('assets/ui-crown.png');
+	background-size: 64px 18px;
+	width:64px;
+	height:18px;
+	position: absolute;
+	left: calc(50% - 32px);
+    top: -9px;
 }
 .card.left {
 	left:10px;
@@ -304,7 +326,7 @@ input:focus {
 }
 .card > * {
 	padding:8px;
-	border-bottom:1px solid rgba(64,0,0,0.1);
+	border-top:1px solid rgba(64,0,0,0.1);
 	border-radius: 0;
 }
 .card > .x {
@@ -321,6 +343,61 @@ input:focus {
 	padding:6px 10px;
 	border-radius: 8px;
 }
+.card .quest {
+	background:rgba(64,0,0,0.1);
+	padding:6px 10px 10px 10px;
+	border-radius: 8px;
+	border:1px solid #40000020;
+	position: relative;
+}
+.card .quest:before {
+	content: " ";
+	display: block;
+	width:100%;
+	height:100%;
+	background-image:url('assets/ui-crown.png');
+	background-size: 64px 18px;
+	width:64px;
+	height:18px;
+	position: absolute;
+	left: calc(50% - 32px);
+    top: -9px;
+}
+.card .quest .progress {
+	position: absolute;
+    right: 10px;
+    bottom: 9px;
+	opacity: 0.5;
+}
+.checkbox {
+	width: 16px;
+    height: 16px;
+    display: inline-block;
+    border: 1px solid #400000;
+    border-radius: 4px;
+    position: relative;
+    top: 3;
+    margin-right: 6px;
+    background: #40000010;
+}
+.checkbox.completed:after {
+	content: " ";
+	border-right: 2px solid #400000;
+	border-bottom: 2px solid #400000;
+    width: 3px;
+    height: 7px;
+    transform: rotate(45deg);
+    position: absolute;
+    left: 5px;
+    top: 2px;
+}
+.card label.completed {
+	opacity: 0.5;
+	font-size:20px;
+	font-family: 'Dancing Script';
+	text-transform: capitalize;
+	margin-bottom:6px;
+}
 .avatar {
 	width:64px;
 	height:64px;
@@ -329,9 +406,6 @@ input:focus {
 	margin-right:8px;
 	margin-bottom:-20px;
 	background:grey;
-}
-.person-header {
-	margin-bottom:10px;
 }
 .person-header .name {
 	flex: auto;
@@ -346,9 +420,25 @@ input:focus {
 	padding:8px;
 	font-size:14px;
 	margin:2px 0;
+	line-height:150%;
+}
+.item-row {
+	box-shadow: inset 0 1px 0 rgb(255 255 255 / 50%)
+}
+.bar-container {
+	background:#fcf5bc;
+	border-radius: 8px;
+	border:1px solid #400000;
+	transition: all 100ms;
+}
+.bar-container .icon {
+	width:30px;
+}
+.bar-container .icon img {
+	width:30px;
 }
 .bar {
-	width:200px;
+	width:160px;
 	height:30px;
 	display: flex;
 	align-items: center;
@@ -357,27 +447,42 @@ input:focus {
 	position: relative;
 	padding:0 8px;
 	color:white;
-	border-radius: 8px;
 	transition: transform 100ms;
-}
-.bar .fill {
-	left:0px;
-	background:red;
-	height:100%;
-	outline: 1px solid #400000;
-	box-shadow: inset 0 -4px 0 0 rgba(64,0,0,0.20);
-	overflow: hidden;
-	position: relative;
-	border-radius: 0;
+	border-radius: 8px;
 }
 .bar.hp, .bar.mp {
+	border-radius: 0 7px 7px 0;
+	border:0;
 	padding:0;
+	font-size:10px;
+	background:#40000050
 }
 .bar.hp .flex, .bar.mp .flex {
 	position: absolute;
 	padding:0 8px;
 	width:100%;
 	justify-content: space-between;
+}
+.bar .fill {
+	left:0px;
+	height:100%;
+	box-shadow: inset 0 -15px 0 0 rgba(64,0,0,0.20);
+	overflow: hidden;
+	position: relative;
+	outline: 1px solid #400000;
+	border-left: 1px solid #400000;
+	transition: all 100ms;
+}
+.bar .fill:after {
+	content: "";
+	position: absolute;
+	left:1px;
+	top:1px;
+	width:calc(100% - 6px);
+	height:2px;
+	background:white;
+	border-radius: 4px;
+	opacity:0.2;
 }
 .bar.hp .fill {
 	background: #FF426E;
@@ -393,7 +498,8 @@ input:focus {
 	border:1px solid #400000;
 }
 .bar.gold .icon {
-	margin-right:6px;
+	margin-right:4px;
+	margin-left:-2px;
 }
 .button.backpack {
 	background-image:url('assets/button-backpack.png');
@@ -441,9 +547,6 @@ input:focus {
 .thumb.equiped {
 	background-color:#FFE233;
 }
-.npc .item-row {
-	cursor: pointer;
-}
 .npc .item-row:hover {
 	background:rgba(64,0,0,0.05);
 }
@@ -453,8 +556,13 @@ input:focus {
 .item-row .thumb {
 	margin-right:8px;
 }
-.stat.flex label:first-of-type {
-	width:100px
+.stat.flex label:first-of-type, .price {
+	width:60px;
+	font-weight:400;
+}
+.price {
+	width:100%;
+	border-bottom: 1px solid rgba(64, 0, 0, 0.1);
 }
 .card .amount-available {
 	text-align: right;
@@ -472,6 +580,35 @@ input:focus {
 }
 .actions {
 	text-align: right;
+}
+.log {
+	position: absolute;
+	left:10px;
+	bottom:55px;
+	background: linear-gradient(90deg, #FFF6C1 0%, #fff6c100 100%);
+	border-radius: 6px;
+	font-size:10px;
+}
+.log div {
+	padding:0 50px 0 7px;
+	display: flex;
+	align-items: center;
+	line-height:20px;
+	overflow-y: hidden;
+	animation-name:log;
+	animation-duration:6s;
+	animation-timing-function: linear;
+}
+.log div img {
+	width:16px;
+	margin-right:2px;
+	margin-left:-3px;
+}
+@keyframes log {
+	0% { height:0;}
+	3% { height:20px }
+	97% { height:20px; opacity:0.2;}
+	100% { height:0px; opacity:0.2;}
 }
 @keyframes slideUp {
 	0% { transform: translateY(10px); opacity:0}
@@ -519,9 +656,6 @@ input:focus {
 	animation-name: jump;
 	animation-duration: 600ms;
 	transition: margin-bottom 300ms ease-in;
-}
-[mode=fight] {
-	animation-duration: 400ms;
 }
 [mode=fight][atkType='1'], [mode=fight][atkType='1'] .equipment { animation-name:atk-1}
 [mode=fight][atkType='2'], [mode=fight][atkType='2'] .equipment { animation-name:atk-2 }
@@ -617,6 +751,17 @@ input:focus {
 	75% { background-position:-300% 0 }
 	100% { background-position:-300% 0 }
 }
+.hero-shadow {
+	width:50px;
+	height:7px;
+	background:#400000;
+	border-radius: 100%;
+	position: absolute;
+	bottom:321px;
+	left:calc(50% - 25px);
+	z-index:4;
+	opacity:0.3;
+}
 
 /************** WEAPON **************/
 
@@ -636,8 +781,8 @@ input:focus {
 	animation-duration: 600ms;
 }
 @keyframes weapon-rest {
-	0% { left:-2; bottom:-4; transform: rotate(60deg)}
-	50% { left:-2; bottom:-5; transform:rotate(62deg) }
+	0% { left:-3; bottom:-4; transform: rotate(60deg)}
+	50% { left:-3; bottom:-5; transform:rotate(62deg) }
 }
 @keyframes weapon-walk {
 	0% { left:1px; bottom:-6px; transform: rotate(65deg) }
@@ -646,8 +791,8 @@ input:focus {
 	75% { left:-2px; bottom:-5px;transform: rotate(70deg)}
 }
 @keyframes weapon-jump {
-	0% { left:-12; bottom:30; transform:rotate(-20deg)  }
-	50% { left:5 ; bottom:-2; transform:rotate(30deg) }
+	0% { left:-12; bottom:34; transform:rotate(-20deg)  }
+	50% { left:4 ; bottom:2; transform:rotate(30deg) }
 	75% { left:-3 ; bottom:-4; transform:rotate(60deg) }
 }
 @keyframes weapon-1 {
@@ -656,7 +801,7 @@ input:focus {
 	50% { left:30; bottom:10; transform: rotate(90deg); }
 }
 @keyframes weapon-2 {
-	0% { left:0; bottom:8; transform: rotate(30deg); }
+	0% { left:-3; bottom:7; transform: rotate(30deg); }
 	25% { left:-15; bottom:27; transform: rotate(0deg); }
 	50% { left:24; bottom:-3; transform: rotate(120deg); }
 }
@@ -666,13 +811,13 @@ input:focus {
 	50% { left:24; bottom:-3; transform: rotate(120deg); }
 }
 @keyframes weapon-4 {
-	0% { left:3; bottom:-4; transform: rotate(45deg); }
+	0% { left:3; bottom:-5; transform: rotate(45deg); }
 	25% { left:-15; bottom:45; transform: rotate(0deg); }
 	50% { left:24; bottom:-3; transform: rotate(120deg); }
 }
 @keyframes weapon-5 {
-	0% { left:2; bottom:-6; transform: rotate(80deg); }
-	25% { left:0; bottom:-10; transform: rotate(120deg); }
+	0% { left:3; bottom:-5; transform: rotate(80deg); }
+	25% { left:1; bottom:-9; transform: rotate(120deg); }
 	50% { left:24; bottom:39; transform: rotate(0deg); }
 }
 @keyframes weapon-6 {
@@ -683,28 +828,46 @@ input:focus {
 /************** ENEMY **************/
 
 .enemy {
-	background-size: auto 100%;
 	position: absolute;
+	z-index: 1;
 	bottom:321px;
 	transition-property: left;
 	transition-timing-function: linear;
-	animation-name: ping-pong;
+}
+.enemy .image {
+	position: relative;
+	z-index:3;
+	background-size: auto 100%;
 	animation-iteration-count: infinite;
 	animation-duration: 1s;
 }
-@keyframes ping-pong {
-	0% { background-position:0 0 }
-	25% { background-position:-100% 0 }
-	50% { background-position:0 0 }
-	75% { background-position:-200% 0 }
+.enemy[state=move] .image {
+	animation-name: enemy-move;
+}
+@keyframes enemy-move {
+	0% { background-position:-100% 0 }
+	25% { background-position:-200% 0 }
+	50% { background-position:-100% 0 }
+	75% { background-position:-300% 0 }
+}
+.enemy[state=stand] .image {
+	animation-name: enemy-stand;
+	animation-duration: 500ms;
+}
+@keyframes enemy-stand {
+	0% { background-position:-100% 0 }
+	50% { background-position:0% 0 }
+}
+.enemy[state=enemy-hit] .image {
+	animation-name: enemy-hit;
 }
 @keyframes enemy-hit {
-	0% { background-position:-300% 0 }
-	100% { background-position:-300% 0 }
+	0% { background-position:-400% 0 }
+	100% { background-position:-400% 0 }
 }
-.enemy.dead {
+.enemy.dead .image {
 	animation-name: enemy-hit;
-	background-position:-300% 0;
+	background-position:-400% 0;
 	opacity:0.8
 }
 .enemy.dead .hpBar {
@@ -790,7 +953,7 @@ input:focus {
 	100% { transform: translateY(-16px) }
 }
 .field .item:after {
-    opacity: 0.2;
+    opacity: 0.3;
     animation-name:item-shadow;
     animation-duration: 2s;
     animation-iteration-count: infinite;
@@ -809,9 +972,9 @@ input:focus {
 	opacity:0;
 }
 @keyframes picked {
-	0% { transform: translateY(0px) }
+	0% { transform: translateY(-13px) }
 	50% { transform:translateY(-20px) }
-	100% { transform: translateY(0px); opacity:0 }
+	100% { transform: translateY(-13px); opacity:0 }
 }
 .field .item[type=health-bless] {
 	animation-name:item-shine;
@@ -827,25 +990,23 @@ input:focus {
 
 
 .field .npc {
-	width:80px;
-	height:80px;
-	background-size: 240px auto;
 	position: absolute;
-	left:560px;
 	bottom:321px;
-	transition: margin-bottom 300ms ease-in;
-	z-index:3;
-	animation-name: ping-pong;
-	animation-iteration-count: infinite;
-	animation-duration: 800ms;
-	z-index:0;
 	display: flex;
 	justify-content: center;
 	white-space: nowrap;
-	cursor: pointer;
 }
-.field .npc:hover {
-	filter:brightness(1.1);
+.field .npc .image {
+	z-index:3;
+	animation-name: npc;
+	animation-iteration-count: infinite;
+	animation-duration: 800ms;
+}
+@keyframes npc {
+	0% { background-position:0 0 }
+	25% { background-position:-100% 0 }
+	50% { background-position:0 0 }
+	75% { background-position:-200% 0 }
 }
 .field .npc span {
 	opacity:0;
@@ -861,15 +1022,4 @@ input:focus {
 .field .npc:hover span {
 	opacity:1;
 	bottom:-24px;
-}
-.item-row:after {
-	content: " ";
-    position: absolute;
-    width: calc(100% - 12px);
-    background: #fcf5bc;
-    height: 1px;
-    left: 0;
-    right: 0;
-    margin: auto;
-    margin-top: -47px;
 }

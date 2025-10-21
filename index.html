@@ -1,41 +1,39 @@
+<title>World of Rubberia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Syncopate:wght@400;700&family=Roboto+Slab:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Inter:wght@400;700&family=Roboto+Slab:wght@400;600&display=swap" rel="stylesheet">
 <link href="style.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-<script src="https://code.jquery.com/ui/1.14.0/jquery-ui.js"></script>
-
-
-
-
-<!-- <script src="data/data.js"></script> -->
-
-
 
 <script src="game.js" defer></script>
 
 <div class="window">
 	<img class="sky" />
 	<div class="field"></div>
+	<div class="hero-shadow"></div>
 	<div class="hero"></div>
 	<div class="overlay"></div>
 
 	<div class="ui bottom flex">
-
 		<div class="left flex">
-			<div class="transparent bar hp">
-				<div class="fill"></div>
-				<div class="flex">
-					<span class="label">HP</span>
-					<span class="value"></span>
+			<div class="bar-container flex">
+				<div class="icon"><img src="assets/icon-health.png" /></div>
+				<div class="bar hp">
+					<div class="fill"></div>
+					<div class="flex">
+						<span class="value"></span>
+					</div>
 				</div>
 			</div>
 
-			<div class="transparent bar mp">
-				<div class="fill"></div>
-				<div class="flex">
-					<span class="label">MP</span>
-					<span class="value"></span>
+
+			<div class="bar-container flex">
+				<div class="icon"><img src="assets/icon-mana.png" /></div>
+				<div class="bar mp">
+					<div class="fill"></div>
+					<div class="flex">
+						<span class="value"></span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -49,13 +47,14 @@
 			</div>
 			<div class="backpack button round" onclick="$('.card.backpack').toggle(); sound('click')"></div>
 		</div>
-
 	</div>
 
 	<div class="card backpack right bottom hide">
 		<div><h3>BACKPACK</h3></div>
 		<div class="grid"></div>
 	</div>
+
+	<div class="log"></div>
 
 </div>
 
