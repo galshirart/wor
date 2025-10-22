@@ -374,8 +374,8 @@ function collide() {
 
 		player.hp = player.hp-attack
 
-		player.position = player.position-heroDirection*40
-        slideMap()
+		// player.position = player.position-heroDirection*40
+        // slideMap()
 
 		setTimeout(() => {
 			hero.attr('in-damage','false')
@@ -392,12 +392,6 @@ function enemyDeath(enemy) {
 		if (random(1,2) == 1) {
 			itemType = 'gold'
 		}
-		// if (player.mp < player.maxMp/2 && random(1,10) == 1) {
-		// 	itemType = 'mana-bless'
-		// }
-		// if (player.hp < player.maxHp/2 && random(1,10) == 1) {
-		// 	itemType = 'health-bless'
-		// }
 	}
 
 	item = $('<div class="item"></div>').appendTo('.field').css({
@@ -407,6 +401,24 @@ function enemyDeath(enemy) {
 	.attr('type',itemType)
 	.attr('gold-amount',Math.round(average([enemies[enemyType].hp, enemies[enemyType].attack])/3))
 
+	edible = null
+	if (random(1,3) == 1) {
+		if (player.mp < player.maxMp*0.5 && $('.field [edible=mana]').length < 2) {
+			edible = 'mana'
+		} else if (player.hp < player.maxHp*0.5 && $('.field [edible=health]').length < 2) {
+			edible = 'health'
+		}
+	}
+
+	if (edible) {
+		item = $('<div class="item"></div>').appendTo('.field').css({
+			'left': random(600, i('.field .map','width')-600),
+			'background-image': 'url(assets/item-'+maps[player.location].edibles[edible]+'.png)'
+		})
+		.attr('type',maps[player.location].edibles[edible])
+		.attr('edible',edible)
+	}
+	
 	$(enemy).css({
 		'left': i(enemy,'left')
 	}).addClass('dead')
@@ -419,7 +431,8 @@ function enemyDeath(enemy) {
 	}, random(10000,20000), enemyType, player.location)
 
 	if (enemies[enemyType].attack >= 1) {
-		player.enemiesSlained++
+		player.enemiesSlained[enemyType] = (player.enemiesSlained[enemyType] || 0) + 1
+		player.totalEnemiesSlained++
 	}
 	sound(enemies[enemyType].sound)
 	log('Slained '+enemyType, 'slain')
@@ -432,8 +445,22 @@ function pickUp() {
 		{ return }
 
 		$(this).addClass('picked')
-		acquireItem($(this).attr('type'))
-		log('Picked '+$(this).attr('type'), $(this).attr('type'))
+
+		if ($(this).attr('edible')) {
+			edible = $(this).attr('edible')
+			if (edible == 'health') {
+				player.hp += player.maxHp*0.3
+				sound('bless')
+			}
+			if (edible == 'mana') {
+				player.mp += player.maxMp*0.3
+				sound('bless')
+			}
+			log('Consumed '+$(this).attr('type'), $(this).attr('type'))
+		} else {
+			acquireItem($(this).attr('type'))
+			log('Picked '+$(this).attr('type'), $(this).attr('type'))
+		}
 
 		setTimeout(function(item) {
 			$(item).remove()
@@ -447,18 +474,6 @@ function acquireItem(item, amount = 1) {
 		sound('pickup-gold')
 	} else {
 		sound('pickup-item')
-	}
-
-	if (item == 'health-bless') {
-		player.hp += player.maxHp*0.3
-		sound('bless')
-		return
-	}
-
-	if (item == 'mana-bless') {
-		player.mp += player.maxMp*0.3
-		sound('bless')
-		return
 	}
 
 	player.backpack[item] = (player.backpack[item] || 0) + amount;
@@ -581,11 +596,20 @@ function npcClick(npc) {
 
 	if (npcs[npc].type == 'quest') {
 		questID = npcs[npc].questID
+
+		if (quests[questID].type == 'achieve') {
+			availableAmount = player[quests[questID].requirement]
+		}
+
+		if (quests[questID].type == 'collect') {
+			availableAmount = player.backpack[quests[questID].requirement] || 0
+		}
+
 		questCard = $('<div><div class="quest"><span class="checkbox"></span>'+quests[questID].task+'</div></div>')
-		.find('.quest').append('<div class="progress">'+Math.min(player[Object.keys(quests[questID].requirement)], Object.values(quests[questID].requirement))+'/'+Object.values(quests[questID].requirement)+'</div>').end()
+		.find('.quest').append('<div class="progress">'+Math.min(availableAmount, quests[questID].amount)+'/'+quests[questID].amount+'</div>').end()
 		.appendTo(card)
 
-		if (player[Object.keys(quests[questID].requirement)] >= Object.values(quests[questID].requirement)) {
+		if (availableAmount >= quests[questID].amount) {
 			questCard.find('.checkbox').addClass('completed')
 		}
 
@@ -600,7 +624,7 @@ function npcClick(npc) {
 		}
 
 		card.append('<div class="actions"><div class="button yellow disabled">Complete Quest</div></div>')
-		if (player[Object.keys(quests[questID].requirement)] >= Object.values(quests[questID].requirement)) {
+		if (availableAmount >= quests[questID].amount) {
 			card.find('.actions .button').removeClass('disabled').attr('onclick','completeQuest("'+questID+'")')
 		}
 
@@ -678,15 +702,19 @@ function createItemRow(item, amount) {
 }
 
 function completeQuest(questID) {
-	player.completedQuests.push(questID)
-	log('Quest completed', 'crown')
+	if (quests[questID].type == 'collect') {
+		player.backpack[quests[questID].requirement] -= quests[questID].amount
+		log('Delivered '+(quests[questID].amount > 1 ? quests[questID].amount+' ' : '')+quests[questID].requirement, quests[questID].requirement)
+	}
 
 	for (reward in quests[questID].reward) {
-		let amount = quests[questID].reward[reward];
+		amount = quests[questID].reward[reward];
 		log('Rewarded '+(amount > 1 ? amount+' ' : '')+reward, reward)
 		acquireItem(reward, amount)
 	}
 
+	player.completedQuests.push(questID)
+	log('Quest completed', 'crown')
 	closeCard()
 	sound('quest')
 }
@@ -703,7 +731,7 @@ function setHeroAndBackpack() {
 	}
 
 	if (player.equipments.weapon == '') { player.equipments.weapon = 'none' }
-    hero.append('<img src="assets/weapon-' + (player.equipments.weapon || 'none') + '.png" class="weapon" />');
+    hero.append('<div class="weapon"><img src="assets/weapon-' + (player.equipments.weapon || 'none') + '.png" /></div>');
 
 	$('.bar.gold .value').html(player.backpack.gold.toLocaleString());
 
@@ -790,7 +818,8 @@ function resetPlayer() {
 	player.maxHp = 10
 	player.maxMp = 10
 	player.completedQuests = []
-	player.enemiesSlained = 0
+	player.enemiesSlained = {}
+	player.totalEnemiesSlained = 0
 	save()
 	location.reload()
 }

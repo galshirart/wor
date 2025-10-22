@@ -347,7 +347,7 @@ input:focus {
 	background:rgba(64,0,0,0.1);
 	padding:6px 10px 10px 10px;
 	border-radius: 8px;
-	border:1px solid #40000020;
+	border:1px solid #40000060;
 	position: relative;
 }
 .card .quest:before {
@@ -751,6 +751,15 @@ input:focus {
 	75% { background-position:-300% 0 }
 	100% { background-position:-300% 0 }
 }
+.hero .hand {
+	background:red;
+	width:10px;
+	height:10px;
+	position: absolute;
+	border-radius: 50%;
+	left: 32px;
+    bottom: 10px;
+}
 .hero-shadow {
 	width:50px;
 	height:7px;
@@ -766,10 +775,13 @@ input:focus {
 /************** WEAPON **************/
 
 .weapon {
-	width:80px;
-	transform-origin: 40px calc(100% - 20px);
+	transform-origin: 48px calc(100% - 28px);
 	animation-name:weapon-rest;
 	animation-iteration-count: infinite;
+}
+.weapon img {
+	width:96px;
+	position: static;
 }
 [mode=walk] .weapon {
 	animation-name:weapon-walk;
@@ -781,49 +793,63 @@ input:focus {
 	animation-duration: 600ms;
 }
 @keyframes weapon-rest {
-	0% { left:-3; bottom:-4; transform: rotate(60deg)}
-	50% { left:-3; bottom:-5; transform:rotate(62deg) }
+	0% { left:-11; bottom:-12; transform: rotate(60deg)}
+	50% { left:-11; bottom:-13; transform:rotate(62deg) }
 }
 @keyframes weapon-walk {
-	0% { left:1px; bottom:-6px; transform: rotate(65deg) }
-	25% { left:-2px; bottom:-5px; transform: rotate(70deg) }
-	50% { left:-5px; bottom:-6px; transform: rotate(75deg) }
-	75% { left:-2px; bottom:-5px;transform: rotate(70deg)}
+	0% { left:-7px; bottom:-14px; transform: rotate(65deg) }
+	25% { left:-10px; bottom:-13px; transform: rotate(70deg) }
+	50% { left:-13px; bottom:-14px; transform: rotate(75deg) }
+	75% { left:-10px; bottom:-13px;transform: rotate(70deg)}
 }
 @keyframes weapon-jump {
-	0% { left:-12; bottom:34; transform:rotate(-20deg)  }
-	50% { left:4 ; bottom:2; transform:rotate(30deg) }
-	75% { left:-3 ; bottom:-4; transform:rotate(60deg) }
+	0% { left:-20; bottom:26; transform:rotate(-20deg)  }
+	50% { left:-4 ; bottom:-6; transform:rotate(30deg) }
+	75% { left:-11 ; bottom:-12; transform:rotate(60deg) }
 }
 @keyframes weapon-1 {
-	0% { left:-5; bottom:6; transform: rotate(60deg); }
-	25% { left:-19; bottom:10; transform: rotate(90deg); }
-	50% { left:30; bottom:10; transform: rotate(90deg); }
+	0% { left:-13; bottom:-2; transform: rotate(60deg); }
+	25% { left:-27; bottom:2; transform: rotate(90deg); }
+	50% { left:22; bottom:2; transform: rotate(90deg); }
 }
 @keyframes weapon-2 {
-	0% { left:-3; bottom:7; transform: rotate(30deg); }
-	25% { left:-15; bottom:27; transform: rotate(0deg); }
-	50% { left:24; bottom:-3; transform: rotate(120deg); }
+	0% { left:-11; bottom:-1; transform: rotate(30deg); }
+	25% { left:-23; bottom:19; transform: rotate(0deg); }
+	50% { left:16; bottom:-11; transform: rotate(120deg); }
 }
 @keyframes weapon-3 {
-	0% { left:-23; bottom:8; transform: rotate(0deg); }
-	25% { left:20; bottom:19; transform: rotate(0deg); }
-	50% { left:24; bottom:-3; transform: rotate(120deg); }
+	0% { left:-31; bottom:0; transform: rotate(0deg); }
+	25% { left:12; bottom:11; transform: rotate(0deg); }
+	50% { left:16; bottom:-11; transform: rotate(120deg); }
 }
 @keyframes weapon-4 {
-	0% { left:3; bottom:-5; transform: rotate(45deg); }
-	25% { left:-15; bottom:45; transform: rotate(0deg); }
-	50% { left:24; bottom:-3; transform: rotate(120deg); }
+	0% { left:-5; bottom:-13; transform: rotate(45deg); }
+	25% { left:-23; bottom:37; transform: rotate(0deg); }
+	50% { left:16; bottom:-11; transform: rotate(120deg); }
 }
 @keyframes weapon-5 {
-	0% { left:3; bottom:-5; transform: rotate(80deg); }
-	25% { left:1; bottom:-9; transform: rotate(120deg); }
-	50% { left:24; bottom:39; transform: rotate(0deg); }
+	0% { left:-5; bottom:-13; transform: rotate(80deg); }
+	25% { left:-7; bottom:-17; transform: rotate(120deg); }
+	50% { left:16; bottom:31; transform: rotate(0deg); }
 }
 @keyframes weapon-6 {
-	0% { left:3; bottom:-4; transform: rotate(45deg); }
-	25% { left:-15; bottom:45; transform: rotate(0deg); }
-	50% { left:18; bottom:-12; transform: rotate(0); }
+	0% { left:-5; bottom:-12; transform: rotate(45deg); }
+	25% { left:-23; bottom:37; transform: rotate(0deg); }
+	50% { left:10; bottom:-20; transform: rotate(0); }
+}
+.weapon:after {
+	content: " ";
+	display: block;
+	width: 10px;
+	height: 10px;
+	background: #FFE233;
+	position: absolute;
+	bottom: 22px;
+	left:43px;
+	z-index: 100;
+	border-radius: 50%;
+	border-right: 1px solid #400000;
+	border-bottom: 1px solid #400000;
 }
 /************** ENEMY **************/
 
@@ -916,7 +942,7 @@ input:focus {
 .hit img:nth-child(6) { animation-delay: 150ms; }
 .enemy .hpBar {
 	opacity:0;
-	top: -20px;
+	top: -16px;
 	width: 100%;
 	height: 8px;
 	position: absolute;
