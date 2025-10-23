@@ -903,6 +903,7 @@ input:focus {
 	background: linear-gradient(-90deg, #400000, white);
 	bottom:349px;
 	z-index: 6;
+	transition: 0;
 }
 
 /************** ENEMY **************/
