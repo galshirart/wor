@@ -115,13 +115,14 @@ body {
 	position: absolute;
 	width:100%;
 	top:50px;
-	font-size:40px;
+	font-size:32px;
+	line-height: 51px;
+	height:66px;
 	text-align: center;
 	font-family: 'Dancing Script';
 	text-transform: capitalize;
 	display: flex;
 	justify-content: center;
-	height:66px;
 	animation-name: mapsign;
 	animation-timing-function: ease-out;
 	animation-duration:3s;
