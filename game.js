@@ -431,8 +431,8 @@ function collide() {
 
 		player.hp = player.hp-attack
 
-		// player.position = player.position-heroDirection*40
-        // slideMap()
+		player.position = player.position-heroDirection*40
+        slideMap()
 
 		setTimeout(() => {
 			hero.attr('in-damage','false')
