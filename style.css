@@ -551,10 +551,10 @@ input:focus {
 .thumb.equiped {
 	background-color:#FFE233;
 }
-.npc .item-row:hover {
+.npc.shop .item-row:hover {
 	background:rgba(64,0,0,0.05);
 }
-.npc .item-row:active {
+.npc.shop .item-row:active {
 	background:rgba(64,0,0,0.1);
 }
 .item-row .thumb {
