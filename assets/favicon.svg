@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Frame</title>
+    <defs>
+        <path d="M0,0 L32,0 L32,32 L0,32 L0,0 Z" id="path-1"></path>
+        <path d="M10.795579,5 L13,5 C15.7614237,5 18,7.23857625 18,10 C18,12.7614237 15.7614237,15 13,15 L10.795579,15 C8.03415529,15 5.79557904,12.7614237 5.79557904,10 C5.79557904,7.23857625 8.03415529,5 10.795579,5 Z" id="path-2"></path>
+        <filter x="-12.3%" y="-15.0%" width="124.6%" height="130.0%" filterUnits="objectBoundingBox" id="filter-3">
+            <feOffset dx="0" dy="-3" in="SourceAlpha" result="shadowOffsetInner1"></feOffset>
+            <feComposite in="shadowOffsetInner1" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="shadowInnerInner1"></feComposite>
+            <feColorMatrix values="0 0 0 0 0.250980392   0 0 0 0 0   0 0 0 0 0  0 0 0 0.2 0" type="matrix" in="shadowInnerInner1"></feColorMatrix>
+        </filter>
+        <path d="M6.79557904,10 L17.1330897,10" id="path-4"></path>
+        <filter x="-24.2%" y="-200.0%" width="148.4%" height="500.0%" filterUnits="objectBoundingBox" id="filter-5">
+            <feOffset dx="0" dy="-4" in="SourceAlpha" result="shadowOffsetInner1"></feOffset>
+            <feComposite in="shadowOffsetInner1" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="shadowInnerInner1"></feComposite>
+            <feColorMatrix values="0 0 0 0 0.250980392   0 0 0 0 0   0 0 0 0 0  0 0 0 0.2 0" type="matrix" in="shadowInnerInner1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="Frame" stroke="none" fill="none" xlink:href="#path-1">
+        <use fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-1"></use>
+        <circle id="Oval" stroke="#400000" stroke-width="1" fill="#FFE233" fill-rule="evenodd" cx="16" cy="16" r="15.5"></circle>
+        <ellipse id="Oval" stroke="#400000" stroke-width="1" fill="#FFFFFF" fill-rule="evenodd" transform="translate(6, 14.5) rotate(-15) translate(-6, -14.5)" cx="6" cy="14.5" rx="2.5" ry="3"></ellipse>
+        <ellipse id="Oval" stroke="#400000" stroke-width="1" fill="#FFFFFF" fill-rule="evenodd" transform="translate(26, 14.5) scale(-1, 1) rotate(-15) translate(-26, -14.5)" cx="26" cy="14.5" rx="2.5" ry="3"></ellipse>
+        <g id="beak-open" transform="translate(4, 10)">
+            <g id="Rectangle">
+                <use fill="#FF7533" fill-rule="evenodd" xlink:href="#path-2"></use>
+                <use fill="black" fill-opacity="1" filter="url(#filter-3)" xlink:href="#path-2"></use>
+                <path stroke="#400000" stroke-width="1" d="M10.795579,5.5 L13,5.5 C14.2426407,5.5 15.3676407,6.00367966 16.1819805,6.81801948 C16.9963203,7.63235931 17.5,8.75735931 17.5,10 C17.5,11.2426407 16.9963203,12.3676407 16.1819805,13.1819805 C15.3676407,13.9963203 14.2426407,14.5 13,14.5 L10.795579,14.5 C9.55293835,14.5 8.42793835,13.9963203 7.61359852,13.1819805 C6.79925869,12.3676407 6.29557904,11.2426407 6.29557904,10 C6.29557904,8.75735931 6.79925869,7.63235931 7.61359852,6.81801948 C8.42793835,6.00367966 9.55293835,5.5 10.795579,5.5 Z" stroke-linejoin="square"></path>
+            </g>
+            <g id="Path-5">
+                <use fill="#400000" fill-rule="evenodd" xlink:href="#path-4"></use>
+                <use fill="black" fill-opacity="1" filter="url(#filter-5)" xlink:href="#path-4"></use>
+                <path stroke="#400000" stroke-width="1" d="M6.79557904,10 L17.1330897,10" stroke-linejoin="square"></path>
+            </g>
+            <ellipse id="Oval" fill="#FFE233" fill-rule="evenodd" transform="translate(13.5, 7) rotate(-345) translate(-13.5, -7)" cx="13.5" cy="7" rx="1.5" ry="1"></ellipse>
+        </g>
+    </g>
+</svg>
