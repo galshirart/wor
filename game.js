@@ -560,7 +560,7 @@ function sellItem(item) {
 	
 	$('.npc.sell').append('<label>SELL FOR:</label>')
 	.append(createItemRow('gold',amount*calcItemPrice(item)).addClass('sell-price'))
-	.append('<div class="actions"><div class="button yellow">SELL</div></div>')
+	.append('<div class="actions"><div class="button yellow sell">SELL</div></div>')
 
 	$('.npc.sell input').on('input',function() {
 		if ($(this).val() > player.backpack[item] || $(this).val() < 1) {
@@ -636,7 +636,6 @@ function npcClick(npc) {
 	card = $('<div class="card left npc"></div>').appendTo('.window')
 	.addClass(npcs[npc].type)
 	.append($('.person-header').clone())
-	.append('<div class="button x round" onclick="closeCard(this)"></div>')
 	.append('<div class="speech"><div>'+npcs[npc].speech+'</div></div>')
 	card.find('h3').html(spcDash(npc))
 	card.find('label').html(npcs[npc].title)
@@ -865,6 +864,7 @@ function closeCard(element) {
 $(document).on('click', function(e) {
 	if (!$(e.target).closest('.card').length 
 	&& !$(e.target).closest('.npc').length
+	&& !$(e.target).closest('.button.sell').length
 	&& !$(e.target).closest('.backpack').length) {
 		closeCard()
 	}
