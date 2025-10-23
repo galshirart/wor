@@ -316,7 +316,7 @@ function useSkill(key) {
         'background-image': 'url(assets/skill-'+skill+'.png)'
     })
 
-    if (skill == 'surge') {
+    if (skill == 'surge' && equipments[player.equipments.weapon].type == 'melee') {
         fight(atkType=1, rangeStart=0,rangeEnd=120, skills[skill].atkMultiplier, maxTargets=2)
         sound('swoosh')
         hero.after(skillSprite)
@@ -324,7 +324,7 @@ function useSkill(key) {
         slideMap()
     }
 
-    if (skill == 'impact') {
+    if (skill == 'impact' && equipments[player.equipments.weapon].type == 'melee') {
         fight(atkType=6, rangeStart=-100,rangeEnd=80, skills[skill].atkMultiplier, maxTargets=6)
         sound('spell-1')
         setTimeout(function() {
