@@ -790,7 +790,7 @@ function setHeroAndBackpack() {
 	if (player.equipments.weapon == '') { player.equipments.weapon = 'none' }
 
 	if ( equipments[player.equipments.weapon].type == 'melee') {
-    	hero.append('<div class="weapon"><img src="assets/weapon-'+player.equipments.weapon+'.png" /></div>')
+    	hero.append('<div class="weapon" name="'+player.equipments.weapon+'"><img src="assets/weapon-'+player.equipments.weapon+'.png" /></div>')
 	}
 
 	if ( equipments[player.equipments.weapon].type == 'range') {

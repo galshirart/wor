@@ -857,6 +857,9 @@ input:focus {
 	border-right: 1px solid #400000;
 	border-bottom: 1px solid #400000;
 }
+.weapon[name='none']:after {
+	display: none;
+}
 
 
 /************** BOW **************/
