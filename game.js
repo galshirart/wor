@@ -36,7 +36,7 @@ function initGame() {
 			case 90: pickUp(); break;
 			case 38: usePort(); break;
 			case 66: $('.card.backpack').toggle(); break;
-			case 27: $('.x').click(); $('.card.backpack').hide(); break;
+			case 27: closeCard(); break;
 		}
 	}
 	
