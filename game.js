@@ -896,7 +896,11 @@ function teleport(location) {
 }
 
 function sound(sound) {
-	new Audio('sounds/'+sound+'.wav').play()
+	let audio = new Audio('sounds/'+sound+'.wav');
+	if (sound === 'attack-7') {
+		audio.volume = 0.5;
+	}
+	audio.play();
 }
 
 function save() {
