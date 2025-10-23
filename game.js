@@ -560,7 +560,7 @@ function sellItem(item) {
 	
 	$('.npc.sell').append('<label>SELL FOR:</label>')
 	.append(createItemRow('gold',amount*calcItemPrice(item)).addClass('sell-price'))
-	.append('<div class="actions"><div class="button yellow sell">SELL</div></div>')
+	.append('<div class="actions"><div class="button" onclick="closeCard()">CANCEL</div><div class="button yellow sell">SELL</div></div>')
 
 	$('.npc.sell input').on('input',function() {
 		if ($(this).val() > player.backpack[item] || $(this).val() < 1) {
@@ -570,7 +570,7 @@ function sellItem(item) {
 		$('.npc.sell .sell-price label').html(amount*calcItemPrice(item))
 	})
 
-	$('.npc.sell .actions .button').click(function() {
+	$('.npc.sell .actions .button.sell').click(function() {
 		player.backpack[item] = player.backpack[item]-amount
 
 		for (category in player.equipments) {
@@ -859,6 +859,7 @@ function closeCard(element) {
 	$('.card.left').remove()
 	$('.card.middle').remove()
 	$('.card.backpack').hide()
+	sound('click')
 }
 
 $(document).on('click', function(e) {

@@ -288,6 +288,7 @@ input:focus {
     animation-timing-function: ease-out;
     animation-duration: 200ms;
     padding: 4px;
+	box-shadow: 3px 5px 0 #40000020;
 }
 .card:before {
 	content: " ";
@@ -357,7 +358,7 @@ input:focus {
 	display: block;
 	width:100%;
 	height:100%;
-	background-image:url('assets/ui-crown.png');
+	background-image:url('assets/ui-crown-quest.png');
 	background-size: 64px 18px;
 	width:64px;
 	height:18px;
@@ -582,6 +583,9 @@ input:focus {
 }
 .actions {
 	text-align: right;
+}
+.actions .button {
+	margin-left:4px
 }
 .log {
 	position: absolute;
