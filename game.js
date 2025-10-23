@@ -182,6 +182,10 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
     attackCooldown = true;
     mode('fight')
 
+	if (equipments[player.equipments.weapon].type == 'range') {
+		atkType = 7
+	}
+
     hero.attr('atkType',atkType)
     $('.weapon').css('animation-name','weapon-'+atkType)
     sound('attack-'+atkType)
@@ -196,49 +200,89 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 
     // showRange(x1,x2)
 
-    setTimeout(()=> {  
-        enemiesAttacked = 0
-        $('.enemy[active=true]').each(function() {
-            if ( x1 > i($(this),'left')+i($(this),'width') || x2 < i($(this),'left') ) return
-
-			attack = 1 // hitting with bare hands if there is no weapon equipped
-			if (equipments[player.equipments.weapon]) {
-            	attack = spread(equipments[player.equipments.weapon].attack*atkMultiplier,20)
+	if (equipments[player.equipments.weapon].type == 'melee') {
+		setTimeout(() => {
+			handleAttackHits(x1, x2, atkMultiplier, maxTargets)
+		}, 200)
+	}
+	if (equipments[player.equipments.weapon].type == 'range') {
+		x1 = player.position-10
+		x2 = player.position+10
+		projectileElement = $('<div class="projectile"></div>').css({
+			'left': x1-20,
+			'transform': 'scaleX('+heroDirection+')'
+		}).appendTo('.field')
+		projectile = setInterval((direction) => {
+			// showRange(x1,x2)
+			x1 = x1 + direction*10;
+			x2 = x2 + direction*10;
+			projectileElement.css('left', x1-20)
+			handleAttackHits(x1, x2, atkMultiplier, maxTargets)
+			if (Math.abs(x1 - player.position) > 500) {
+				clearInterval(projectile);
+				projectileElement.remove();
 			}
-
-            $(this).attr('state', 'enemy-hit')
-            .attr('angry','true')
-            .attr('hp', $(this).attr('hp')-attack)
-			.attr('hit-count', $(this).attr('hit-count')*1+1)
-			.css({
-				'left': i($(this),'left')+heroDirection*5+'px',
-				'transition-duration': '0ms',
-			})
-            .find('.bar').css('width', $(this).attr('hp')/enemies[$(this).attr('type')].hp*100+'%')
-
-			$(this).attr('attacked','true')
-
-            hit = $('<div class="hit">'+prettyNumber(attack,'yellow')+'</div>').css('left', i($(this),'left')).appendTo('.field')
-            setTimeout((hit)=> { hit.remove() },800, hit)
-
-            if ( $(this).attr('hp') <= 0 ) { enemyDeath($(this)) } 
-            else { setTimeout(() => {
-				enemyMove($(this), $(this).attr('hit-count'))
-			}, 200) }
-        
-            setTimeout(function() {
-                sound('hit-'+random(1,3)) 
-            },enemiesAttacked*50)
-
-            if (++enemiesAttacked == maxTargets) return false
-        });
-    },200)
-
+		}, 10, heroDirection)
+	}
     setTimeout(() => { 
         mode('rest')
         $('.weapon').css('animation-name','')
-        attackCooldown = false;
+
+		if (equipments[player.equipments.weapon].type == 'range') {
+			setTimeout(() => {
+				attackCooldown = false;
+			}, 200)
+		} else {
+			attackCooldown = false;
+		}
+
     },390)
+}
+
+
+function handleAttackHits(x1, x2, atkMultiplier, maxTargets) {
+    let enemiesAttacked = 0
+    $('.enemy[active=true]').each(function() {
+        if ( x1 > i($(this),'left')+i($(this),'width') || x2 < i($(this),'left') ) return
+
+        attack = 1 // hitting with bare hands if there is no weapon equipped
+        if (equipments[player.equipments.weapon]) {
+            attack = spread(equipments[player.equipments.weapon].attack*atkMultiplier,20)
+        }
+
+        $(this).attr('state', 'enemy-hit')
+        .attr('angry','true')
+        .attr('hp', $(this).attr('hp')-attack)
+        .attr('hit-count', $(this).attr('hit-count')*1+1)
+        .css({
+            'left': i($(this),'left')+heroDirection*5+'px',
+            'transition-duration': '0ms',
+        })
+        .find('.bar').css('width', $(this).attr('hp')/enemies[$(this).attr('type')].hp*100+'%')
+
+        $(this).attr('attacked','true')
+
+        hit = $('<div class="hit">'+prettyNumber(attack,'yellow')+'</div>').css('left', i($(this),'left')).appendTo('.field')
+        setTimeout((hit)=> { hit.remove() },800, hit)
+
+        if ( $(this).attr('hp') <= 0 ) { enemyDeath($(this)) } 
+        else { setTimeout(() => {
+            enemyMove($(this), $(this).attr('hit-count'))
+        }, 200) }
+    
+        setTimeout(function() {
+            sound('hit-'+random(1,3)) 
+        },enemiesAttacked*50)
+
+        if (++enemiesAttacked == maxTargets) {
+			if (equipments[player.equipments.weapon].type == 'range') {	
+				clearInterval(projectile)
+				projectileElement.remove()
+			}
+
+			return false
+		}
+    });
 }
 
 function useSkill(key) {
@@ -482,9 +526,9 @@ function acquireItem(item, amount = 1) {
 
 function useItem(item) {
 	if (equipments.hasOwnProperty(item)) { 
-		itemType = equipments[item].type
-		isEquipped = player.equipments[itemType] == item
-		player.equipments[itemType] = isEquipped ? '' : item;
+		itemCategory = equipments[item].category
+		isEquipped = player.equipments[itemCategory] == item
+		player.equipments[itemCategory] = isEquipped ? '' : item;
 		sound('heavy-item')
 		log((isEquipped ? 'unequipped ' : 'equipped ') + item, item)
 	}
@@ -516,9 +560,9 @@ function sellItem(item) {
 	$('.npc.sell .actions .button').click(function() {
 		player.backpack[item] = player.backpack[item]-amount
 
-		for (type in player.equipments) {
-			if (player.equipments[type] == item && player.backpack[item] < 1) {
-				player.equipments[type] = ''
+		for (category in player.equipments) {
+			if (player.equipments[category] == item && player.backpack[item] < 1) {
+				player.equipments[category] = ''
 			}
 		}
 
@@ -723,15 +767,26 @@ function setHeroAndBackpack() {
     hero = $('.hero').html('');
 
 	if (player.equipments.shield ) {
-		hero.append('<div style="background-image:url(assets/shield-' + player.equipments.shield + '.png)" class="equipment"/>');
+		hero.append('<div style="background-image:url(assets/shield-' + player.equipments.shield + '.png)" class="equipment"/>')
 	}
 
 	if (player.equipments.hat ) {
-		hero.append('<div style="background-image:url(assets/hat-' + player.equipments.hat + '.png)" class="equipment"/>');
+		hero.append('<div style="background-image:url(assets/hat-' + player.equipments.hat + '.png)" class="equipment"/>')
 	}
 
 	if (player.equipments.weapon == '') { player.equipments.weapon = 'none' }
-    hero.append('<div class="weapon"><img src="assets/weapon-' + (player.equipments.weapon || 'none') + '.png" /></div>');
+
+	if ( equipments[player.equipments.weapon].type == 'melee') {
+		console.log('melee')
+    	hero.append('<div class="weapon"><img src="assets/weapon-'+player.equipments.weapon+'.png" /></div>')
+	}
+
+	if ( equipments[player.equipments.weapon].type == 'range') {
+    	hero.append('<div class="weapon range""></div>')
+		hero.find('.weapon').css('background-image','url(assets/weapon-'+player.equipments.weapon+'.png)')
+
+		hero.find('.weapon').attr('type','range')
+	}
 
 	$('.bar.gold .value').html(player.backpack.gold.toLocaleString());
 
@@ -750,9 +805,9 @@ function setHeroAndBackpack() {
             delete player.backpack[item];
         }
     }
-    for (type in player.equipments) {
-        if (player.equipments[type]) {
-            $('.backpack').find('[type=' + player.equipments[type] + ']').addClass('equiped');
+    for (item in player.equipments) {
+        if (player.equipments[item]) {
+            $('.backpack').find('[type=' + player.equipments[item] + ']').addClass('equiped');
         }
     }
 	

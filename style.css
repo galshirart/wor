@@ -663,6 +663,7 @@ input:focus {
 [mode=fight][atkType='4'], [mode=fight][atkType='4'] .equipment { animation-name:atk-4 }
 [mode=fight][atkType='5'], [mode=fight][atkType='5'] .equipment { animation-name:atk-5 }
 [mode=fight][atkType='6'], [mode=fight][atkType='6'] .equipment { animation-name:atk-6 }
+[mode=fight][atkType='7'], [mode=fight][atkType='7'] .equipment { animation-name:atk-7 }
 
 .hero.jumping {
 	margin-bottom:80px;
@@ -730,6 +731,11 @@ input:focus {
 	25% { background-position-x: -1360px; }
 	50% { background-position-x: -1600px; }
 }
+@keyframes atk-7 {
+	0% { background-position-x: -720px; }
+	25% { background-position-x: -800px; }
+	50% { background-position-x: -800px; }
+}
 .skill {
 	width:600px;
 	height:600px;
@@ -775,7 +781,7 @@ input:focus {
 /************** WEAPON **************/
 
 .weapon {
-	transform-origin: 48px calc(100% - 28px);
+	transform-origin: 48px calc(100% - 36px);
 	animation-name:weapon-rest;
 	animation-iteration-count: infinite;
 }
@@ -793,49 +799,49 @@ input:focus {
 	animation-duration: 600ms;
 }
 @keyframes weapon-rest {
-	0% { left:-11; bottom:-12; transform: rotate(60deg)}
-	50% { left:-11; bottom:-13; transform:rotate(62deg) }
+	0% { left:-11; bottom:-21; transform: rotate(60deg)}
+	50% { left:-11; bottom:-22; transform:rotate(62deg) }
 }
 @keyframes weapon-walk {
-	0% { left:-7px; bottom:-14px; transform: rotate(65deg) }
-	25% { left:-10px; bottom:-13px; transform: rotate(70deg) }
-	50% { left:-13px; bottom:-14px; transform: rotate(75deg) }
-	75% { left:-10px; bottom:-13px;transform: rotate(70deg)}
+	0% { left:-7px; bottom:-22px; transform: rotate(65deg) }
+	25% { left:-10px; bottom:-21px; transform: rotate(70deg) }
+	50% { left:-13px; bottom:-22px; transform: rotate(75deg) }
+	75% { left:-10px; bottom:-21px;transform: rotate(70deg)}
 }
 @keyframes weapon-jump {
-	0% { left:-20; bottom:26; transform:rotate(-20deg)  }
-	50% { left:-4 ; bottom:-6; transform:rotate(30deg) }
-	75% { left:-11 ; bottom:-12; transform:rotate(60deg) }
+	0% { left:-20; bottom:18; transform:rotate(-20deg)  }
+	50% { left:-4 ; bottom:-14; transform:rotate(30deg) }
+	75% { left:-11 ; bottom:-20; transform:rotate(60deg) }
 }
 @keyframes weapon-1 {
-	0% { left:-13; bottom:-2; transform: rotate(60deg); }
-	25% { left:-27; bottom:2; transform: rotate(90deg); }
-	50% { left:22; bottom:2; transform: rotate(90deg); }
+	0% { left:-13; bottom:-10; transform: rotate(60deg); }
+	25% { left:-27; bottom:-6; transform: rotate(90deg); }
+	50% { left:22; bottom:-6; transform: rotate(90deg); }
 }
 @keyframes weapon-2 {
-	0% { left:-11; bottom:-1; transform: rotate(30deg); }
-	25% { left:-23; bottom:19; transform: rotate(0deg); }
-	50% { left:16; bottom:-11; transform: rotate(120deg); }
+	0% { left:-11; bottom:-9; transform: rotate(30deg); }
+	25% { left:-23; bottom:11; transform: rotate(0deg); }
+	50% { left:16; bottom:-19; transform: rotate(120deg); }
 }
 @keyframes weapon-3 {
-	0% { left:-31; bottom:0; transform: rotate(0deg); }
-	25% { left:12; bottom:11; transform: rotate(0deg); }
-	50% { left:16; bottom:-11; transform: rotate(120deg); }
+	0% { left:-31; bottom:-8; transform: rotate(0deg); }
+	25% { left:12; bottom:3; transform: rotate(0deg); }
+	50% { left:16; bottom:-19; transform: rotate(120deg); }
 }
 @keyframes weapon-4 {
-	0% { left:-5; bottom:-13; transform: rotate(45deg); }
-	25% { left:-23; bottom:37; transform: rotate(0deg); }
-	50% { left:16; bottom:-11; transform: rotate(120deg); }
+	0% { left:-5; bottom:-21; transform: rotate(45deg); }
+	25% { left:-23; bottom:29; transform: rotate(0deg); }
+	50% { left:16; bottom:-19; transform: rotate(120deg); }
 }
 @keyframes weapon-5 {
-	0% { left:-5; bottom:-13; transform: rotate(80deg); }
-	25% { left:-7; bottom:-17; transform: rotate(120deg); }
-	50% { left:16; bottom:31; transform: rotate(0deg); }
+	0% { left:-5; bottom:-21; transform: rotate(80deg); }
+	25% { left:-7; bottom:-25; transform: rotate(120deg); }
+	50% { left:16; bottom:23; transform: rotate(0deg); }
 }
 @keyframes weapon-6 {
-	0% { left:-5; bottom:-12; transform: rotate(45deg); }
-	25% { left:-23; bottom:37; transform: rotate(0deg); }
-	50% { left:10; bottom:-20; transform: rotate(0); }
+	0% { left:-5; bottom:-20; transform: rotate(45deg); }
+	25% { left:-23; bottom:29; transform: rotate(0deg); }
+	50% { left:10; bottom:-28; transform: rotate(0); }
 }
 .weapon:after {
 	content: " ";
@@ -844,13 +850,58 @@ input:focus {
 	height: 10px;
 	background: #FFE233;
 	position: absolute;
-	bottom: 22px;
+	bottom: 31px;
 	left:43px;
 	z-index: 100;
 	border-radius: 50%;
 	border-right: 1px solid #400000;
 	border-bottom: 1px solid #400000;
 }
+
+
+/************** BOW **************/
+
+.weapon[type='range'] {
+	width: 96px;
+	height:74px;
+	background-size: auto 74px;
+}
+.weapon[type='range']:after {
+	transform: rotate(-150deg);
+}
+[mode=rest] .weapon[type='range'] {
+	animation-name: weapon-range-rest;
+}
+@keyframes weapon-range-rest {
+	0% { left:-10; bottom:-21; transform: rotate(168deg)}
+	50% { left:-10; bottom:-22; transform:rotate(170deg) }
+}
+[mode=walk] .weapon[type='range'] {
+	animation-name: weapon-range-walk;
+}
+@keyframes weapon-range-walk {
+	0% { left:-7px; bottom:-22px; transform: rotate(165deg) }
+	25% { left:-10px; bottom:-21px; transform: rotate(170deg) }
+	50% { left:-13px; bottom:-22px; transform: rotate(175deg) }
+	75% { left:-10px; bottom:-21px;transform: rotate(170deg)}
+}
+@keyframes weapon-7 {
+	0% { left:5; bottom:-8; transform: rotate(90deg); background-position: 0 0; }
+	25% { left:10; bottom:-6; transform: rotate(90deg); background-position: -100% 0; }
+	50% { left:10; bottom:-6; transform: rotate(90deg); background-position: 0 0; }
+}
+[mode=fight] .weapon[type='range']:after {
+	display: none;
+}
+.projectile {
+	position: absolute;
+	width: 80px;
+	height: 1px;
+	background: linear-gradient(-90deg, #400000, white);
+	bottom:346px;
+	z-index: 6;
+}
+
 /************** ENEMY **************/
 
 .enemy {
