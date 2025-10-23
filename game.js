@@ -890,11 +890,6 @@ function resetPlayer() {
 	location.reload()
 }
 
-function teleport(location) {
-	player.location = location
-	enterMap(player.location)
-}
-
 function sound(sound) {
 	let audio = new Audio('sounds/'+sound+'.wav');
 	if (sound === 'attack-7') {
@@ -975,6 +970,11 @@ function shake(element) {
 	setTimeout(()=> {
 		$(element).css('transform','none')
 	},200)
+}
+
+function teleport(location) {
+	player.location = location
+	enterMap(player.location)
 }
 
 function showRange(x1,x2) {
