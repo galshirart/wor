@@ -23,6 +23,7 @@ function initGame() {
 	heroDirection = 1
 	attackCooldown = false;
 	skillCooldown = false;
+	projectileActive = false;
 
 	document.onkeydown = (e) => {
 		switch(e.keyCode) {
@@ -205,25 +206,37 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 			handleAttackHits(x1, x2, atkMultiplier, maxTargets)
 		}, 200)
 	}
+
 	if (equipments[player.equipments.weapon].type == 'range') {
-		x1 = player.position-10
-		x2 = player.position+10
-		projectileElement = $('<div class="projectile"></div>').css({
-			'left': x1-20,
-			'transform': 'scaleX('+heroDirection+')'
-		}).appendTo('.field')
-		projectile = setInterval((direction) => {
-			// showRange(x1,x2)
-			x1 = x1 + direction*10;
-			x2 = x2 + direction*10;
-			projectileElement.css('left', x1-20)
-			handleAttackHits(x1, x2, atkMultiplier, maxTargets)
-			if (Math.abs(x1 - player.position) > 500) {
-				clearInterval(projectile);
-				projectileElement.remove();
-			}
-		}, 10, heroDirection)
+		if (projectileActive) { 
+			clearInterval(projectile)
+			projectileElement.remove()
+			projectileActive = false;
+		}
+
+		setTimeout(() => {
+			x1 = player.position-10
+			x2 = player.position+10
+			projectileElement = $('<div class="projectile"></div>').css({
+				'left': x1-20,
+				'transform': 'scaleX('+heroDirection+')'
+			}).appendTo('.field')
+
+			projectile = setInterval((direction) => {
+				projectileActive = true;
+				// showRange(x1,x2)
+				x1 = x1 + direction*10;
+				x2 = x2 + direction*10;
+				projectileElement.css('left', x1-20)
+				handleAttackHits(x1, x2, atkMultiplier, maxTargets)
+				if (Math.abs(x1 - player.position) > 500) {
+					clearInterval(projectile);
+					projectileElement.remove();
+				}
+			}, 10, heroDirection)
+		}, 200)
 	}
+
     setTimeout(() => { 
         mode('rest')
         $('.weapon').css('animation-name','')
@@ -231,7 +244,7 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 		if (equipments[player.equipments.weapon].type == 'range') {
 			setTimeout(() => {
 				attackCooldown = false;
-			}, 200)
+			}, 300)
 		} else {
 			attackCooldown = false;
 		}
