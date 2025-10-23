@@ -766,26 +766,24 @@ function completeQuest(questID) {
 function setHeroAndBackpack() {
     hero = $('.hero').html('');
 
-	if (player.equipments.shield ) {
+	if (player.equipments.shield) {
 		hero.append('<div style="background-image:url(assets/shield-' + player.equipments.shield + '.png)" class="equipment"/>')
 	}
 
-	if (player.equipments.hat ) {
+	if (player.equipments.hat) {
 		hero.append('<div style="background-image:url(assets/hat-' + player.equipments.hat + '.png)" class="equipment"/>')
 	}
 
 	if (player.equipments.weapon == '') { player.equipments.weapon = 'none' }
 
 	if ( equipments[player.equipments.weapon].type == 'melee') {
-		console.log('melee')
     	hero.append('<div class="weapon"><img src="assets/weapon-'+player.equipments.weapon+'.png" /></div>')
 	}
 
 	if ( equipments[player.equipments.weapon].type == 'range') {
     	hero.append('<div class="weapon range""></div>')
 		hero.find('.weapon').css('background-image','url(assets/weapon-'+player.equipments.weapon+'.png)')
-
-		hero.find('.weapon').attr('type','range')
+		.attr('type','range')
 	}
 
 	$('.bar.gold .value').html(player.backpack.gold.toLocaleString());
@@ -811,7 +809,7 @@ function setHeroAndBackpack() {
         }
     }
 	
-	mode('walk') //reset rest animation
+	mode('walk') //reset animation
 	setTimeout(() => { mode('rest') });
     setTooltips();
 }
