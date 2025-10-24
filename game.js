@@ -339,7 +339,7 @@ function enemySpawn(type,map) {
 	.css({
 		'left': destination,
 		'margin-bottom': yOffset+'px',
-		'z-index': 6-yOffset
+		'z-index': hero.css('z-index')-yOffset
 	})
 	.attr('hp',enemies[type].hp)
 	.attr('hit-count', 0)
@@ -622,9 +622,12 @@ function npcClick(npc) {
 	card.find('h3').html(spcDash(npc))
 	card.find('label').html(npcs[npc].title)
 
-	for (item in npcs[npc].items) { 
-		createItemRow(npcs[npc].items[item]).appendTo(card)
-		.attr('onclick','openBuyMenu("'+npcs[npc].items[item]+'")')
+	if (npcs[npc].type == 'shop') {
+		$('.backpack').show()
+		for (item in npcs[npc].items) { 
+			createItemRow(npcs[npc].items[item]).appendTo(card)
+			.attr('onclick','openBuyMenu("'+npcs[npc].items[item]+'")')
+		}
 	}
 
 	if (npcs[npc].type == 'sell') {
@@ -678,7 +681,7 @@ function openBuyMenu(item) {
 	card.append('<label class="price">PRICE</label>')
 
 	actions = $('<div class="actions"><div class="button yellow">buy</div></div>')
-	actions.find('.button').attr('onclick','buy("'+item+'")')
+	actions.find('.button').attr('onclick','buy("'+item+'"); $(".card.middle").remove()')
 
 	for (requiredItem in equipments[item].price) {
 		amountRequired = equipments[item].price[requiredItem]
@@ -720,8 +723,6 @@ function buy(item) {
 
 	acquireItem(item)
 	setHeroAndBackpack()
-	openBuyMenu(item)
-	$('.card.backpack').show()
 	pop($('.card.backpack').find('[type='+item+']'))
 	sound('heavy-item')
 	log('Bought '+item, item)
