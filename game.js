@@ -76,19 +76,16 @@ function walk(keyState) {
 		if (mode() !== 'jump') { 
 			mode('walk')
 		}
-		if (player.position + change >= 600 && 
-			player.position + change <= i('.map','width') - 600) { 
-			player.position += change
-		}
+		player.position += change
 	} else if (mode() != 'jump') {
 		mode('rest')
 	}
 
 	if ( player.position < 600 ) {
-		player.position = 700
+		player.position = 610
 	}
 	if ( player.position > i('.map','width') - 600 ) {
-		player.position = i('.map','width') - 700
+		player.position = i('.map','width') - 610
 	}
 	slideMap()
 }
@@ -104,12 +101,11 @@ function enterMap(origin) {
 
 	setTimeout(function() {
 
-		$('.field').html('')
-		$('.field').append('<img class="map" src="assets/map-'+player.location+'.png" />')
+		$('.field').html('').append('<img class="map" src="assets/map-'+player.location+'.png" />')
 		$('.sky').attr('src','assets/map-'+player.location+'-sky.png')
 
 		isMapLoaded = setInterval(() => {
-			if ( i('.map','width') < 1 ) { return }
+			if (i('.map','width') < 1) { return }
 			clearInterval(isMapLoaded)
 
 			for (type in maps[player.location].enemies) {
@@ -117,30 +113,29 @@ function enterMap(origin) {
 			}
 
 			for (port in maps[player.location].ports) {
-				if ( maps[player.location].ports[port] == '' ) break 
-				portObject = $("<div class='port'></div>")
+				$("<div class='port'></div>")
 				.addClass(port)
 				.attr('target',maps[player.location].ports[port])
 				.appendTo('.field')
 
-				sparkles = $("<div class='sparkles'></div>")
+				$("<div class='sparkles'></div>")
 				.addClass(port)
 				.appendTo('.field')
 			}
 			for (npc in maps[player.location].npc) {
 				$("<div class='npc'><div class='image'></div></div>")
-					.css('left', maps[player.location].npc[npc]+'%')
-					.find('.image')
-					.css({
-						'background-image': 'url(assets/npc-' + npc + '.png)',
-						'background-size': npcs[npc].size * 3 + 'px',
-						'width': npcs[npc].size,
-						'height': npcs[npc].size
-					})
-					.end()
-					.attr('onclick', 'npcClick("' + npc + '")')
-					.append('<span>' + spcDash(npc) + '</span>')
-					.appendTo('.field');
+				.css('left', maps[player.location].npc[npc]+'%')
+				.find('.image')
+				.css({
+					'background-image': 'url(assets/npc-' + npc + '.png)',
+					'background-size': npcs[npc].size * 3 + 'px',
+					'width': npcs[npc].size,
+					'height': npcs[npc].size
+				})
+				.end()
+				.attr('onclick', 'npcClick("' + npc + '")')
+				.append('<span>' + spcDash(npc) + '</span>')
+				.appendTo('.field');
 			}
 
 			if (origin) {
@@ -172,10 +167,10 @@ function enterMap(origin) {
 function jump() {
 	if (mode() == 'fight' || mode() == 'jump' || skillCooldown) return
 	mode('jump')
-	sound('jump')
 	hero.addClass('jumping')
 	setTimeout(() => { hero.removeClass('jumping') },300)
 	setTimeout(() => { mode('rest'); sound('land') },599)
+	sound('jump')
 }
 
 function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplier=1, maxTargets=1) {
@@ -183,31 +178,23 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
     attackCooldown = true;
     mode('fight')
 
-	if (equipments[player.equipments.weapon].type == 'range') {
-		atkType = 7
-	}
-
-    hero.attr('atkType',atkType)
-    $('.weapon').css('animation-name','weapon-'+atkType)
-    sound('attack-'+atkType)
-
-    x1 = player.position+rangeStart
-    x2 = player.position+rangeEnd+i('.weapon','height')
-
-    if (heroDirection == -1) { 
-        x1 = player.position-i('.weapon','height')-rangeEnd
-        x2 = player.position-rangeStart
-    }
-
-    // showRange(x1,x2)
-
 	if (equipments[player.equipments.weapon].type == 'melee') {
+		x1 = player.position+rangeStart
+		x2 = player.position+rangeEnd+i('.weapon','height')
+	
+		if (heroDirection == -1) { 
+			x1 = player.position-i('.weapon','height')-rangeEnd
+			x2 = player.position-rangeStart
+		}
+
 		setTimeout(() => {
 			handleAttackHits(x1, x2, atkMultiplier, maxTargets)
 		}, 200)
 	}
 
 	if (equipments[player.equipments.weapon].type == 'range') {
+		atkType = 7
+
 		if (projectileActive) { 
 			clearInterval(projectile)
 			projectileElement.remove()
@@ -215,19 +202,17 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 		}
 
 		setTimeout(() => {
-			x1 = player.position-10
-			x2 = player.position+10
+			x1 = player.position
+			x2 = player.position
 			projectileElement = $('<div class="projectile"></div>').css({
-				'left': x1-20,
 				'transform': 'scaleX('+heroDirection+')'
 			}).appendTo('.field')
 
 			projectile = setInterval((direction) => {
 				projectileActive = true;
-				// showRange(x1,x2)
 				x1 = x1 + direction*10;
 				x2 = x2 + direction*10;
-				projectileElement.css('left', x1-20)
+				projectileElement.css('left', x1-40)
 				handleAttackHits(x1, x2, atkMultiplier, maxTargets)
 				if (Math.abs(x1 - player.position) > 500) {
 					clearInterval(projectile);
@@ -236,6 +221,11 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 			}, 10, heroDirection)
 		}, 200)
 	}
+
+	// showRange(x1,x2)
+	hero.attr('atkType',atkType)
+    $('.weapon').css('animation-name','weapon-'+atkType)
+    sound('attack-'+atkType)
 
     setTimeout(() => { 
         mode('rest')
@@ -248,37 +238,33 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 		} else {
 			attackCooldown = false;
 		}
-
     },390)
 }
 
 
 function handleAttackHits(x1, x2, atkMultiplier, maxTargets) {
-    let enemiesAttacked = 0
+    enemiesAttacked = 0
     $('.enemy[active=true]').each(function() {
         if ( x1 > i($(this),'left')+i($(this),'width') || x2 < i($(this),'left') ) return
 
-        attack = 1 // hitting with bare hands if there is no weapon equipped
-        if (equipments[player.equipments.weapon]) {
-            attack = spread(equipments[player.equipments.weapon].attack*atkMultiplier,20)
-        }
+        attack = spread(equipments[player.equipments.weapon].attack*atkMultiplier,20)
 
-        $(this).attr('state', 'enemy-hit')
-        .attr('angry','true')
-        .attr('hp', $(this).attr('hp')-attack)
-        .attr('hit-count', $(this).attr('hit-count')*1+1)
+        $(this).attr({
+            'state': 'enemy-hit',
+            'angry': 'true', 
+            'hp': $(this).attr('hp')-attack,
+            'hit-count': $(this).attr('hit-count')*1+1
+		})
         .css({
-            'left': i($(this),'left')+heroDirection*5+'px',
-            'transition-duration': '0ms',
+			'transition-duration': '0ms',
+            'left': i($(this),'left')+heroDirection*5+'px'
         })
         .find('.bar').css('width', $(this).attr('hp')/enemies[$(this).attr('type')].hp*100+'%')
-
-        $(this).attr('attacked','true')
 
         hit = $('<div class="hit">'+prettyNumber(attack,'yellow')+'</div>').css('left', i($(this),'left')).appendTo('.field')
         setTimeout((hit)=> { hit.remove() },800, hit)
 
-        if ( $(this).attr('hp') <= 0 ) { enemyDeath($(this)) } 
+        if ($(this).attr('hp') <= 0) { enemyDeath($(this)) } 
         else { setTimeout(() => {
             enemyMove($(this), $(this).attr('hit-count'))
         }, 200) }
@@ -292,7 +278,6 @@ function handleAttackHits(x1, x2, atkMultiplier, maxTargets) {
 				clearInterval(projectile)
 				projectileElement.remove()
 			}
-
 			return false
 		}
     });
@@ -349,19 +334,15 @@ function enemySpawn(type,map) {
 	yOffset = random(-6,6)
 
 	enemy = $('<div class="enemy" type="'+type+'"><div class="image"></div><div class="hpBar"><div class="bar"></div></div></div>')
-	.css({
-		'left': destination,
-		'display':'none'
-	})
+	.appendTo('.field')
+	.css('left', destination)
+	.attr('hp',enemies[type].hp)
+	.attr('hit-count', 0)
 	.find('.image').css({
 		'background-image': 'url(assets/enemy-'+type+'.png)',
 		'width': enemies[type].size[0],
-		'height': enemies[type].size[1],
-	})
-	.end()
-	.attr('hp',enemies[type].hp)
-	.attr('hit-count', 0)
-	.appendTo('.field')
+		'height': enemies[type].size[1]
+	}).end()
 
 	$(enemy).fadeIn(1000).promise().done(function(enemy) {
 		enemy.attr('active','true')
@@ -376,24 +357,30 @@ function enemyMove(enemy, hitCount) {
 	|| hitCount < enemy.attr('hit-count'))
 	{ return }
 
-	attempts = 0
-	while (attempts < 100 ) {
-	    distance = random(-200, 200);
-	    if (i(enemy, 'left') + distance >= 600 && 
-	        i(enemy, 'left') + distance <= i('.field .map', 'width') - 600) {
-	        break;
-	    }
-	    attempts++;
-	}
+	// attempts = 0
+	// while (attempts < 100 ) {
+	//     distance = random(-200, 200);
+	//     if (i(enemy, 'left') + distance >= 600 && 
+	//         i(enemy, 'left') + distance <= i('.field .map', 'width') - 600) {
+	//         break;
+	//     }
+	//     attempts++;
+	// }
 
-	speed = spread(enemies[enemy.attr('type')].speed,20)
+	minX = 600;
+	maxX = i('.field .map', 'width') - 600;
+	currentX = i(enemy, 'left');
+	range = 200;
+	distance = Math.max(minX - currentX, Math.min(maxX - currentX, random(-range, range)));
+
+	speed = spread(enemies[enemy.attr('type')].speed,30)
 
 	if ( enemy.attr('angry') == 'true' ) {
 		distance = player.position - i(enemy,'left')-i(enemy,'width')/2 + random(-100,100)
 		speed = speed/1.2
 		stand = 0
 	} else {
-		stand = random(1000,5000)
+		stand = random(1000,4000)
 	}
 
 	enemy.attr('state','move')
@@ -546,7 +533,6 @@ function useItem(item) {
 		log((isEquipped ? 'unequipped ' : 'equipped ') + item, item)
 	}
 	setHeroAndBackpack()
-	sound('click')
 }
 
 function sellItem(item) {
@@ -589,8 +575,6 @@ function sellItem(item) {
 		$('.npc.sell .speech ~ *').remove()
 		$('.npc.sell .speech div').html("Deal done. Great doing business with you! Anything else you'd like to sell?")
 	})
-
-	sound('click')
 }
 
 function calcItemPrice(item) {
@@ -685,7 +669,6 @@ function npcClick(npc) {
 		}
 
 	}	
-	sound('click')
 }
 
 function openBuyMenu(item) {
@@ -715,7 +698,6 @@ function openBuyMenu(item) {
 	}
 
 	card.append(actions)
-	sound('click')
 }
 
 function itemStats(item) {
@@ -859,7 +841,6 @@ function closeCard(element) {
 	$('.card.left').remove()
 	$('.card.middle').remove()
 	$('.card.backpack').hide()
-	sound('click')
 }
 
 $(document).on('click', function(e) {
@@ -869,6 +850,7 @@ $(document).on('click', function(e) {
 	&& !$(e.target).closest('.backpack').length) {
 		closeCard()
 	}
+	sound('click')
 })
 
 function resetPlayer() {

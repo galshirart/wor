@@ -920,6 +920,7 @@ input:focus {
 	bottom:321px;
 	transition-property: left;
 	transition-timing-function: linear;
+	display: none;
 }
 .enemy .image {
 	position: relative;
