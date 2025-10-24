@@ -895,7 +895,6 @@ function showCursor() {
     $('*').css('cursor', 'url(assets/cursor.svg), auto');
 }
 $(document).on('mousemove', showCursor);
-showCursor();
 
 function i(element, param) {
    	el = $(element)

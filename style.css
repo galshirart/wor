@@ -13,7 +13,6 @@ body {
 	font-size:12px;
 }
 * {
-	cursor:url(assets/cursor.svg), auto;
 	animation-timing-function: step-end;
 	animation-fill-mode: both;
 	animation-duration: 400ms;
