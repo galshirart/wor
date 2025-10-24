@@ -332,11 +332,15 @@ function enemySpawn(type,map) {
 	if (map != player.location) { return }
 
 	destination = random(800, i('.field .map','width')-800 )
-	yOffset = random(-6,6)
+	yOffset = random(-5,5)
 
 	enemy = $('<div class="enemy" type="'+type+'"><div class="image"></div><div class="hpBar"><div class="bar"></div></div></div>')
 	.appendTo('.field')
-	.css('left', destination)
+	.css({
+		'left': destination,
+		'margin-bottom': yOffset+'px',
+		'z-index': 6-yOffset
+	})
 	.attr('hp',enemies[type].hp)
 	.attr('hit-count', 0)
 	.find('.image').css({
@@ -437,7 +441,9 @@ function enemyDeath(enemy) {
 
 	$('<div class="item"></div>').appendTo('.field').css({
 		'left': number(enemy.css('left')),
-		'background-image': 'url(assets/item-'+itemType+'.png)'
+		'background-image': 'url(assets/item-'+itemType+'.png)',
+		'margin-bottom': i(enemy,'margin-bottom')+'px',
+		'z-index': i(enemy,'z-index')
 	})
 	.attr('type',itemType)
 	.attr('gold-amount',Math.round(average([enemies[enemyType].hp, enemies[enemyType].attack])/3))

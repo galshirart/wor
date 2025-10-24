@@ -630,7 +630,7 @@ input:focus {
 	position: absolute;
 	left:calc(50% - 40px);
 	bottom:321px;
-	z-index:5;
+	z-index:6;
 	pointer-events: none;
 	transition: transform 100ms;
 	animation-iteration-count: infinite;
