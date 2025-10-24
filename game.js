@@ -384,7 +384,7 @@ function enemyMove(enemy, hitCount) {
 	}
 
 	enemy.attr('state','move')
-	enemy.css({
+	.css({
 		'left': i(enemy,'left')+distance,
 		'transform': 'scaleX('+sign(distance)+')',
 		'transition-duration': abs(distance)*speed+'ms',
@@ -602,10 +602,12 @@ function calcItemPrice(item) {
 }
 
 function usePort() {
-	$('.port').each(function() {
+	$('.port:not(.used)').each(function() {
 		if (player.position < i($(this),'left') ||
 			player.position > i($(this),'left') + i($(this),'width'))
 		{ return }
+
+		$(this).addClass('used')
 
 		origin = player.location
 		player.location = $(this).attr('target')
