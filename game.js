@@ -77,6 +77,7 @@ function walk(keyState) {
 			mode('walk')
 		}
 		player.position += change
+		hideCursor()
 	} else if (mode() != 'jump') {
 		mode('rest')
 	}
@@ -887,14 +888,11 @@ function log(text, icon) {
 	}, 6000, logItem)
 }
 
-let cursorTimeout;
 function hideCursor() {
     $('*').css('cursor', 'none');
 }
 function showCursor() {
     $('*').css('cursor', 'url(assets/cursor.svg), auto');
-    clearTimeout(cursorTimeout);
-    cursorTimeout = setTimeout(hideCursor, 4000);
 }
 $(document).on('mousemove', showCursor);
 showCursor();
