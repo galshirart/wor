@@ -534,7 +534,7 @@ input:focus {
 	transition: transform 300ms;
 	border-radius: 4px;
 }
-.thumb:hover {
+.backpack .thumb:hover {
 	background-color:rgba(64,0,0,0.2);
 }
 .thumb span {

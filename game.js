@@ -381,6 +381,9 @@ function enemyMove(enemy, hitCount) {
 		stand = 0
 	} else {
 		stand = random(1000,4000)
+		setTimeout(function(enemy) {
+			enemy.attr('state','stand')
+		}, abs(distance)*speed, enemy)
 	}
 
 	enemy.attr('state','move')
@@ -391,11 +394,6 @@ function enemyMove(enemy, hitCount) {
 		'animation-duration': speed*20+'ms'
 	})
 	.find('.hpBar').css('transform','scaleX('+sign(distance)+')')
-
-	setTimeout(function(enemy) {
-		if (enemy.attr('angry') == 'true') return
-		enemy.attr('state','stand')
-	}, abs(distance)*speed, enemy)
 
 	setTimeout(function(enemy) {
 		enemyMove(enemy, hitCount)
@@ -411,12 +409,12 @@ function collide() {
 			enemies[$(this).attr('type')].attack == 0)
 		{ return }
 
-		attack = spread(enemies[$(this).attr('type')].attack,20)
+		damage = spread(enemies[$(this).attr('type')].attack,20)
 
-		$('body').append('<div class="hit self">'+prettyNumber(attack,'red')+'</div>')
+		$('body').append('<div class="hit self">'+prettyNumber(damage,'red')+'</div>')
 		hero.attr('in-damage','true')
 
-		player.hp = player.hp-attack
+		player.hp = player.hp-damage
 
 		player.position = player.position-heroDirection*40
         slideMap()
@@ -432,43 +430,36 @@ function enemyDeath(enemy) {
 	enemyType = $(enemy).attr('type')
 	itemType = enemies[enemyType].item
 	
-	if (enemies[enemyType].gold == 'TRUE') {
-		if (random(1,2) == 1) {
-			itemType = 'gold'
-		}
+	if (enemies[enemyType].gold == 'TRUE' && random(1,2) == 1) {
+		itemType = 'gold'
 	}
 
-	item = $('<div class="item"></div>').appendTo('.field').css({
+	$('<div class="item"></div>').appendTo('.field').css({
 		'left': number(enemy.css('left')),
 		'background-image': 'url(assets/item-'+itemType+'.png)'
 	})
 	.attr('type',itemType)
 	.attr('gold-amount',Math.round(average([enemies[enemyType].hp, enemies[enemyType].attack])/3))
 
-	edible = null
 	if (random(1,3) == 1) {
-		if (player.mp < player.maxMp*0.5 && $('.field [edible=mana]').length < 2) {
-			edible = 'mana'
-		} else if (player.hp < player.maxHp*0.5 && $('.field [edible=health]').length < 2) {
-			edible = 'health'
+		lowMana = player.mp < player.maxMp*0.5 && $('.field [edible=mana]').length < 2;
+		lowHealth = player.hp < player.maxHp*0.5 && $('.field [edible=health]').length < 2;
+		edible = lowMana ? 'mana' : (lowHealth ? 'health' : null);
+		
+		if (edible) {
+			$('<div class="item"></div>').appendTo('.field').css({
+				'left': random(600, i('.field .map','width')-600),
+				'background-image': 'url(assets/item-'+maps[player.location].edibles[edible]+'.png)'
+			})
+			.attr({
+				'type': maps[player.location].edibles[edible],
+				'edible': edible
+			});
 		}
 	}
-
-	if (edible) {
-		item = $('<div class="item"></div>').appendTo('.field').css({
-			'left': random(600, i('.field .map','width')-600),
-			'background-image': 'url(assets/item-'+maps[player.location].edibles[edible]+'.png)'
-		})
-		.attr('type',maps[player.location].edibles[edible])
-		.attr('edible',edible)
-	}
 	
-	$(enemy).css({
-		'left': i(enemy,'left')
-	}).addClass('dead')
-	.attr('active','false')
-
-	$(enemy).fadeOut(1000).promise().done(function(enemy) { $(enemy).remove() })
+	$(enemy).css('left', i(enemy,'left')).addClass('dead').attr('active','false')
+	.fadeOut(1000).promise().done(function(enemy) { $(enemy).remove() })
 
 	setTimeout((enemyType, map) => { 
 		enemySpawn(enemyType, map)
@@ -491,15 +482,13 @@ function pickUp() {
 		$(this).addClass('picked')
 
 		if ($(this).attr('edible')) {
-			edible = $(this).attr('edible')
-			if (edible == 'health') {
+			if ($(this).attr('edible') == 'health') {
 				player.hp += player.maxHp*0.3
-				sound('bless')
 			}
-			if (edible == 'mana') {
+			if ($(this).attr('edible') == 'mana') {
 				player.mp += player.maxMp*0.3
-				sound('bless')
 			}
+			sound('bless')
 			log('Consumed '+$(this).attr('type'), $(this).attr('type'))
 		} else {
 			acquireItem($(this).attr('type'))
