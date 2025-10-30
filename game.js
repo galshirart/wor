@@ -611,6 +611,7 @@ function usePort() {
 		$('.x').click(); $('.card.backpack').hide();
 		sound('port')
 	});
+	closeCard()
 }
 
 function npcClick(npc) {
