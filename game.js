@@ -608,10 +608,9 @@ function usePort() {
 		origin = player.location
 		player.location = $(this).attr('target')
 		enterMap(origin)
-		$('.x').click(); $('.card.backpack').hide();
+		closeCard()
 		sound('port')
 	});
-	closeCard()
 }
 
 function npcClick(npc) {
