@@ -962,6 +962,9 @@ function mode(mode) {
 	if (modeDurations[mode]) {
 		$(`[mode=${mode}]`).css('animation-duration', modeDurations[mode]);
 		$(`[mode=${mode}] *`).css('animation-duration', modeDurations[mode]);
+		if (mode === 'rest') {
+			hero.find('.weapon').css('animation-duration', '400ms');
+		}
 	}
 	return hero.attr('mode')
 }

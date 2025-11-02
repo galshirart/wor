@@ -6,8 +6,8 @@ body {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-family: 'Inter';
-	font-weight:600;
+	font-family: 'Nunito';
+	font-weight:800;
 	text-transform: uppercase;
 	color:#400000;
 	font-size:12px;
@@ -38,7 +38,7 @@ body {
 	transition: left 100ms linear, transform 100ms, margin-bottom 300ms ease-in;
 }
 .field.jumping {
-	margin-bottom:-10px;
+	margin-bottom:-8px;
 	transition: left 100ms linear, transform 100ms, margin-bottom 300ms ease-out;
 }
 .map {
@@ -223,7 +223,6 @@ h3 {
 	background-color:#FFF6C1;
 	box-shadow: inset 0 -3px 0 rgba(64,0,0,0.2);
 	text-transform: uppercase;
-	font-weight:700;
 	font-size:12px;
 	padding:0 16px;
 }
@@ -252,7 +251,7 @@ input {
     font-family: 'Inter';
     width: -webkit-fill-available;
     margin-left: 10px;
-    font-weight: 700;
+    font-weight: 800;
     padding: 5px 8px 4px;
 	border-radius: 4px;
 }
@@ -461,7 +460,8 @@ input:focus {
 	border-radius: 0 7px 7px 0;
 	border:0;
 	padding:0;
-	font-size:10px;
+	font-size:12px;
+	letter-spacing: 0.5px;
 	background:#40000050
 }
 .bar.hp .flex, .bar.mp .flex {
@@ -516,9 +516,8 @@ input:focus {
 }
 .card.hover {
 	min-height: 0;
-	max-height:200px;
 	width:240px;
-	right:400px;
+	right:406px;
 	left:auto;
 }
 .thumb {
@@ -566,7 +565,7 @@ input:focus {
 }
 .stat.flex label:first-of-type, .price {
 	width:80px;
-	font-weight:400;
+	font-weight:700;
 }
 .price {
 	width:100%;
@@ -781,7 +780,7 @@ input:focus {
 
 }
 .hero-shadow.jumping {
-	bottom:311px;
+	bottom:313px;
 	transition: bottom 300ms ease-out;
 }
 /************** WEAPON **************/
