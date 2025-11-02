@@ -534,7 +534,7 @@ input:focus {
 	border-radius: 4px;
 }
 .backpack .thumb:hover {
-	background-color:rgba(64,0,0,0.2);
+	filter:brightness(0.9);
 }
 .thumb span {
 	position: absolute;
