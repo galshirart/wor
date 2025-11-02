@@ -788,7 +788,7 @@ function setHeroAndBackpack() {
 
     $('.backpack .thumb').remove();
     for (item in player.backpack) {
-        if (player.backpack[item] >= 1) {
+        if (player.backpack[item] >= 1 && item != 'gold') {
             let thumb = $('<div class="thumb tooltip"></div>').appendTo('.backpack .grid')
                 .attr('type', item)
                 .attr('ondblclick', 'useItem("' + item + '")')
@@ -806,6 +806,30 @@ function setHeroAndBackpack() {
             $('.backpack').find('[type=' + player.equipments[item] + ']').addClass('equiped');
         }
     }
+	$('.backpack .grid').sortable({
+		stop: function(event, ui) {
+			sortedItems = [];
+			$('.backpack .grid .thumb').each(function() {
+				type = $(this).attr('type');
+				if (type && type !== "gold" && player.backpack[type] >= 1) {
+					sortedItems.push(type);
+				}
+			});
+			if ("gold" in player.backpack) {
+				sortedItems.unshift("gold");
+			}
+			let sortedBackpack = {};
+			for (let i = 0; i < sortedItems.length; i++) {
+				k = sortedItems[i];
+				if (k in player.backpack) {
+					sortedBackpack[k] = player.backpack[k];
+				}
+			}
+			player.backpack = sortedBackpack;
+			save()
+			sound('click')
+		}
+	});
 	
 	mode('walk') //reset animation
 	setTimeout(() => { mode('rest') });
