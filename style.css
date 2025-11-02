@@ -33,8 +33,13 @@ body {
 }
 .field {
 	position: absolute;
-	height:100%;
-	transition: left 100ms linear, transform 100ms;
+	height:810px;
+	bottom:0;
+	transition: left 100ms linear, transform 100ms, margin-bottom 300ms ease-in;
+}
+.field.jumping {
+	margin-bottom:-10px;
+	transition: left 100ms linear, transform 100ms, margin-bottom 300ms ease-out;
 }
 .map {
 	height:100%;
@@ -673,10 +678,6 @@ input:focus {
 	margin-bottom:80px;
 	transition-timing-function:ease-out
 }
-.hero[mode=jump]:after {
-	animation-name: shadow-jump;
-	animation-duration: 600ms;
-}
 @keyframes rest {
 	0% { background-position-x: 0; }
 	10% { background-position-x: -80px; }
@@ -700,10 +701,6 @@ input:focus {
 	25% { background-position-x: -480px; }
 	50% { background-position-x: -560px; }
 	75% { background-position-x: -640px; }
-}
-@keyframes shadow-jump {
-	0% { bottom: 0; animation-timing-function: ease-out; }
-	50% { bottom:-80px; animation-timing-function: ease-in; }
 }
 @keyframes atk-1 {
 	0% { background-position-x: -720px; }
@@ -780,8 +777,13 @@ input:focus {
 	left:calc(50% - 25px);
 	z-index:4;
 	opacity:0.3;
-}
+	transition: bottom 300ms ease-in;
 
+}
+.hero-shadow.jumping {
+	bottom:311px;
+	transition: bottom 300ms ease-out;
+}
 /************** WEAPON **************/
 
 .weapon {
