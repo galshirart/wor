@@ -258,6 +258,7 @@ function handleAttackHits(x1, x2, atkMultiplier, maxTargets) {
 		})
         .css({
 			'transition-duration': '50ms',
+			'transition-timing-function': 'ease-out',
             'left': i($(this),'left')+heroDirection*5+'px'
         })
         .find('.bar').css('width', $(this).attr('hp')/enemies[$(this).attr('type')].hp*100+'%')
@@ -267,6 +268,7 @@ function handleAttackHits(x1, x2, atkMultiplier, maxTargets) {
 
         if ($(this).attr('hp') <= 0) { enemyDeath($(this)) } 
         else { setTimeout(() => {
+			$(this).css('transition-timing-function', 'linear')
             enemyMove($(this), $(this).attr('hit-count'))
         }, 200) }
     
@@ -387,6 +389,7 @@ function enemyMove(enemy, hitCount) {
 	} else {
 		stand = random(1000,4000)
 		setTimeout(function(enemy) {
+			if (enemy.attr('angry') == 'true') return
 			enemy.attr('state','stand')
 		}, abs(distance)*speed, enemy)
 	}
