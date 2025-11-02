@@ -257,7 +257,7 @@ function handleAttackHits(x1, x2, atkMultiplier, maxTargets) {
             'hit-count': $(this).attr('hit-count')*1+1
 		})
         .css({
-			'transition-duration': '0ms',
+			'transition-duration': '50ms',
             'left': i($(this),'left')+heroDirection*5+'px'
         })
         .find('.bar').css('width', $(this).attr('hp')/enemies[$(this).attr('type')].hp*100+'%')
