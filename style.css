@@ -37,10 +37,10 @@ body {
 	bottom:0;
 	transition: left 100ms linear, transform 100ms, margin-bottom 300ms ease-in;
 }
-.field.jumping {
+/* .field.jumping {
 	margin-bottom:-8px;
 	transition: left 100ms linear, transform 100ms, margin-bottom 300ms ease-out;
-}
+} */
 .map {
 	height:100%;
 }
