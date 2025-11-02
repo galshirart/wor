@@ -857,7 +857,7 @@ $(document).on('click', function(e) {
 
 function resetPlayer() {
 	player = {}
-	player.speed = 20
+	player.speed = 16
 	player.backpack = {}
 	player.backpack['gold'] = 0
 	player.equipments = {}
@@ -925,6 +925,16 @@ function mode(mode) {
 	if ( mode != null ) { 
 		hero.attr('mode',mode)
 		hero.find('.equipment').attr('mode',mode) 
+	}
+	modeDurations = {
+		walk: (80 - player.speed) * 7 + 'ms',
+		rest: '2000ms',
+		jump: '600ms',
+		fight: '400ms'
+	};
+	if (modeDurations[mode]) {
+		$(`[mode=${mode}]`).css('animation-duration', modeDurations[mode]);
+		$(`[mode=${mode}] *`).css('animation-duration', modeDurations[mode]);
 	}
 	return hero.attr('mode')
 }

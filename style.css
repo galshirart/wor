@@ -649,7 +649,6 @@ input:focus {
 }
 [mode=rest] {
 	animation-name:rest;
-	animation-duration: 2000ms;
 	animation-iteration-count: infinite;
 }
 [mode=walk] {
@@ -659,7 +658,6 @@ input:focus {
 }
 [mode=jump] {
 	animation-name: jump;
-	animation-duration: 600ms;
 	transition: margin-bottom 300ms ease-in;
 }
 [mode=fight][atkType='1'], [mode=fight][atkType='1'] .equipment { animation-name:atk-1}
@@ -801,7 +799,6 @@ input:focus {
 }
 [mode=jump] .weapon {
 	animation-name: weapon-jump;
-	animation-duration: 600ms;
 }
 @keyframes weapon-rest {
 	0% { left:-11; bottom:-21; transform: rotate(60deg)}
