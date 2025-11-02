@@ -144,10 +144,12 @@ function enterMap(origin) {
 				if ( originSide == 'left' ) {
 					player.position = 624
 					hero.css('transform','scaleX(1)')
+					heroDirection = 1
 				}
 				if ( originSide == 'right' ) {
 					player.position = i('.map','width')-624
 					hero.css('transform','scaleX(-1)')
+					heroDirection = -1
 				}
 				if ( originSide == 'middle' ) {
 					player.position = i('.map','width')/2
