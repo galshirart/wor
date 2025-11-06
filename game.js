@@ -377,25 +377,29 @@ function enemyMove(enemy, hitCount) {
 	//     attempts++;
 	// }
 
-	minX = 600;
-	maxX = i('.field .map', 'width') - 600;
-	currentX = i(enemy, 'left');
-	range = 200;
-	distance = Math.max(minX - currentX, Math.min(maxX - currentX, random(-range, range)));
+	minX = 600
+	maxX = i('.field .map', 'width') - 600
+	currentX = i(enemy, 'left')
 
-	speed = spread(enemies[enemy.attr('type')].speed,30)
+	speed = spread(enemies[enemy.attr('type')].speed, 30)
 
-	if ( enemy.attr('angry') == 'true' ) {
-		distance = player.position - i(enemy,'left')-i(enemy,'width')/2 + random(-100,100)
+	if (enemy.attr('angry') == 'true') {
+		desired = player.position - currentX - i(enemy, 'width') / 2 + random(-100, 100)
+		destX = Math.max(minX, Math.min(maxX, currentX + desired))
+		distance = destX - currentX
 		speed = speed/1.2
 		stand = 0
 	} else {
-		stand = random(1000,4000)
+		range = 200
+		distance = Math.max(minX - currentX, Math.min(maxX - currentX, random(-range, range)))
+		stand = random(1000, 4000)
 		setTimeout(function(enemy) {
 			if (enemy.attr('angry') == 'true') return
 			enemy.attr('state','stand')
-		}, abs(distance)*speed, enemy)
+		}, Math.abs(distance) * speed, enemy)
 	}
+
+	if (distance == 0) { distance = 1 }
 
 	enemy.attr('state','move')
 	.css({
