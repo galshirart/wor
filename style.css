@@ -11,6 +11,7 @@ body {
 	text-transform: uppercase;
 	color:#400000;
 	font-size:12px;
+	letter-spacing: 0.4px;
 }
 * {
 	animation-timing-function: step-end;
@@ -241,7 +242,6 @@ input {
     font-family: 'Inter';
     width: -webkit-fill-available;
     margin-left: 10px;
-    font-weight: 800;
     padding: 5px 8px 4px;
 	border-radius: 4px;
 }
@@ -451,7 +451,6 @@ input:focus {
 	border:0;
 	padding:0;
 	font-size:12px;
-	letter-spacing: 0.5px;
 	background:#40000050
 }
 .bar.hp .flex, .bar.mp .flex {
