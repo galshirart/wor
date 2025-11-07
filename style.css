@@ -55,12 +55,6 @@ body {
 	width:90px;
 	height:90px;
 	left:580px;
-	background-image: url(assets/sparkles.png);
-	background-size:100%;
-	animation-name: sparkles;
-	animation-duration: 2s;
-	animation-timing-function: linear;
-	animation-iteration-count: infinite;
 }
 .port:before {
 	content: " ";

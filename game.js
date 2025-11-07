@@ -114,18 +114,22 @@ function enterMap(origin) {
 			}
 
 			for (port in maps[player.location].ports) {
+				portX = 590 + (i('.field','width') - 1270) * maps[player.location].ports[port] / 100
+
 				$("<div class='port'></div>")
-				.addClass(port)
-				.attr('target',maps[player.location].ports[port])
+				.css('left', portX)
+				.attr('target',port)
 				.appendTo('.field')
 
 				$("<div class='sparkles'></div>")
-				.addClass(port)
+				.css('left', portX)
 				.appendTo('.field')
 			}
 			for (npc in maps[player.location].npc) {
+				npcX = 590 + (i('.field','width') - 1270) * maps[player.location].npc[npc] / 100
+				
 				$("<div class='npc'><div class='image'></div></div>")
-				.css('left', maps[player.location].npc[npc]+'%')
+				.css('left', npcX)
 				.find('.image')
 				.css({
 					'background-image': 'url(assets/npc-' + npc + '.png)',
