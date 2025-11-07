@@ -162,9 +162,8 @@ function enterMap(origin) {
 function jump() {
 	if (mode() == 'fight' || mode() == 'jump' || skillCooldown) return
 	mode('jump')
-	jumpingElems = [hero, $('.field'), $('.hero-shadow')];
-	jumpingElems.forEach(el => el.addClass('jumping'));
-	setTimeout(() => jumpingElems.forEach(el => el.removeClass('jumping')), 300);
+	hero.addClass('jumping')
+	setTimeout(() => hero.removeClass('jumping'), 300);
 	setTimeout(() => { mode('rest'); sound('land') }, 599);
 	sound('jump')
 }

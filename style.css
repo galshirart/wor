@@ -37,10 +37,6 @@ body {
 	bottom:0;
 	transition: left 100ms linear, transform 100ms, margin-bottom 300ms ease-in;
 }
-/* .field.jumping {
-	margin-bottom:-8px;
-	transition: left 100ms linear, transform 100ms, margin-bottom 300ms ease-out;
-} */
 .map {
 	height:100%;
 }
@@ -751,15 +747,6 @@ input:focus {
 	75% { background-position:-300% 0 }
 	100% { background-position:-300% 0 }
 }
-.hero .hand {
-	background:red;
-	width:10px;
-	height:10px;
-	position: absolute;
-	border-radius: 50%;
-	left: 32px;
-    bottom: 10px;
-}
 .hero-shadow {
 	width:50px;
 	height:7px;
@@ -771,12 +758,8 @@ input:focus {
 	z-index:4;
 	opacity:0.3;
 	transition: bottom 300ms ease-in;
+}
 
-}
-.hero-shadow.jumping {
-	bottom:313px;
-	transition: bottom 300ms ease-out;
-}
 /************** WEAPON **************/
 
 .weapon {
@@ -859,7 +842,6 @@ input:focus {
 	display: none;
 }
 
-
 /************** BOW **************/
 
 .weapon[type='range'] {
@@ -874,7 +856,7 @@ input:focus {
 	animation-name: weapon-range-rest;
 }
 @keyframes weapon-range-rest {
-	0% { left:-10; bottom:-21; transform: rotate(168deg)}
+	0% { left:-10; bottom:-21; transform:rotate(168deg)}
 	50% { left:-10; bottom:-22; transform:rotate(170deg) }
 }
 [mode=walk] .weapon[type='range'] {
@@ -893,6 +875,14 @@ input:focus {
 }
 [mode=fight] .weapon[type='range']:after {
 	display: none;
+}
+[mode=jump] .weapon[type='range'] {
+	animation-name: weapon-range-jump;
+}
+@keyframes weapon-range-jump {
+	0% { left:-20; bottom:18; transform:rotate(0deg)  }
+	50% { left:-4 ; bottom:-14; transform:rotate(110deg) }
+	75% { left:-11 ; bottom:-20; transform:rotate(130deg) }
 }
 .projectile {
 	position: absolute;
@@ -948,7 +938,6 @@ input:focus {
 .enemy.dead .image {
 	animation-name: enemy-hit;
 	background-position:-400% 0;
-	opacity:0.8
 }
 .enemy.dead .hpBar {
 	display: none;
@@ -962,7 +951,7 @@ input:focus {
 	animation-name: hit;
 	animation-duration: 800ms;
 	animation-timing-function: ease-out;
-	top:380px;
+	top:390px;
 }
 .hit.self {
 	top:calc(50% - 10px);
@@ -1056,18 +1045,8 @@ input:focus {
 	50% { transform:translateY(-20px) }
 	100% { transform: translateY(-13px); opacity:0 }
 }
-.field .item[type=health-bless] {
-	animation-name:item-shine;
-}
-@keyframes item-shine {
-	0% { transform: translateY(-16px); filter:brightness(100%) }
-	50% { transform:translateY(-10px); filter:brightness(200%) }
-	100% { transform: translateY(-16px); filter:brightness(100%) }
-}
-
 
 /************** NPC **************/
-
 
 .field .npc {
 	position: absolute;
