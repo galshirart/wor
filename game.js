@@ -114,7 +114,7 @@ function enterMap(origin) {
 			}
 
 			for (port in maps[player.location].ports) {
-				portX = 590 + (i('.field','width') - 1270) * maps[player.location].ports[port] / 100
+				portX = 590 + (i('.map','width') - 1270) * maps[player.location].ports[port] / 100
 
 				$("<div class='port'></div>")
 				.css('left', portX)
@@ -126,7 +126,7 @@ function enterMap(origin) {
 				.appendTo('.field')
 			}
 			for (npc in maps[player.location].npc) {
-				npcX = 590 + (i('.field','width') - 1270) * maps[player.location].npc[npc] / 100
+				npcX = 590 + (i('.map','width') - 1270) * maps[player.location].npc[npc] / 100
 				
 				$("<div class='npc'><div class='image'></div></div>")
 				.css('left', npcX)
@@ -145,7 +145,7 @@ function enterMap(origin) {
 
 			if (origin) {
 				originPosition = maps[player.location].ports[origin]
-				player.position = 634 + (i('.field','width') - 1270) * originPosition / 100
+				player.position = 634 + (i('.map','width') - 1270) * originPosition / 100
 			}
 
 			setTimeout(function() {
