@@ -547,7 +547,7 @@ function sellItem(item) {
 	.append('<div class="actions"><div class="button" onclick="closeCard()">CANCEL</div><div class="button yellow sell">SELL</div></div>')
 
 	$('.npc.sell input').on('input',function() {
-		if ($(this).val() > player.backpack[item] || $(this).val() < 1) {
+		if ($(this).val() > player.backpack[item]) {
 			$(this).val(player.backpack[item])
 		}
 		amount = $(this).val()
