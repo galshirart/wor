@@ -144,20 +144,8 @@ function enterMap(origin) {
 			}
 
 			if (origin) {
-				originSide = Object.entries(maps[player.location].ports).find(([originSide, name]) => name === origin)?.[0]
-				if ( originSide == 'left' ) {
-					player.position = 624
-					hero.css('transform','scaleX(1)')
-					heroDirection = 1
-				}
-				if ( originSide == 'right' ) {
-					player.position = i('.map','width')-624
-					hero.css('transform','scaleX(-1)')
-					heroDirection = -1
-				}
-				if ( originSide == 'middle' ) {
-					player.position = i('.map','width')/2
-				}
+				originPosition = maps[player.location].ports[origin]
+				player.position = 634 + (i('.field','width') - 1270) * originPosition / 100
 			}
 
 			setTimeout(function() {
