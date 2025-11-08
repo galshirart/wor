@@ -713,7 +713,7 @@ function itemStats(item) {
 		if ( stat == 'description' && equipments[item][stat] != '' ) {
 			stats+='<div class="flex stat"><div class="tip">'+equipments[item][stat]+'</tip></div>'
 		}
-		else if (stat != 'price' && equipments[item][stat] != 0) { 
+		else if (stat != 'price' && stat != 'type' && equipments[item][stat] != 0) { 
 			stats+='<div class="flex stat"><label>'+stat+'</label><label>'+equipments[item][stat]+'</label></div>'
 		}
 	}
