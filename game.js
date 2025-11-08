@@ -739,8 +739,8 @@ function createItemRow(item, amount) {
 	itemThumb = $('<div class="thumb"></div>')
 	.css('background-image','url(assets/item-'+item+'.png')
 	.appendTo(itemRow)
-    itemLabel = (amount != undefined) ? amount+' '+spcDash(item) : spcDash(item);
-		itemRow.append('<label>'+itemLabel+'</label>')
+    itemLabel = (amount != undefined && !equipments.hasOwnProperty(item)) ? amount+' '+spcDash(item) : spcDash(item);
+	itemRow.append('<label>'+itemLabel+'</label>')
     return itemRow
 }
 
