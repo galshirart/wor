@@ -676,10 +676,10 @@ function npcClick(npc) {
 function openBuyMenu(item) {
 	$('.card.middle').remove()
 	card = $('<div class="card middle buy"></div>').appendTo('.window')
-	.append(createItemRow(item))
+	.append(createItemRow(item).css('font-size','16px'))
 	.append(itemStats(item))
 
-	card.append('<label class="price">PRICE</label>')
+	card.append('<div class="flex stat price"><label>PRICE</label><div class="list"></div></div>')
 
 	actions = $('<div class="actions"><div class="button yellow">buy</div></div>')
 	actions.find('.button').attr('onclick','buy("'+item+'"); $(".card.middle").remove()')
@@ -691,7 +691,7 @@ function openBuyMenu(item) {
 			amountAvailable = 0
 		}
 
-		itemRow = createItemRow(requiredItem,amountRequired).appendTo(card)
+		itemRow = createItemRow(requiredItem,amountRequired).appendTo(card.find('.price .list'))
 
 		if (amountAvailable < amountRequired ) {
 			itemRow.css('opacity','0.4')
