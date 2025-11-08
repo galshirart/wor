@@ -128,7 +128,7 @@ function enterMap(origin) {
 			for (npc in maps[player.location].npc) {
 				npcX = 590 + (i('.map','width') - 1270) * maps[player.location].npc[npc] / 100
 				
-				$("<div class='npc'><div class='image'></div></div>")
+				npcElement = $("<div class='npc'><div class='image'></div></div>")
 				.css('left', npcX)
 				.find('.image')
 				.css({
@@ -139,8 +139,13 @@ function enterMap(origin) {
 				})
 				.end()
 				.attr('onclick', 'npcClick("' + npc + '")')
+				.attr('questID', npcs[npc].questID)
 				.append('<span>' + spcDash(npc) + '</span>')
 				.appendTo('.field');
+
+				if (npcs[npc].questID && !player.completedQuests.includes(npcs[npc].questID)) {
+					npcElement.append('<div class="questSign"></div>')
+				}
 			}
 
 			if (origin) {
@@ -751,6 +756,7 @@ function completeQuest(questID) {
 		acquireItem(reward, amount)
 	}
 
+	$('.field .npc[questID="'+questID+'"]').find('.questSign').remove()
 	player.completedQuests.push(questID)
 	log('Quest completed', 'crown')
 	closeCard()
