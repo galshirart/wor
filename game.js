@@ -9,6 +9,7 @@ function initGame() {
 	player = JSON.parse(localStorage.getItem('player'))
 
 	if (!player) { resetPlayer() }
+	if (player.version != '1') { resetPlayer() }
 
 	mapBuffer = 400
 
@@ -52,6 +53,7 @@ function initGame() {
 
 	setInterval(() => { 
 		walk(keyState)
+		slideMap()
 		collide()
 		recover()
 		save()
@@ -88,13 +90,29 @@ function walk(keyState) {
 	if ( player.position > i('.map','width') - 600 ) {
 		player.position = i('.map','width') - 610
 	}
-	slideMap()
+
 }
 
 function slideMap() {
-	windowWidth = i('.window','width')
-	$('.field').css('left', windowWidth/2-player.position)
-	$('.sky').css('left', -(windowWidth/2-player.position) / -(i('.map','width')-windowWidth) * (i('.sky','width')-windowWidth))
+	const windowWidth = i('.window', 'width');
+	const mapWidth = i('.map', 'width');
+	const backWidth = i('.back', 'width');
+	const frontWidth = i('.front', 'width');
+	const playerPos = player.position;
+
+	// Calculate basic offset for all layers
+	const offset = (windowWidth / 2) - playerPos;
+	$('.field').css('left', offset + 'px');
+
+	// Only recalculate parallax if needed (reduce DOM queries by caching)
+	const parallaxRatio = (mapWidth - windowWidth) > 0 ? (offset / (mapWidth - windowWidth)) : 0;
+
+	if (backWidth > windowWidth) {
+		$('.back').css('left', parallaxRatio * (backWidth - windowWidth) + 'px');
+	}
+	if (frontWidth > windowWidth) {
+		$('.front').css('left', parallaxRatio * (frontWidth - windowWidth) + 'px');
+	}
 }
 
 function enterMap(origin) {
@@ -102,8 +120,15 @@ function enterMap(origin) {
 
 	setTimeout(function() {
 
-		$('.field').html('').append('<img class="map" src="assets/map-'+player.location+'.png" />')
-		$('.sky').attr('src','assets/map-'+player.location+'-sky.png')
+		$('.field').html('').append('<img class="map" src="assets/map-'+player.location+'.webp" />')
+
+		$('.back, .front').css('display','none')
+		if (maps[player.location].layers.includes('back')) {
+			$('.back').css('display','block').attr('src','assets/map-'+player.location+'-back.webp')
+		}
+		if (maps[player.location].layers.includes('front')) {
+			$('.front').css('display','block').attr('src','assets/map-'+player.location+'-front.webp')
+		}
 
 		isMapLoaded = setInterval(() => {
 			if (i('.map','width') < 1) { return }
@@ -132,7 +157,7 @@ function enterMap(origin) {
 				.css('left', npcX)
 				.find('.image')
 				.css({
-					'background-image': 'url(assets/npc-' + npc + '.png)',
+					'background-image': 'url(assets/npc-' + npc + '.webp)',
 					'background-size': npcs[npc].size * 3 + 'px',
 					'width': npcs[npc].size,
 					'height': npcs[npc].size
@@ -300,7 +325,7 @@ function useSkill(key) {
 
     skillSprite = $('<div class="skill"></div>').css({
         'transform' :'scaleX('+heroDirection+')',
-        'background-image': 'url(assets/skill-'+skill+'.png)'
+        'background-image': 'url(assets/skill-'+skill+'.webp)'
     })
 
     if (skill == 'surge' && equipments[player.equipments.weapon].type == 'melee') {
@@ -345,7 +370,7 @@ function enemySpawn(type,map) {
 	.attr('hp',enemies[type].hp)
 	.attr('hit-count', 0)
 	.find('.image').css({
-		'background-image': 'url(assets/enemy-'+type+'.png)',
+		'background-image': 'url(assets/enemy-'+type+'.webp)',
 		'width': enemies[type].size[0],
 		'height': enemies[type].size[1]
 	}).end()
@@ -447,7 +472,7 @@ function enemyDeath(enemy) {
 
 	$('<div class="item"></div>').appendTo('.field').css({
 		'left': number(enemy.css('left')),
-		'background-image': 'url(assets/item-'+itemType+'.png)',
+		'background-image': 'url(assets/item-'+itemType+'.webp)',
 		'margin-bottom': i(enemy,'margin-bottom')+'px',
 		'z-index': i(enemy,'z-index')
 	})
@@ -462,7 +487,7 @@ function enemyDeath(enemy) {
 		if (edible) {
 			$('<div class="item"></div>').appendTo('.field').css({
 				'left': random(600, i('.field .map','width')-600),
-				'background-image': 'url(assets/item-'+maps[player.location].edibles[edible]+'.png)'
+				'background-image': 'url(assets/item-'+maps[player.location].edibles[edible]+'.webp)'
 			})
 			.attr({
 				'type': maps[player.location].edibles[edible],
@@ -737,7 +762,7 @@ function buy(item) {
 function createItemRow(item, amount) {
 	itemRow = $('<div class="item-row flex"></div>')
 	itemThumb = $('<div class="thumb"></div>')
-	.css('background-image','url(assets/item-'+item+'.png')
+	.css('background-image','url(assets/item-'+item+'.webp')
 	.appendTo(itemRow)
     itemLabel = (amount != undefined && !equipments.hasOwnProperty(item)) ? amount+' '+spcDash(item) : spcDash(item);
 	itemRow.append('<label>'+itemLabel+'</label>')
@@ -767,22 +792,22 @@ function setHeroAndBackpack() {
     hero = $('.hero').html('');
 
 	if (player.equipments.shield) {
-		hero.append('<div style="background-image:url(assets/shield-' + player.equipments.shield + '.png)" class="equipment"/>')
+		hero.append('<div style="background-image:url(assets/shield-' + player.equipments.shield + '.webp)" class="equipment"/>')
 	}
 
 	if (player.equipments.hat) {
-		hero.append('<div style="background-image:url(assets/hat-' + player.equipments.hat + '.png)" class="equipment"/>')
+		hero.append('<div style="background-image:url(assets/hat-' + player.equipments.hat + '.webp)" class="equipment"/>')
 	}
 
 	if (player.equipments.weapon == '') { player.equipments.weapon = 'none' }
 
 	if ( equipments[player.equipments.weapon].type == 'melee') {
-    	hero.append('<div class="weapon" name="'+player.equipments.weapon+'"><img src="assets/weapon-'+player.equipments.weapon+'.png" /></div>')
+    	hero.append('<div class="weapon" name="'+player.equipments.weapon+'"><img src="assets/weapon-'+player.equipments.weapon+'.webp" /></div>')
 	}
 
 	if ( equipments[player.equipments.weapon].type == 'range') {
     	hero.append('<div class="weapon range""></div>')
-		hero.find('.weapon').css('background-image','url(assets/weapon-'+player.equipments.weapon+'.png)')
+		hero.find('.weapon').css('background-image','url(assets/weapon-'+player.equipments.weapon+'.webp)')
 		.attr('type','range')
 	}
 
@@ -795,7 +820,7 @@ function setHeroAndBackpack() {
                 .attr('type', item)
                 .attr('ondblclick', 'useItem("' + item + '")')
                 .attr('onclick', 'sellItem("' + item + '")')
-                .css('background-image', 'url(assets/item-' + item + '.png)');
+                .css('background-image', 'url(assets/item-' + item + '.webp)');
             if (player.backpack[item] > 1) {
                 thumb.html('<span>' + player.backpack[item] + '</span>');
             }
@@ -885,13 +910,14 @@ $(document).on('click', function(e) {
 
 function resetPlayer() {
 	player = {}
-	player.speed = 16
+	player.version = '1'
+	player.speed = 15
 	player.backpack = {}
 	player.backpack['gold'] = 0
 	player.equipments = {}
 	player.equipments['weapon'] = 'none'
-	player.location = 'rookie-camp'
-	player.position = 600
+	player.location = 'a-box'
+	player.position = 905
 	player.hp = 10
 	player.mp = 10
 	player.maxHp = 10
@@ -918,7 +944,7 @@ function save() {
 function log(text, icon) {
 	logItem = $('<div>'+spcDash(text)+'</div>')
 	if (icon) {
-		logItem.prepend('<img src="assets/item-'+icon+'.png" />')
+		logItem.prepend('<img src="assets/item-'+icon+'.webp" />')
 	}
 	$('.log').append(logItem)
 	setTimeout(function(logItem) {
@@ -974,7 +1000,7 @@ function prettyNumber(number, color) {
 	number = number.toString().split('')
 	images = ''
 	for ( digit in number ) {
-		images+='<img number="'+number[digit]+'" src="assets/number-'+number[digit]+'-'+color+'.png" />'
+		images+='<img number="'+number[digit]+'" src="assets/number-'+number[digit]+'-'+color+'.webp" />'
 	}
 	return images
 }
@@ -997,9 +1023,9 @@ function pop(element){
 }
 
 function shake(element) {
-	$(element).css('transform','translateY(4px)')
+	$(element).css('transform','scaleY(1.01) translateY(4px)')
 	setTimeout(()=> {
-		$(element).css('transform','translateY(-2px)')
+		$(element).css('transform','scaleY(1.005) translateY(-2px)')
 	},100)
 	setTimeout(()=> {
 		$(element).css('transform','none')
