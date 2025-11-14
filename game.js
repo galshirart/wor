@@ -115,7 +115,7 @@ function slideMap() {
 	}
 }
 
-function enterMap(origin) {
+function enterMap(originMap) {
 	$('.overlay').css('opacity',1)
 
 	setTimeout(function() {
@@ -173,8 +173,8 @@ function enterMap(origin) {
 				}
 			}
 
-			if (origin) {
-				originPosition = maps[player.location].ports[origin]
+			if (originMap) {
+				originPosition = maps[player.location].ports[originMap]
 				player.position = 634 + (i('.map','width') - 1270) * originPosition / 100
 			}
 
@@ -636,9 +636,9 @@ function usePort() {
 
 		$(this).addClass('used')
 
-		origin = player.location
+		originMap = player.location
 		player.location = $(this).attr('target')
-		enterMap(origin)
+		enterMap(originMap)
 		closeCard()
 		sound('port')
 	});
