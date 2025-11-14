@@ -87,7 +87,7 @@ function walk(keyState) {
 	if ( player.position < 600 ) {
 		player.position = 610
 	}
-	if ( player.position > i('.map','width') - 600 ) {
+	if ( player.position > i('.map','width') - 600 && i('.map','width') > 1 ) {
 		player.position = i('.map','width') - 610
 	}
 
@@ -635,7 +635,6 @@ function usePort() {
 		{ return }
 
 		$(this).addClass('used')
-
 		originMap = player.location
 		player.location = $(this).attr('target')
 		enterMap(originMap)
