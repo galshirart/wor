@@ -978,7 +978,7 @@ $(document).on('click', function(e) {
 
 function resetPlayer() {
 	player = {}
-	player.version = '1'
+	player.version = '2'
 	player.speed = 15
 	player.backpack = {}
 	player.backpack['gold'] = 0
