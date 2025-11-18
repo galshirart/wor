@@ -200,9 +200,15 @@ function enterMap(originMap) {
 		}, 50)
 
 		if (player.location == 'a-box' || player.location == 'box-shore') { 
-			$('.tutorial').removeClass('show');
-			setTimeout(function() { setTutorial() }, 2000)
+			setTutorial()
 		}
+
+	}, mapBuffer)
+}
+
+function setTutorial() {
+	if (tutorialInterval) return;
+	tutorialInterval = setInterval(() => {
 		if (player.location == 'a-box') { 
 			$('.ui.bottom').hide();
 			$('.log').hide();
@@ -212,12 +218,6 @@ function enterMap(originMap) {
 			$('.log').show();
 		}
 
-	}, mapBuffer)
-}
-
-function setTutorial() {
-	if (tutorialInterval) return;
-	tutorialInterval = setInterval(() => {
 		$('.tutorial').removeClass('show');
 		if (player.location == 'a-box') { 
 			if (player.position < 1000) {
@@ -238,6 +238,16 @@ function setTutorial() {
 			} else {
 				$('[tutorial=jump]').removeClass('show');
 			}	
+		}
+		if (player.location == 'box-shore') { 
+			if (player.position > 1900 && player.position < 2090) {
+				$('[tutorial=interact]').addClass('show');
+			} else {
+				$('[tutorial=interact]').removeClass('show');
+			}	
+		}
+		if ($('.card.left.npc').is(':visible')) {
+			$('[tutorial=interact]').remove();
 		}
 	}, 200)
 }
@@ -752,14 +762,14 @@ function npcClick(npc) {
 			return
 		}
 
-		card.append('<label>Reward</label>')
+		card.append('<label class="light">QUEST REWARD</label>')
 		for (reward in quests[questID].reward) {
 			card.append(createItemRow(reward, quests[questID].reward[reward]))
 		}
 
-		card.append('<div class="actions"><div class="button yellow disabled">Complete Quest</div></div>')
 		if (availableAmount >= quests[questID].amount) {
-			card.find('.actions .button').removeClass('disabled').attr('onclick','completeQuest("'+questID+'")')
+			card.append('<div class="actions"><div class="button yellow">Complete Quest</div></div>')	
+			card.find('.actions .button').attr('onclick','completeQuest("'+questID+'")')
 		}
 
 	}	

@@ -238,6 +238,9 @@ label {
 	position: relative;
 	top:1px;
 }
+label.light {
+	font-weight:700;
+}
 input {
 	border: 1px solid #400000;
     background: rgba(64, 0, 0, 0.05);
