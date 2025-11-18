@@ -201,7 +201,7 @@ function enterMap(originMap) {
 
 		if (player.location == 'a-box' || player.location == 'box-shore') { 
 			$('.tutorial').removeClass('show');
-			setTimeout(function() { setTutorial() }, 3000)
+			setTimeout(function() { setTutorial() }, 2000)
 		}
 		if (player.location == 'a-box') { 
 			$('.ui.bottom').hide();
