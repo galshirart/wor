@@ -708,6 +708,7 @@ function interact() {
 
 	$('.npc.near-player').each(function() {
 		npcClick($(this).attr('npc-name'))
+		sound('click')
 	})
 
 
