@@ -9,7 +9,7 @@ function initGame() {
 	player = JSON.parse(localStorage.getItem('player'))
 
 	if (!player) { resetPlayer() }
-	if (player.version != '1') { resetPlayer() }
+	if (player.version != '2') { resetPlayer() }
 
 	mapBuffer = 400
 
@@ -25,17 +25,18 @@ function initGame() {
 	attackCooldown = false;
 	skillCooldown = false;
 	projectileActive = false;
+	tutorialInterval = null;
 
 	document.onkeydown = (e) => {
 		switch(e.keyCode) {
 			case 39: keyState.right = true; break;
 			case 37: keyState.left = true; break;
-			case 32: jump(); break;
+			case 38: jump(); break;
 			case 65: if (!attackCooldown) fight(); break;
 			case 83: if (!skillCooldown) useSkill('s'); break;
 			case 68: if (!skillCooldown) useSkill('d'); break;
 			case 90: pickUp(); break;
-			case 38: usePort(); break;
+			case 32: interact(); break;
 			case 66: $('.card.backpack').toggle(); break;
 			case 27: closeCard(); break;
 		}
@@ -91,6 +92,17 @@ function walk(keyState) {
 		player.position = i('.map','width') - 610
 	}
 
+	$('.field .npc').each(function() {
+		const npcLeft = i($(this), 'left');
+		const npcWidth = i($(this), 'width');
+		const npcCenter = npcLeft + npcWidth / 2;
+		const distance = Math.abs(player.position - npcCenter);
+		if (distance < 100) {
+			$(this).addClass('near-player');
+		} else {
+			$(this).removeClass('near-player');
+		}
+	});
 }
 
 function slideMap() {
@@ -165,6 +177,7 @@ function enterMap(originMap) {
 				.end()
 				.attr('onclick', 'npcClick("' + npc + '")')
 				.attr('questID', npcs[npc].questID)
+				.attr('npc-name', npc)
 				.append('<span>' + spcDash(npc) + '</span>')
 				.appendTo('.field');
 
@@ -186,7 +199,47 @@ function enterMap(originMap) {
 			},mapBuffer)
 		}, 50)
 
+		if (player.location == 'a-box' || player.location == 'box-shore') { 
+			$('.tutorial').removeClass('show');
+			setTimeout(function() { setTutorial() }, 3000)
+		}
+		if (player.location == 'a-box') { 
+			$('.ui.bottom').hide();
+			$('.log').hide();
+		}
+		else {
+			$('.ui.bottom').show();
+			$('.log').show();
+		}
+
 	}, mapBuffer)
+}
+
+function setTutorial() {
+	if (tutorialInterval) return;
+	tutorialInterval = setInterval(() => {
+		$('.tutorial').removeClass('show');
+		if (player.location == 'a-box') { 
+			if (player.position < 1000) {
+				$('[tutorial=move]').addClass('show');
+			} else {
+				$('[tutorial=move]').removeClass('show');
+			}
+
+			if (player.position > 1300) {
+				$('[tutorial=travel]').addClass('show');
+			} else {
+				$('[tutorial=travel]').removeClass('show');
+			}
+		}
+		if (player.location == 'box-shore') { 
+			if (player.position > 1100 && player.position < 1400) {
+				$('[tutorial=jump]').addClass('show');
+			} else {
+				$('[tutorial=jump]').removeClass('show');
+			}	
+		}
+	}, 200)
 }
 
 function jump() {
@@ -266,10 +319,9 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
     },390)
 }
 
-
 function handleAttackHits(x1, x2, atkMultiplier, maxTargets) {
     enemiesAttacked = 0
-    $('.enemy[active=true]').each(function() {
+    $('.enemy[active=true][hitable=TRUE]').each(function() {
         if ( x1 > i($(this),'left')+i($(this),'width') || x2 < i($(this),'left') ) return
 
         attack = spread(equipments[player.equipments.weapon].attack*atkMultiplier,20)
@@ -369,6 +421,7 @@ function enemySpawn(type,map) {
 	})
 	.attr('hp',enemies[type].hp)
 	.attr('hit-count', 0)
+	.attr('hitable',enemies[type].hitable)
 	.find('.image').css({
 		'background-image': 'url(assets/enemy-'+type+'.webp)',
 		'width': enemies[type].size[0],
@@ -383,20 +436,18 @@ function enemySpawn(type,map) {
 }
 
 function enemyMove(enemy, hitCount) {
-	if (enemies[enemy.attr('type')].speed == 0 
-	|| $(enemy).attr('active') == 'false'
+	if ( $(enemy).attr('active') == 'false'
 	|| hitCount < enemy.attr('hit-count'))
 	{ return }
 
-	// attempts = 0
-	// while (attempts < 100 ) {
-	//     distance = random(-200, 200);
-	//     if (i(enemy, 'left') + distance >= 600 && 
-	//         i(enemy, 'left') + distance <= i('.field .map', 'width') - 600) {
-	//         break;
-	//     }
-	//     attempts++;
-	// }
+	if (enemies[enemy.attr('type')].speed == 0) {
+		enemy.attr('state','move').css('animation-duration', 200+'ms')
+		
+		if (enemy.attr('type') == 'burning-plank') {
+			enemy.css('left', 1300+'px')
+		}
+		return
+	}
 
 	minX = 600
 	maxX = i('.field .map', 'width') - 600
@@ -628,7 +679,7 @@ function calcItemPrice(item) {
 	}
 }
 
-function usePort() {
+function interact() {
 	$('.port:not(.used)').each(function() {
 		if (player.position < i($(this),'left') ||
 			player.position > i($(this),'left') + i($(this),'width'))
@@ -641,6 +692,18 @@ function usePort() {
 		closeCard()
 		sound('port')
 	});
+
+	if ($('.card.left.npc').is(':visible')) {
+		closeCard();
+		return;
+	}
+
+	$('.npc.near-player').each(function() {
+		npcClick($(this).attr('npc-name'))
+	})
+
+
+
 }
 
 function npcClick(npc) {
@@ -650,7 +713,7 @@ function npcClick(npc) {
 	.append($('.person-header').clone())
 	.append('<div class="speech"><div>'+npcs[npc].speech+'</div></div>')
 	card.find('h3').html(spcDash(npc))
-	card.find('label').html(npcs[npc].title)
+	card.find('label').html(spcDash(npcs[npc].title))
 
 	if (npcs[npc].type == 'shop') {
 		$('.backpack').show()
@@ -811,6 +874,12 @@ function setHeroAndBackpack() {
 	}
 
 	$('.bar.gold .value').html(player.backpack.gold.toLocaleString());
+
+	if (player.backpack.gold == 0) {
+		$('.bar.gold').hide()
+	} else {
+		$('.bar.gold').show()
+	}
 
     $('.backpack .thumb').remove();
     for (item in player.backpack) {
@@ -1037,7 +1106,7 @@ function teleport(location) {
 }
 
 function showRange(x1,x2) {
-	range = $('<div class="range" style="position:absolute; top:390px; z-index:100; background:red; opacity:0.3; height:40px"></div>')
+	range = $('<div class="range" style="position:absolute; bottom:330px; z-index:100; background:red; opacity:0.3; height:40px"></div>')
 	range.css('width', Math.abs(x2-x1))
 	range.css('left', x1)
 	$('.field').append(range)
