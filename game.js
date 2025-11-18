@@ -207,18 +207,17 @@ function enterMap(originMap) {
 }
 
 function setTutorial() {
+	$('.ui.bottom').hide();
+	$('.log').hide();
 	if (tutorialInterval) return;
 	tutorialInterval = setInterval(() => {
-		if (player.location == 'a-box') { 
-			$('.ui.bottom').hide();
-			$('.log').hide();
-		}
-		else {
+		if (player.location == 'box-shore') { 
 			$('.ui.bottom').show();
 			$('.log').show();
 		}
 
 		$('.tutorial').removeClass('show');
+
 		if (player.location == 'a-box') { 
 			if (player.position < 1000) {
 				$('[tutorial=move]').addClass('show');
@@ -451,7 +450,7 @@ function enemyMove(enemy, hitCount) {
 	{ return }
 
 	if (enemies[enemy.attr('type')].speed == 0) {
-		enemy.attr('state','move').css('animation-duration', 200+'ms')
+		enemy.attr('state','move').find('.image').css('animation-duration', 500+'ms')
 		
 		if (enemy.attr('type') == 'burning-plank') {
 			enemy.css('left', 1300+'px')
@@ -488,7 +487,6 @@ function enemyMove(enemy, hitCount) {
 		'left': i(enemy,'left')+distance,
 		'transform': 'scaleX('+sign(distance)+')',
 		'transition-duration': abs(distance)*speed+'ms',
-		'animation-duration': speed*20+'ms'
 	})
 	.find('.hpBar').css('transform','scaleX('+sign(distance)+')')
 
