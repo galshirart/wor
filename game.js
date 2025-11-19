@@ -110,7 +110,12 @@ function enterMap(originMap) {
 		}
 
 		isMapLoaded = setInterval(() => {
-			if (i('.map','width') < 1) { return }
+			if (i('.map','width') < 1 ) { return }
+			if ((maps[player.location].layers.includes('front') && i('.front','width') < 1) || 
+				(maps[player.location].layers.includes('back') && i('.back','width') < 1)) {
+				return;
+			}
+
 			clearInterval(isMapLoaded)
 
 			for (type in maps[player.location].enemies) {
@@ -175,7 +180,7 @@ function enterMap(originMap) {
 				$('.mapsign').remove()
 				$('.window').append('<div class="mapsign"><span></span><span>'+spcDash(player.location)+'</span><span></span></div>')
 				log('Entered '+player.location, 'location')
-			},mapBuffer)
+			}, mapBuffer)
 		}, 50)
 
 		if (player.location == 'a-box' || player.location == 'box-shore') { 
