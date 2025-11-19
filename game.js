@@ -52,79 +52,46 @@ function initGame() {
 		}
 	}
 
-	setInterval(() => { 
-		walk(keyState)
-		slideMap()
-		collide()
-		recover()
-		save()
-	},100)
-
 	setHeroAndBackpack()
 	enterMap()
 }
 
 function walk(keyState) {
-	if (mode() == 'fight' || skillCooldown) return
+	if (mode() === 'fight' || skillCooldown) return;
 
-	isWalking = keyState.left || keyState.right
-	change = 0
+	isWalking = false
 
-	if (keyState.right) change = player.speed
-	if (keyState.left) change = -player.speed
-
-	if (isWalking) { 
-		hero.css('transform', 'scaleX(' + sign(change) + ')').attr('direction', sign(change))
-		heroDirection = sign(change)
-		if (mode() !== 'jump') { 
-			mode('walk')
-		}
-		player.position += change
-		hideCursor()
-	} else if (mode() != 'jump') {
-		mode('rest')
+	if (keyState.right) {
+		isWalking = true;
+		change = player.speed;
+	} else if (keyState.left) {
+		isWalking = true;
+		change = -player.speed;
 	}
 
-	if ( player.position < 600 ) {
-		player.position = 610
+	if (isWalking) {
+		heroDirection = Math.sign(change);
+		hero.css('transform', 'scaleX(' + heroDirection + ')').attr('direction', heroDirection);
+		if (mode() !== 'jump') mode('walk');
+		player.position += change;
+		hideCursor();
+	} else if (mode() !== 'jump') {
+		mode('rest');
 	}
-	if ( player.position > i('.map','width') - 600 && i('.map','width') > 1 ) {
-		player.position = i('.map','width') - 610
-	}
+
+	if (player.position < 610) player.position = 610;
+	if (mapWidth > 1 && player.position > mapWidth - 610) player.position = mapWidth - 610;
 
 	$('.field .npc').each(function() {
-		const npcLeft = i($(this), 'left');
-		const npcWidth = i($(this), 'width');
-		const npcCenter = npcLeft + npcWidth / 2;
-		const distance = Math.abs(player.position - npcCenter);
-		if (distance < 100) {
-			$(this).addClass('near-player');
-		} else {
-			$(this).removeClass('near-player');
-		}
+		npcCenter = i(this, 'left') + i(this, 'width') / 2;
+		$(this).toggleClass('near-player', Math.abs(player.position - npcCenter) < 100);
 	});
-}
 
-function slideMap() {
-	const windowWidth = i('.window', 'width');
-	const mapWidth = i('.map', 'width');
-	const backWidth = i('.back', 'width');
-	const frontWidth = i('.front', 'width');
-	const playerPos = player.position;
-
-	// Calculate basic offset for all layers
-	const offset = (windowWidth / 2) - playerPos;
+	offset = (windowWidth / 2) - player.position;
 	$('.field').css('left', offset + 'px');
-
-	// Only recalculate parallax if needed (reduce DOM queries by caching)
-	const parallaxRatio = (mapWidth - windowWidth) > 0 ? (offset / (mapWidth - windowWidth)) : 0;
-
-	if (backWidth > windowWidth) {
-		$('.back').css('left', parallaxRatio * (backWidth - windowWidth) + 'px');
-	}
-	if (frontWidth > windowWidth) {
-		$('.front').css('left', parallaxRatio * (frontWidth - windowWidth) + 'px');
-	}
+	parallaxRatio = (mapWidth - windowWidth) > 0 ? (offset / (mapWidth - windowWidth)) : 0;
+	$('.back').css('left', parallaxRatio * (backWidth - windowWidth) + 'px');
+	$('.front').css('left', parallaxRatio * (frontWidth - windowWidth) + 'px');
 }
 
 function enterMap(originMap) {
@@ -190,6 +157,18 @@ function enterMap(originMap) {
 				originPosition = maps[player.location].ports[originMap]
 				player.position = 634 + (i('.map','width') - 1270) * originPosition / 100
 			}
+
+			windowWidth = i('.window', 'width');
+			mapWidth = i('.map', 'width');
+			backWidth = i('.back', 'width');
+			frontWidth = i('.front', 'width');
+
+			gameBeat = setInterval(() => { 
+				walk(keyState)
+				collide()
+				recover()
+				save()
+			},100)
 
 			setTimeout(function() {
 				$('.overlay').css('opacity',0)
@@ -394,7 +373,7 @@ function useSkill(key) {
         sound('swoosh')
         hero.after(skillSprite)
         player.position = player.position+heroDirection*100
-        slideMap()
+        walk()
     }
 
     if (skill == 'impact' && equipments[player.equipments.weapon].type == 'melee') {
@@ -512,7 +491,6 @@ function collide() {
 		player.hp = player.hp-damage
 
 		player.position = player.position-heroDirection*40
-        slideMap()
 
 		setTimeout(() => {
 			hero.attr('in-damage','false')
@@ -696,6 +674,7 @@ function interact() {
 		$(this).addClass('used')
 		originMap = player.location
 		player.location = $(this).attr('target')
+		clearInterval(gameBeat)
 		enterMap(originMap)
 		closeCard()
 		sound('port')
@@ -710,9 +689,6 @@ function interact() {
 		npcClick($(this).attr('npc-name'))
 		sound('click')
 	})
-
-
-
 }
 
 function npcClick(npc) {
