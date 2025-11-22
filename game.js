@@ -153,9 +153,7 @@ function enterMap(originMap) {
 
 			if (!player.mapsVisited.includes(player.location)) {
 				player.mapsVisited.push(player.location)
-				setTimeout(function() {
-					monologue(maps[player.location].monologue)
-				}, 2000)
+				setTimeout(function() { monologue(maps[player.location].monologue) }, 2000)
 			}
 			
 			if (player.location == 'a-box' || player.location == 'box-shore') { 
@@ -192,9 +190,10 @@ function placeNPC(npc) {
 		'height': npcs[npc].size
 	})
 	.end()
-	.attr('onclick', 'npcClick("' + npc + '")')
-	.attr('questID', npcs[npc].questID)
-	.attr('npc-name', npc)
+	.attr({
+		'questID': npcs[npc].questID,
+		'npc-name': npc
+	})
 	.append('<span>' + spcDash(npc) + '</span>')
 	.appendTo('.field');
 
@@ -415,7 +414,7 @@ function useSkill(key) {
 function enemySpawn(type,map) {
 	if (map != player.location) { return }
 
-	destination = random(800, i('.field .map','width')-800 )
+	destination = random(800, i('.map','width')-800)
 	yOffset = random(-5,5)
 
 	enemy = $('<div class="enemy" type="'+type+'"><div class="image"></div><div class="hpBar"><div class="bar"></div></div></div>')
@@ -456,7 +455,7 @@ function enemyMove(enemy, hitCount) {
 	}
 
 	minX = 600
-	maxX = i('.field .map', 'width') - 600
+	maxX = i('.map', 'width') - 600
 	currentX = i(enemy, 'left')
 
 	speed = spread(enemies[enemy.attr('type')].speed, 30)
@@ -509,6 +508,7 @@ function collide() {
 		player.hp = player.hp-damage
 
 		player.position = player.position-heroDirection*40
+		// this is the knockback, should be more than 40 maybe if it's a boss or something
 
 		setTimeout(() => {
 			hero.attr('in-damage','false')
@@ -541,7 +541,7 @@ function enemyDeath(enemy) {
 		
 		if (edible) {
 			$('<div class="item"></div>').appendTo('.field').css({
-				'left': random(600, i('.field .map','width')-600),
+				'left': random(600, i('.map','width')-600),
 				'background-image': 'url(assets/item-'+maps[player.location].edibles[edible]+'.webp)'
 			})
 			.attr({
@@ -704,12 +704,12 @@ function interact() {
 	}
 
 	$('.npc.near-player').each(function() {
-		npcClick($(this).attr('npc-name'))
+		npcInteraction($(this).attr('npc-name'))
 		sound('click')
 	})
 }
 
-function npcClick(npc) {
+function npcInteraction(npc) {
 	$('.card.left, .card.middle').remove()
 	card = $('<div class="card left npc"></div>').appendTo('.window')
 	.addClass(npcs[npc].type)
@@ -764,7 +764,6 @@ function npcClick(npc) {
 			card.append('<div class="actions"><div class="button yellow">Complete Quest</div></div>')	
 			card.find('.actions .button').attr('onclick','completeQuest("'+questID+'")')
 		}
-
 	}	
 }
 
