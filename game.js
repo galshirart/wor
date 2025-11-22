@@ -110,7 +110,7 @@ function enterMap(originMap) {
 			$('.field').after('<img class="front" src="assets/map-'+player.location+'-front.webp" />')
 		}
 
-		isMapLoaded = setInterval(() => { console.log('checking');
+		isMapLoaded = setInterval(() => {
 			if (i('.map','width') < 1 ) { return }
 			if ((maps[player.location].layers.includes('front') && i('.front','width') < 1) || 
 				(maps[player.location].layers.includes('back') && i('.back','width') < 1)) {
@@ -123,41 +123,9 @@ function enterMap(originMap) {
 				Array.from({length: maps[player.location].enemies[type]}, () => enemySpawn(type, player.location));
 			}
 
-			for (port in maps[player.location].ports) {
-				portX = 590 + (i('.map','width') - 1270) * maps[player.location].ports[port] / 100
+			for (port in maps[player.location].ports) { placePort(port) }
 
-				$("<div class='port'></div>")
-				.css('left', portX)
-				.attr('target',port)
-				.appendTo('.field')
-
-				$("<div class='sparkles'></div>")
-				.css('left', portX)
-				.appendTo('.field')
-			}
-			for (npc in maps[player.location].npc) {
-				npcX = 590 + (i('.map','width') - 1270) * maps[player.location].npc[npc] / 100
-				
-				npcElement = $("<div class='npc'><div class='image'></div></div>")
-				.css('left', npcX)
-				.find('.image')
-				.css({
-					'background-image': 'url(assets/npc-' + npc + '.webp)',
-					'background-size': npcs[npc].size * 3 + 'px',
-					'width': npcs[npc].size,
-					'height': npcs[npc].size
-				})
-				.end()
-				.attr('onclick', 'npcClick("' + npc + '")')
-				.attr('questID', npcs[npc].questID)
-				.attr('npc-name', npc)
-				.append('<span>' + spcDash(npc) + '</span>')
-				.appendTo('.field');
-
-				if (npcs[npc].questID && !player.completedQuests.includes(npcs[npc].questID)) {
-					npcElement.append('<div class="questSign"></div>')
-				}
-			}
+			for (npc in maps[player.location].npc) { placeNPC(npc) }
 
 			if (originMap) {
 				originPosition = maps[player.location].ports[originMap]
@@ -196,6 +164,43 @@ function enterMap(originMap) {
 		}, 50)
 
 	}, mapBuffer)
+}
+
+function placePort(port) {
+	portX = 590 + (i('.map','width') - 1270) * maps[player.location].ports[port] / 100
+
+	$("<div class='port'></div>")
+	.css('left', portX)
+	.attr('target',port)
+	.appendTo('.field')
+
+	$("<div class='sparkles'></div>")
+	.css('left', portX)
+	.appendTo('.field')
+}
+
+function placeNPC(npc) {
+	npcX = 590 + (i('.map','width') - 1270) * maps[player.location].npc[npc] / 100
+				
+	npcElement = $("<div class='npc'><div class='image'></div></div>")
+	.css('left', npcX)
+	.find('.image')
+	.css({
+		'background-image': 'url(assets/npc-' + npc + '.webp)',
+		'background-size': npcs[npc].size * 3 + 'px',
+		'width': npcs[npc].size,
+		'height': npcs[npc].size
+	})
+	.end()
+	.attr('onclick', 'npcClick("' + npc + '")')
+	.attr('questID', npcs[npc].questID)
+	.attr('npc-name', npc)
+	.append('<span>' + spcDash(npc) + '</span>')
+	.appendTo('.field');
+
+	if (npcs[npc].questID && !player.completedQuests.includes(npcs[npc].questID)) {
+		npcElement.append('<div class="questSign"></div>')
+	}
 }
 
 function setTutorial() {
