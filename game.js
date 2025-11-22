@@ -134,7 +134,7 @@ function walk(keyState) {
 	});
 
 	if ($('.field .npc.near-player').length === 0) {
-		closeCard();
+		closeCard('npc');
 	}
 
 	offset = (windowWidth / 2) - player.position;
@@ -961,9 +961,13 @@ function monologue(text) {
 
 function closeCard(element) {
 	zoom('out');
-	$('.card.left').remove()
-	$('.card.middle').remove()
-	$('.card.backpack').hide()
+	if (element == 'npc') {
+		$('.card.left').remove()
+	} else {
+		$('.card.left').remove()
+		$('.card.middle').remove()
+		$('.card.backpack').hide()
+	}
 }
 
 $(document).on('click', function(e) {
