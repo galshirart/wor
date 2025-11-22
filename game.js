@@ -1,24 +1,15 @@
 fetch('https://galshir.com/php/wor.php')
 .then(res => res.json())
 .then(data => {
-  gameData = data;
-  initGame()
-})
+	maps = data['maps']
+	enemies = data['enemies']
+	equipments = data['equipments']
+	skills = data['skills']
+	npcs = data['npcs']
+	quests = data['quests']
 
-function initGame() {
 	player = JSON.parse(localStorage.getItem('player'))
-
-	if (!player) { resetPlayer() }
-	if (player.version != '3') { resetPlayer() }
-
-	mapBuffer = 400
-
-	maps = gameData['maps']
-	enemies = gameData['enemies']
-	equipments = gameData['equipments']
-	skills = gameData['skills']
-	npcs = gameData['npcs']
-	quests = gameData['quests']
+	if (!player || player.version != '3') { resetPlayer() }
 
 	keyState = {left: false, right: false};
 	heroDirection = 1
@@ -47,13 +38,69 @@ function initGame() {
 			case 39: keyState.right = false; break;
 			case 37: keyState.left = false; break;
 		}
-		if (!keyState.left && !keyState.right) {
-			$('[mode=walk]').attr('mode','rest');
-		}
 	}
 
 	setHeroAndBackpack()
 	enterMap()
+})
+
+function enterMap(originMap) {
+	$('.overlay').css('opacity',1)
+
+	setTimeout(function() {
+		$('.back, .front').remove();
+		$('.field').html('').append('<img class="map" src="assets/map-'+player.location+'.webp" />')
+
+		for (layer in maps[player.location].layers) {
+			$('.field').after('<img class="'+maps[player.location].layers[layer]+'" src="assets/map-'+player.location+'-'+maps[player.location].layers[layer]+'.webp" />')
+		}
+
+		isMapLoaded = setInterval(() => {
+			if (i('.map','width') < 1 ) { return }
+			if ((maps[player.location].layers.includes('front') && i('.front','width') < 1) || 
+				(maps[player.location].layers.includes('back') && i('.back','width') < 1)) {
+				return;
+			}
+
+			clearInterval(isMapLoaded)
+
+			for (type in maps[player.location].enemies) { Array.from({length: maps[player.location].enemies[type]}, () => enemySpawn(type, player.location)); }
+			for (port in maps[player.location].ports) { placePort(port) }
+			for (npc in maps[player.location].npc) { placeNPC(npc) }
+
+			if (originMap) {
+				player.position = 634 + (i('.map','width') - 1270) * maps[player.location].ports[originMap] / 100
+			}
+
+			windowWidth = i('.window', 'width');
+			mapWidth = i('.map', 'width');
+			backWidth = i('.back', 'width');
+			frontWidth = i('.front', 'width');
+
+			gameBeat = setInterval(() => { 
+				walk(keyState)
+				collide()
+				recover()
+				save()
+			},100)
+
+			setTimeout(function() {
+				$('.overlay').css('opacity',0)
+				$('.mapsign').remove()
+				$('.window').append('<div class="mapsign"><span></span><span>'+spcDash(player.location)+'</span><span></span></div>')
+				log('Entered '+player.location, 'location')
+			}, 400)
+
+			if (!player.mapsVisited.includes(player.location)) {
+				player.mapsVisited.push(player.location)
+				setTimeout(function() { monologue(maps[player.location].monologue) }, 2000)
+			}
+			
+			if (player.location == 'a-box' || player.location == 'box-shore') { 
+				setTutorial()
+			}
+		}, 50)
+	}, 400)
 }
 
 function walk(keyState) {
@@ -83,8 +130,7 @@ function walk(keyState) {
 	if (mapWidth > 1 && player.position > mapWidth - 610) player.position = mapWidth - 610;
 
 	$('.field .npc').each(function() {
-		npcCenter = i(this, 'left') + i(this, 'width') / 2;
-		$(this).toggleClass('near-player', Math.abs(player.position - npcCenter) < 100);
+		$(this).toggleClass('near-player', Math.abs(player.position - i(this, 'left') + i(this, 'width') / 2) < 100);
 	});
 
 	offset = (windowWidth / 2) - player.position;
@@ -92,76 +138,6 @@ function walk(keyState) {
 	parallaxRatio = (mapWidth - windowWidth) > 0 ? (offset / (mapWidth - windowWidth)) : 0;
 	$('.back').css('left', parallaxRatio * (backWidth - windowWidth) + 'px');
 	$('.front').css('left', parallaxRatio * (frontWidth - windowWidth) + 'px');
-}
-
-function enterMap(originMap) {
-	$('.overlay').css('opacity',1)
-
-	setTimeout(function() {
-
-		$('.field').html('').append('<img class="map" src="assets/map-'+player.location+'.webp" />')
-
-		$('.back, .front').remove();
-
-		if (maps[player.location].layers.includes('back')) {
-			$('.field').before('<img class="back" src="assets/map-'+player.location+'-back.webp" />')
-		}
-		if (maps[player.location].layers.includes('front')) {
-			$('.field').after('<img class="front" src="assets/map-'+player.location+'-front.webp" />')
-		}
-
-		isMapLoaded = setInterval(() => {
-			if (i('.map','width') < 1 ) { return }
-			if ((maps[player.location].layers.includes('front') && i('.front','width') < 1) || 
-				(maps[player.location].layers.includes('back') && i('.back','width') < 1)) {
-				return;
-			}
-
-			clearInterval(isMapLoaded)
-
-			for (type in maps[player.location].enemies) {
-				Array.from({length: maps[player.location].enemies[type]}, () => enemySpawn(type, player.location));
-			}
-
-			for (port in maps[player.location].ports) { placePort(port) }
-
-			for (npc in maps[player.location].npc) { placeNPC(npc) }
-
-			if (originMap) {
-				originPosition = maps[player.location].ports[originMap]
-				player.position = 634 + (i('.map','width') - 1270) * originPosition / 100
-			}
-
-			windowWidth = i('.window', 'width');
-			mapWidth = i('.map', 'width');
-			backWidth = i('.back', 'width');
-			frontWidth = i('.front', 'width');
-
-			gameBeat = setInterval(() => { 
-				walk(keyState)
-				collide()
-				recover()
-				save()
-			},100)
-
-			setTimeout(function() {
-				$('.overlay').css('opacity',0)
-				$('.mapsign').remove()
-				$('.window').append('<div class="mapsign"><span></span><span>'+spcDash(player.location)+'</span><span></span></div>')
-				log('Entered '+player.location, 'location')
-			}, mapBuffer)
-
-			if (!player.mapsVisited.includes(player.location)) {
-				player.mapsVisited.push(player.location)
-				setTimeout(function() { monologue(maps[player.location].monologue) }, 2000)
-			}
-			
-			if (player.location == 'a-box' || player.location == 'box-shore') { 
-				setTutorial()
-			}
-		}, 50)
-
-	}, mapBuffer)
 }
 
 function placePort(port) {
@@ -424,9 +400,11 @@ function enemySpawn(type,map) {
 		'margin-bottom': yOffset+'px',
 		'z-index': hero.css('z-index')-yOffset
 	})
-	.attr('hp',enemies[type].hp)
-	.attr('hit-count', 0)
-	.attr('hitable',enemies[type].hitable)
+	.attr({
+		'hp': enemies[type].hp,
+		'hit-count': 0,
+		'hitable': enemies[type].hitable
+	})
 	.find('.image').css({
 		'background-image': 'url(assets/enemy-'+type+'.webp)',
 		'width': enemies[type].size[0],
@@ -533,23 +511,6 @@ function enemyDeath(enemy) {
 	})
 	.attr('type',itemType)
 	.attr('gold-amount',Math.round(average([enemies[enemyType].hp, enemies[enemyType].attack])/3))
-
-	if (random(1,3) == 1) {
-		lowMana = player.mp < player.maxMp*0.5 && $('.field [edible=mana]').length < 2;
-		lowHealth = player.hp < player.maxHp*0.5 && $('.field [edible=health]').length < 2;
-		edible = lowMana ? 'mana' : (lowHealth ? 'health' : null);
-		
-		if (edible) {
-			$('<div class="item"></div>').appendTo('.field').css({
-				'left': random(600, i('.map','width')-600),
-				'background-image': 'url(assets/item-'+maps[player.location].edibles[edible]+'.webp)'
-			})
-			.attr({
-				'type': maps[player.location].edibles[edible],
-				'edible': edible
-			});
-		}
-	}
 	
 	$(enemy).css('left', i(enemy,'left')).addClass('dead').attr('active','false')
 	.fadeOut(1000).promise().done(function(enemy) { $(enemy).remove() })
@@ -963,14 +924,13 @@ function setTooltips() {
 }
 
 function monologue(text) {
-	if (text == undefined) { return }
-	let monologueDiv = $('<div class="monologue"><div class="text"></div></div>');
+	if (text == '') { return }
+	monologueDiv = $('<div class="monologue"><div class="text"></div></div>');
 	$('.window').append(monologueDiv);
-	let el = monologueDiv.find('.text');
-	let i = 0;
+	i = 0;
 	function typeWriter() {
 		if (i < text.length) {
-			el.append(text[i]);
+			monologueDiv.find('.text').append(text[i]);
 			i++;
 			setTimeout(typeWriter, 25);
 		}
@@ -1124,7 +1084,9 @@ function shake(element) {
 
 function teleport(location) {
 	player.location = location
-	enterMap(player.location)
+	player.position = 630
+	clearInterval(gameBeat)
+	enterMap()
 }
 
 function showRange(x1,x2) {
