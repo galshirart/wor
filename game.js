@@ -9,7 +9,7 @@ function initGame() {
 	player = JSON.parse(localStorage.getItem('player'))
 
 	if (!player) { resetPlayer() }
-	if (player.version != '2') { resetPlayer() }
+	if (player.version != '3') { resetPlayer() }
 
 	mapBuffer = 400
 
@@ -181,11 +181,18 @@ function enterMap(originMap) {
 				$('.window').append('<div class="mapsign"><span></span><span>'+spcDash(player.location)+'</span><span></span></div>')
 				log('Entered '+player.location, 'location')
 			}, mapBuffer)
-		}, 50)
 
-		if (player.location == 'a-box' || player.location == 'box-shore') { 
-			setTutorial()
-		}
+			if (!player.mapsVisited.includes(player.location)) {
+				player.mapsVisited.push(player.location)
+				setTimeout(function() {
+					monologue(maps[player.location].monologue)
+				}, 2000)
+			}
+			
+			if (player.location == 'a-box' || player.location == 'box-shore') { 
+				setTutorial()
+			}
+		}, 50)
 
 	}, mapBuffer)
 }
@@ -950,6 +957,25 @@ function setTooltips() {
 	})
 }
 
+function monologue(text) {
+	if (text == undefined) { return }
+	let monologueDiv = $('<div class="monologue"><div class="text"></div></div>');
+	$('.window').append(monologueDiv);
+	let el = monologueDiv.find('.text');
+	let i = 0;
+	function typeWriter() {
+		if (i < text.length) {
+			el.append(text[i]);
+			i++;
+			setTimeout(typeWriter, 25);
+		}
+	}
+	typeWriter();
+	setTimeout(function() {
+		$('.monologue').remove()
+	}, 1000 + 600 * text.split(/\s+/).filter(Boolean).length)
+}
+
 function closeCard(element) {
 	$('.card.left').remove()
 	$('.card.middle').remove()
@@ -968,7 +994,7 @@ $(document).on('click', function(e) {
 
 function resetPlayer() {
 	player = {}
-	player.version = '2'
+	player.version = 3
 	player.speed = 15
 	player.backpack = {}
 	player.backpack['gold'] = 0
@@ -983,6 +1009,7 @@ function resetPlayer() {
 	player.completedQuests = []
 	player.enemiesSlained = {}
 	player.totalEnemiesSlained = 0
+	player.mapsVisited = []
 	save()
 	location.reload()
 }

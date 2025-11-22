@@ -632,6 +632,34 @@ input:focus {
 	0% { transform: translateY(10px); opacity:0}
 	100% { transform:translateY(0); opacity:1 }
 }
+.monologue {
+	position: absolute;
+	z-index: 100;
+	right: 0;
+	left: 0;
+	margin:auto;
+	bottom:398px;
+	width: fit-content;
+	background:#FFF6C1;
+	border:1px solid #400000;
+	border-radius: 8px;
+	text-transform: none;
+	padding:4px 8px;
+	font-weight:400;
+	letter-spacing: 0;
+	font-family: 'Roboto Slab';
+}
+.monologue:after {
+	content: " ";
+	display: block;
+	width: 10px;
+	height: 10px;
+	background: #FFF6C1;
+	position: absolute;
+	bottom: -5px;
+	left: 50%;
+	transform: translateX(-50%) rotate(45deg);
+}
 
 /************** HERO **************/
 
