@@ -682,6 +682,8 @@ function npcInteraction(npc) {
 	card.find('h3').html(spcDash(npc))
 	card.find('label').html(spcDash(npcs[npc].title))
 
+	showCursor()
+
 	if (npcs[npc].type == 'shop') {
 		$('.backpack').show()
 		for (item in npcs[npc].items) { 
