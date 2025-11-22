@@ -101,15 +101,16 @@ function enterMap(originMap) {
 
 		$('.field').html('').append('<img class="map" src="assets/map-'+player.location+'.webp" />')
 
-		$('.back, .front').css('display','none')
+		$('.back, .front').remove();
+
 		if (maps[player.location].layers.includes('back')) {
-			$('.back').css('display','block').attr('src','assets/map-'+player.location+'-back.webp')
+			$('.field').before('<img class="back" src="assets/map-'+player.location+'-back.webp" />')
 		}
 		if (maps[player.location].layers.includes('front')) {
-			$('.front').css('display','block').attr('src','assets/map-'+player.location+'-front.webp')
+			$('.field').after('<img class="front" src="assets/map-'+player.location+'-front.webp" />')
 		}
 
-		isMapLoaded = setInterval(() => {
+		isMapLoaded = setInterval(() => { console.log('checking');
 			if (i('.map','width') < 1 ) { return }
 			if ((maps[player.location].layers.includes('front') && i('.front','width') < 1) || 
 				(maps[player.location].layers.includes('back') && i('.back','width') < 1)) {
