@@ -32,11 +32,19 @@ body {
 	border-radius:10px;
 	overflow: hidden;
 }
+.screen {
+	height:100%;
+	transform-origin: 50% 482px;
+	transition: transform 500ms;
+}
+.zoom .screen {
+	transform: scale(1.05);
+}
 .field {
 	position: absolute;
 	height:800px;
 	bottom:0;
-	transition: left 100ms linear, transform 100ms, margin-bottom 300ms ease-in;
+	transition: left 100ms linear, transform 500ms, margin-bottom 300ms ease-in;
 }
 .map {
 	height:800px;
@@ -44,14 +52,20 @@ body {
 .back, .front {
 	height:800px;
 	position: absolute;
-	transition: left 100ms linear;
+	transition: left 100ms linear, transform 500ms;
 	pointer-events: none;
 }
 .back {
 	z-index: -10;
 }
+.zoom .back {
+	transform: translateY(1%)
+}
 .front {
 	z-index: 10;
+}
+.zoom .front {
+	transform: scale(1.05)
 }
 .port {
 	position: absolute;

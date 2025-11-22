@@ -24,8 +24,8 @@ fetch('https://galshir.com/php/wor.php')
 			case 37: keyState.left = true; break;
 			case 38: jump(); break;
 			case 65: if (!attackCooldown) fight(); break;
-			case 83: if (!skillCooldown) useSkill('s'); break;
-			case 68: if (!skillCooldown) useSkill('d'); break;
+			// case 83: if (!skillCooldown) useSkill('s'); break;
+			// case 68: if (!skillCooldown) useSkill('d'); break;
 			case 90: pickUp(); break;
 			case 32: interact(); break;
 			case 66: $('.card.backpack').toggle(); break;
@@ -105,7 +105,6 @@ function enterMap(originMap) {
 
 function walk(keyState) {
 	if (mode() === 'fight' || skillCooldown) return;
-
 	isWalking = false
 
 	if (keyState.right) {
@@ -130,9 +129,13 @@ function walk(keyState) {
 	if (mapWidth > 1 && player.position > mapWidth - 610) player.position = mapWidth - 610;
 
 	$('.field .npc').each(function() {
-		npcCenter = i(this, 'left') + i(this, 'width') / 2;
-		$(this).toggleClass('near-player', Math.abs(player.position - npcCenter) < 100);
+		near = player.position >= i(this, 'left') - 60 && player.position <= i(this, 'left') + i(this, 'width') + 60;
+		$(this).toggleClass('near-player', near);
 	});
+
+	if ($('.field .npc.near-player').length === 0) {
+		closeCard();
+	}
 
 	offset = (windowWidth / 2) - player.position;
 	$('.field').css('left', offset + 'px');
@@ -363,11 +366,10 @@ function useSkill(key) {
     })
 
     if (skill == 'surge' && equipments[player.equipments.weapon].type == 'melee') {
+		player.position = player.position+heroDirection*100
         fight(atkType=1, rangeStart=0,rangeEnd=120, skills[skill].atkMultiplier, maxTargets=2)
         sound('swoosh')
         hero.after(skillSprite)
-        player.position = player.position+heroDirection*100
-        walk()
     }
 
     if (skill == 'impact' && equipments[player.equipments.weapon].type == 'melee') {
@@ -726,7 +728,20 @@ function npcInteraction(npc) {
 			card.append('<div class="actions"><div class="button yellow">Complete Quest</div></div>')	
 			card.find('.actions .button').attr('onclick','completeQuest("'+questID+'")')
 		}
-	}	
+	}
+	
+	zoom('in');
+}
+
+function zoom(direction) {
+	percentage = (600-player.position)/(i('.map', 'width')-1200)
+	$('.front').css('transform-origin', Math.abs(percentage)*100+'% 482px')
+
+	if (direction == 'in') {
+	$('body').addClass('zoom')
+	} else {
+		$('body').removeClass('zoom')
+	}
 }
 
 function openBuyMenu(item) {
@@ -943,6 +958,7 @@ function monologue(text) {
 }
 
 function closeCard(element) {
+	zoom('out');
 	$('.card.left').remove()
 	$('.card.middle').remove()
 	$('.card.backpack').hide()
