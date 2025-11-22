@@ -130,7 +130,8 @@ function walk(keyState) {
 	if (mapWidth > 1 && player.position > mapWidth - 610) player.position = mapWidth - 610;
 
 	$('.field .npc').each(function() {
-		$(this).toggleClass('near-player', Math.abs(player.position - i(this, 'left') + i(this, 'width') / 2) < 100);
+		npcCenter = i(this, 'left') + i(this, 'width') / 2;
+		$(this).toggleClass('near-player', Math.abs(player.position - npcCenter) < 100);
 	});
 
 	offset = (windowWidth / 2) - player.position;
@@ -927,11 +928,11 @@ function monologue(text) {
 	if (text == '') { return }
 	monologueDiv = $('<div class="monologue"><div class="text"></div></div>');
 	$('.window').append(monologueDiv);
-	i = 0;
+	characterIndex = 0;
 	function typeWriter() {
-		if (i < text.length) {
-			monologueDiv.find('.text').append(text[i]);
-			i++;
+		if (characterIndex < text.length) {
+			monologueDiv.find('.text').append(text[characterIndex]);
+			characterIndex++;
 			setTimeout(typeWriter, 25);
 		}
 	}
