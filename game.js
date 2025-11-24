@@ -165,9 +165,9 @@ function placeNPC(npc) {
 	.find('.image')
 	.css({
 		'background-image': 'url(assets/npc-' + npc + '.webp)',
-		'background-size': npcs[npc].size * 3 + 'px',
-		'width': npcs[npc].size,
-		'height': npcs[npc].size
+		'background-size': npcs[npc].size[0] * 5 + 'px',
+		'width': npcs[npc].size[0],
+		'height': npcs[npc].size[1]
 	})
 	.end()
 	.attr({
@@ -678,6 +678,8 @@ function npcInteraction(npc) {
 	card = $('<div class="card left npc"></div>').appendTo('.window')
 	.addClass(npcs[npc].type)
 	.append($('.person-header').clone())
+	.find('.avatar').css('background-image', 'url(assets/avatar-' + npc + '.webp)')
+	.end()
 	.append('<div class="speech"><div>'+npcs[npc].speech+'</div></div>')
 	card.find('h3').html(spcDash(npc))
 	card.find('label').html(spcDash(npcs[npc].title))

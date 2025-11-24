@@ -419,13 +419,13 @@ input:focus {
 	margin-bottom:6px;
 }
 .avatar {
+	background-size: 64px;
 	width:64px;
 	height:64px;
 	border-radius: 100%;
 	border:1px solid #400000;
 	margin-right:8px;
 	margin-bottom:-20px;
-	background:grey;
 }
 .person-header .name {
 	flex: auto;
@@ -1123,12 +1123,15 @@ input:focus {
 	animation-name: npc;
 	animation-iteration-count: infinite;
 	animation-duration: 800ms;
+	animation-direction: alternate;
+
 }
 @keyframes npc {
 	0% { background-position:0 0 }
-	25% { background-position:-100% 0 }
-	50% { background-position:0 0 }
-	75% { background-position:-200% 0 }
+	20% { background-position:-100% 0 }
+	40% { background-position:-200% 0 }
+	60% { background-position:-300% 0 }
+	80% { background-position:-400% 0 }
 }
 .field .npc span {
 	opacity:0;
