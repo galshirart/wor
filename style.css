@@ -424,7 +424,7 @@ input:focus {
 	height:64px;
 	border-radius: 100%;
 	border:1px solid #400000;
-	margin-right:8px;
+	margin-right:10px;
 	margin-bottom:-20px;
 }
 .person-header .name {
