@@ -164,7 +164,7 @@ function placeNPC(npc) {
 	.css('left', npcX)
 	.find('.image')
 	.css({
-		'background-image': 'url(assets/npc-' + npc + '.webp)',
+		'background-image': 'url(assets/npc-' + npc + '.webp?2)',
 		'background-size': npcs[npc].size[0] * 5 + 'px',
 		'width': npcs[npc].size[0],
 		'height': npcs[npc].size[1]
