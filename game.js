@@ -506,6 +506,11 @@ function enemyDeath(enemy) {
 	
 	if (enemies[enemyType].gold == 'TRUE' && random(1,2) == 1) {
 		itemType = 'gold'
+		goldAmount = Math.round(average([enemies[enemyType].hp, enemies[enemyType].attack])/20)
+		if (goldAmount < 1) { goldAmount = 1 }
+		$(enemy).attr('gold-amount',goldAmount)
+	} else {
+		goldAmount = 0
 	}
 
 	$('<div class="item"></div>').appendTo('.field').css({
@@ -515,7 +520,7 @@ function enemyDeath(enemy) {
 		'z-index': i(enemy,'z-index')
 	})
 	.attr('type',itemType)
-	.attr('gold-amount',Math.round(average([enemies[enemyType].hp, enemies[enemyType].attack])/3))
+	.attr('gold-amount',goldAmount)
 	
 	$(enemy).css('left', i(enemy,'left')).addClass('dead').attr('active','false')
 	.fadeOut(1000).promise().done(function(enemy) { $(enemy).remove() })
@@ -549,7 +554,12 @@ function pickUp() {
 			}
 			sound('bless')
 			log('Consumed '+$(this).attr('type'), $(this).attr('type'))
-		} else {
+		} 
+		if ($(this).attr('type') == 'gold') {
+			acquireItem('gold', $(this).attr('gold-amount')*1)
+			log('Picked '+$(this).attr('gold-amount')+' gold', 'gold')
+		}
+		else {
 			acquireItem($(this).attr('type'))
 			log('Picked '+$(this).attr('type'), $(this).attr('type'))
 		}
