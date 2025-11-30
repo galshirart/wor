@@ -503,14 +503,12 @@ function collide() {
 function enemyDeath(enemy) {
 	enemyType = $(enemy).attr('type')
 	itemType = enemies[enemyType].item
-	
+	amount = 1
+
 	if (enemies[enemyType].gold == 'TRUE' && random(1,2) == 1) {
 		itemType = 'gold'
-		goldAmount = Math.round(average([enemies[enemyType].hp, enemies[enemyType].attack])/20)
-		if (goldAmount < 1) { goldAmount = 1 }
-		$(enemy).attr('gold-amount',goldAmount)
-	} else {
-		goldAmount = 0
+		amount = Math.round(average([enemies[enemyType].hp, enemies[enemyType].attack])/20)
+		if (amount < 1) { amount = 1 }
 	}
 
 	$('<div class="item"></div>').appendTo('.field').css({
@@ -520,7 +518,7 @@ function enemyDeath(enemy) {
 		'z-index': i(enemy,'z-index')
 	})
 	.attr('type',itemType)
-	.attr('gold-amount',goldAmount)
+	.attr('amount',amount)
 	
 	$(enemy).css('left', i(enemy,'left')).addClass('dead').attr('active','false')
 	.fadeOut(1000).promise().done(function(enemy) { $(enemy).remove() })
@@ -545,24 +543,14 @@ function pickUp() {
 
 		$(this).addClass('picked')
 
-		if ($(this).attr('edible')) {
-			if ($(this).attr('edible') == 'health') {
-				player.hp += player.maxHp*0.3
-			}
-			if ($(this).attr('edible') == 'mana') {
-				player.mp += player.maxMp*0.3
-			}
-			sound('bless')
-			log('Consumed '+$(this).attr('type'), $(this).attr('type'))
-		} 
 		if ($(this).attr('type') == 'gold') {
-			acquireItem('gold', $(this).attr('gold-amount')*1)
-			log('Picked '+$(this).attr('gold-amount')+' gold', 'gold')
+			log('Picked '+$(this).attr('amount')+' gold', 'gold')
 		}
 		else {
-			acquireItem($(this).attr('type'))
 			log('Picked '+$(this).attr('type'), $(this).attr('type'))
 		}
+
+		acquireItem($(this).attr('type'), $(this).attr('amount')*1)
 
 		setTimeout(function(item) {
 			$(item).remove()
