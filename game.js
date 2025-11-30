@@ -158,10 +158,12 @@ function placePort(port) {
 }
 
 function placeNPC(npc) {
-	npcX = 590 + (i('.map','width') - 1270) * maps[player.location].npc[npc] / 100
+	npcX = 600 + (i('.map','width') - 1200) * maps[player.location].npc[npc][0] / 100
+	npcX = npcX - npcs[npc].size[0] / 2
 				
 	npcElement = $("<div class='npc'><div class='image'></div></div>")
 	.css('left', npcX)
+	.css('margin-bottom', maps[player.location].npc[npc][1]+'px')
 	.find('.image')
 	.css({
 		'background-image': 'url(assets/npc-' + npc + '.webp?2)',
@@ -671,6 +673,7 @@ function interact() {
 		npcInteraction($(this).attr('npc-name'))
 		sound('click')
 	})
+	mode('rest');
 }
 
 function npcInteraction(npc) {

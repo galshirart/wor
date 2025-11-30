@@ -97,7 +97,7 @@ body {
 .sparkles {
 	position: absolute;
 	z-index: 10;
-	bottom:320px;
+	bottom:322px;
 	width:90px;
 	height:90px;
 	left:580px;
@@ -1144,18 +1144,18 @@ input:focus {
 	border-radius: 4px;
 	font-size:10px;
 }
-.field .npc.near-player span {
+/* .field .npc.near-player span {
 	opacity:1;
 	bottom:-25px;
-}
+} */
 .field .npc .questSign {
 	position: absolute;
 	top:-26px;
 	width:22px;
 	height:22px;
-	background-color: #ffffff20;
+	background-color: #ffffff10;
 	backdrop-filter: blur(3px);
-	transition: background-color 200ms;
+	transition: all 200ms;
 	border-radius: 50px 50px 50px 0;
     border: 1px solid #400000;
     transform: rotate(-45deg);
@@ -1177,6 +1177,8 @@ input:focus {
 }
 .field .npc.near-player .questSign {
 	background-color:white;
+	width:26px;
+	height:26px;
 }
 
 /************** TUTORIAL **************/
