@@ -59,6 +59,7 @@ function enterMap(originMap) {
 	});
 	(Object.keys(maps[player.location].npc)).forEach(npc => {
 		imagesToLoad.push(`assets/npc-${npc}.webp`);
+		imagesToLoad.push(`assets/avatar-${npc}.webp`);
 	});
 
 	setTimeout(() => {
@@ -177,7 +178,7 @@ function placeNPC(npc) {
 	.css('margin-bottom', maps[player.location].npc[npc][1]+'px')
 	.find('.image')
 	.css({
-		'background-image': 'url(assets/npc-' + npc + '.webp?2)',
+		'background-image': 'url(assets/npc-' + npc + '.webp)',
 		'background-size': npcs[npc].size[0] * 5 + 'px',
 		'width': npcs[npc].size[0],
 		'height': npcs[npc].size[1]
@@ -245,7 +246,7 @@ function jump() {
 	mode('jump')
 	hero.addClass('jumping')
 	setTimeout(() => hero.removeClass('jumping'), 400);
-	setTimeout(() => { mode('rest'); sound('land') }, 800);
+	setTimeout(() => { mode('rest'); sound('land') }, 790);
 	sound('jump')
 }
 
@@ -658,6 +659,8 @@ function calcItemPrice(item) {
 }
 
 function interact() {
+	if (mode() == 'fight' || mode() == 'jump' || mode() == 'skill' || attackCooldown) return
+
 	$('.port:not(.used)').each(function() {
 		if (player.position < i($(this),'left') ||
 			player.position > i($(this),'left') + i($(this),'width'))
@@ -1067,7 +1070,7 @@ function mode(mode) {
 		hero.find('.equipment').attr('mode',mode) 
 	}
 	modeDurations = {
-		walk: (80 - player.speed) * 7 + 'ms',
+		walk: (80 - player.speed) * 4 + 'ms',
 		rest: '2000ms',
 		jump: '800ms',
 		fight: '400ms'

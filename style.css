@@ -712,6 +712,7 @@ input:focus {
 	animation-name:walk;
 	transition: none;
 	animation-iteration-count: infinite;
+	animation-direction: alternate;
 }
 [mode=jump] {
 	animation-name: jump;
@@ -743,51 +744,52 @@ input:focus {
 }
 @keyframes walk {
 	0% { background-position-x: -240px; }
-	25% { background-position-x: 0; }
-	50% { background-position-x: -320px; }
-	75% { background-position-x: 0; }
+	20% { background-position-x: -320px; }
+	40% { background-position-x: 0px; }
+	60% { background-position-x: -400px; }
+	80% { background-position-x: -480px; }
 }
 @keyframes jump {
-	0% { background-position-x: -400px; }
-	25% { background-position-x: -480px; }
-	50% { background-position-x: -560px; }
-	75% { background-position-x: -640px; }
-	100% { background-position-x: -640px; }
+	0% { background-position-x: -560px; }
+	20% { background-position-x: -640px; }
+	40% { background-position-x: -720px; }
+	60% { background-position-x: -800px; }
+	80% { background-position-x: -880px; }
 }
 @keyframes atk-1 {
-	0% { background-position-x: -720px; }
-	25% { background-position-x: -800px; }
-	50% { background-position-x: -880px; }
+	0% { background-position-x: -960px; }
+	25% { background-position-x: -1040px; }
+	50% { background-position-x: -1120px; }
 }
 @keyframes atk-2 {
-	0% { background-position-x: -720px; }
-	25% { background-position-x: -960px; }
-	50% { background-position-x: -1040px; }
+	0% { background-position-x: -960px; }
+	25% { background-position-x: -1200px; }
+	50% { background-position-x: -1280px; }
 }
 @keyframes atk-3 {
-	0% { background-position-x: -1120px; }
-	25% { background-position-x: -1200px; }
-	50% { background-position-x: -1040px; }
+	0% { background-position-x: -1360px; }
+	25% { background-position-x: -1440px; }
+	50% { background-position-x: -1280px; }
 }
 @keyframes atk-4 {
-	0% { background-position-x: -1280px; }
-	25% { background-position-x: -1360px; }
-	50% { background-position-x: -1040px; }
+	0% { background-position-x: -1520px; }
+	25% { background-position-x: -1600px; }
+	50% { background-position-x: -1280px; }
 }
 @keyframes atk-5 {
-	0% { background-position-x: -1280px; }
-	25% { background-position-x: -1440px; }
-	50% { background-position-x: -1520px; }
+	0% { background-position-x: -1520px; }
+	25% { background-position-x: -1680px; }
+	50% { background-position-x: -1760px; }
 }
 @keyframes atk-6 {
-	0% { background-position-x: -1280px; }
-	25% { background-position-x: -1360px; }
-	50% { background-position-x: -1600px; }
+	0% { background-position-x: -1520px; }
+	25% { background-position-x: -1600px; }
+	50% { background-position-x: -1840px; }
 }
 @keyframes atk-7 {
-	0% { background-position-x: -720px; }
-	25% { background-position-x: -800px; }
-	50% { background-position-x: -800px; }
+	0% { background-position-x: -960px; }
+	25% { background-position-x: -1040px; }
+	50% { background-position-x: -1040px; }
 }
 .skill {
 	width:600px;
@@ -835,29 +837,29 @@ input:focus {
 }
 [mode=walk] .weapon {
 	animation-name:weapon-walk;
-	animation-iteration-count: infinite;
 	transform: rotate(70deg);
-	/* animation-timing-function: linear; */
+	animation-direction: alternate;
 }
 [mode=jump] .weapon {
 	animation-name: weapon-jump;
 }
 @keyframes weapon-rest {
-	0% { left:-11; bottom:-21; transform: rotate(60deg)}
-	50% { left:-11; bottom:-22; transform:rotate(62deg) }
+	0% { left:-11; bottom:-21; transform: rotate(65deg)}
+	50% { left:-11; bottom:-22; transform:rotate(67deg) }
 }
 @keyframes weapon-walk {
-	0% { left:-7px; bottom:-22px; transform: rotate(55deg) }
-	25% { left:-10px; bottom:-21px; transform: rotate(60deg) }
-	50% { left:-13px; bottom:-22px; transform: rotate(65deg) }
-	75% { left:-10px; bottom:-21px;transform: rotate(60deg)}
-	100% { left:-7px; bottom:-22px; transform: rotate(55deg) }
+	0% { left:-7px; bottom:-21px; transform: rotate(62deg) }
+	20% { left:-9px; bottom:-22px; transform: rotate(64deg) }
+	40% { left:-11px; bottom:-23px; transform: rotate(66deg) }
+	60% { left:-13px; bottom:-22px;transform: rotate(68deg)}
+	80% { left:-15px; bottom:-21px; transform: rotate(70deg) }
 }
 @keyframes weapon-jump {
-	0% { left:-20; bottom:18; transform:rotate(-20deg)  }
-	50% { left:-4 ; bottom:-14; transform:rotate(30deg) }
-	75% { left:-11 ; bottom:-20; transform:rotate(60deg) }
-	100% { left:-11 ; bottom:-20; transform:rotate(60deg) }
+	0% { left:-16; bottom:16; transform:rotate(0deg)  }
+	20% { left:-16; bottom:16; transform:rotate(0deg) }
+	40% { left:-13 ; bottom:-10; transform:rotate(40deg) }
+	60% { left:-12 ; bottom:-16; transform:rotate(60deg) }
+	80% { left:-11 ; bottom:-20; transform:rotate(65deg) }
 }
 @keyframes weapon-1 {
 	0% { left:-13; bottom:-10; transform: rotate(60deg); }
@@ -921,17 +923,18 @@ input:focus {
 	animation-name: weapon-range-rest;
 }
 @keyframes weapon-range-rest {
-	0% { left:-10; bottom:-21; transform:rotate(168deg)}
-	50% { left:-10; bottom:-22; transform:rotate(170deg) }
+	0% { left:-9; bottom:-22; transform:rotate(165deg)}
+	50% { left:-9; bottom:-23; transform:rotate(167deg) }
 }
 [mode=walk] .weapon[type='range'] {
 	animation-name: weapon-range-walk;
 }
 @keyframes weapon-range-walk {
-	0% { left:-7px; bottom:-22px; transform: rotate(165deg) }
-	25% { left:-10px; bottom:-21px; transform: rotate(170deg) }
-	50% { left:-13px; bottom:-22px; transform: rotate(175deg) }
-	75% { left:-10px; bottom:-21px;transform: rotate(170deg)}
+	0% { left:-5px; bottom:-21px; transform: rotate(162deg) }
+	20% { left:-7px; bottom:-22px; transform: rotate(164deg) }
+	40% { left:-9px; bottom:-23px; transform: rotate(166deg) }
+	60% { left:-11px; bottom:-22px;transform: rotate(168deg)}
+	80% { left:-13px; bottom:-21px; transform: rotate(170deg) }
 }
 @keyframes weapon-7 {
 	0% { left:5; bottom:-8; transform: rotate(90deg); background-position: 0 0; }
@@ -945,9 +948,11 @@ input:focus {
 	animation-name: weapon-range-jump;
 }
 @keyframes weapon-range-jump {
-	0% { left:-20; bottom:18; transform:rotate(0deg)  }
-	50% { left:-4 ; bottom:-14; transform:rotate(110deg) }
-	75% { left:-11 ; bottom:-20; transform:rotate(130deg) }
+	0% { left:-17; bottom:16; transform:rotate(0deg)  }
+	20% { left:-17; bottom:16; transform:rotate(0deg) }
+	40% { left:-11 ; bottom:-8; transform:rotate(90deg) }
+	60% { left:-9 ; bottom:-16; transform:rotate(140deg) }
+	80% { left:-9 ; bottom:-20; transform:rotate(150deg) }
 }
 .projectile {
 	position: absolute;
