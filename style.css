@@ -120,7 +120,7 @@ body {
 	height:100%;
 	position: absolute;
 	z-index:1000;
-	transition: opacity 400ms;
+	transition: opacity 100ms;
 	pointer-events: none;
 	display: flex;
 	align-items: center;
@@ -715,7 +715,7 @@ input:focus {
 }
 [mode=jump] {
 	animation-name: jump;
-	transition: margin-bottom 300ms ease-in;
+	transition: margin-bottom 400ms ease-in;
 }
 [mode=fight][atkType='1'], [mode=fight][atkType='1'] .equipment { animation-name:atk-1}
 [mode=fight][atkType='2'], [mode=fight][atkType='2'] .equipment { animation-name:atk-2 }
@@ -726,7 +726,7 @@ input:focus {
 [mode=fight][atkType='7'], [mode=fight][atkType='7'] .equipment { animation-name:atk-7 }
 
 .hero.jumping {
-	margin-bottom:80px;
+	margin-bottom:100px;
 	transition-timing-function:ease-out
 }
 @keyframes rest {
@@ -752,6 +752,7 @@ input:focus {
 	25% { background-position-x: -480px; }
 	50% { background-position-x: -560px; }
 	75% { background-position-x: -640px; }
+	100% { background-position-x: -640px; }
 }
 @keyframes atk-1 {
 	0% { background-position-x: -720px; }
@@ -800,7 +801,6 @@ input:focus {
 	animation-name: skill;
 	z-index: 10;
 	animation-iteration-count: 1;
-	animation-duration: 400ms;
 }
 @keyframes skill {
 	0% { background-position:0 0 }
@@ -819,7 +819,7 @@ input:focus {
 	left:calc(50% - 25px);
 	z-index:4;
 	opacity:0.3;
-	transition: bottom 300ms ease-in;
+	transition: bottom 400ms ease-in;
 }
 
 /************** WEAPON **************/
@@ -837,6 +837,7 @@ input:focus {
 	animation-name:weapon-walk;
 	animation-iteration-count: infinite;
 	transform: rotate(70deg);
+	/* animation-timing-function: linear; */
 }
 [mode=jump] .weapon {
 	animation-name: weapon-jump;
@@ -846,15 +847,17 @@ input:focus {
 	50% { left:-11; bottom:-22; transform:rotate(62deg) }
 }
 @keyframes weapon-walk {
-	0% { left:-7px; bottom:-22px; transform: rotate(65deg) }
-	25% { left:-10px; bottom:-21px; transform: rotate(70deg) }
-	50% { left:-13px; bottom:-22px; transform: rotate(75deg) }
-	75% { left:-10px; bottom:-21px;transform: rotate(70deg)}
+	0% { left:-7px; bottom:-22px; transform: rotate(55deg) }
+	25% { left:-10px; bottom:-21px; transform: rotate(60deg) }
+	50% { left:-13px; bottom:-22px; transform: rotate(65deg) }
+	75% { left:-10px; bottom:-21px;transform: rotate(60deg)}
+	100% { left:-7px; bottom:-22px; transform: rotate(55deg) }
 }
 @keyframes weapon-jump {
 	0% { left:-20; bottom:18; transform:rotate(-20deg)  }
 	50% { left:-4 ; bottom:-14; transform:rotate(30deg) }
 	75% { left:-11 ; bottom:-20; transform:rotate(60deg) }
+	100% { left:-11 ; bottom:-20; transform:rotate(60deg) }
 }
 @keyframes weapon-1 {
 	0% { left:-13; bottom:-10; transform: rotate(60deg); }
@@ -971,35 +974,38 @@ input:focus {
 	z-index:3;
 	background-size: auto 100%;
 	animation-iteration-count: infinite;
-	animation-duration: 1s;
+	animation-duration: 500ms;
 }
 .enemy[state=move] .image {
 	animation-name: enemy-move;
+	animation-direction: alternate;
 }
 @keyframes enemy-move {
 	0% { background-position:-100% 0 }
-	25% { background-position:-200% 0 }
-	50% { background-position:-100% 0 }
-	75% { background-position:-300% 0 }
+	20% { background-position:-200% 0 }
+	40% { background-position:-300% 0 }
+	60% { background-position:-400% 0 }
+	80% { background-position:-500% 0 }
+	100% { background-position:-100% 0 }
 }
 .enemy[state=stand] .image {
 	animation-name: enemy-stand;
-	animation-duration: 500ms;
 }
 @keyframes enemy-stand {
-	0% { background-position:-100% 0 }
-	50% { background-position:0% 0 }
+	0% { background-position:0 0 }
+	50% { background-position:-300% 0 }
+	100% { background-position:0 0 }
 }
 .enemy[state=enemy-hit] .image {
 	animation-name: enemy-hit;
 }
 @keyframes enemy-hit {
-	0% { background-position:-400% 0 }
-	100% { background-position:-400% 0 }
+	0% { background-position:-600% 0 }
+	100% { background-position:-600% 0 }
 }
 .enemy.dead .image {
 	animation-name: enemy-hit;
-	background-position:-400% 0;
+	background-position:-600% 0;
 }
 .enemy.dead .hpBar {
 	display: none;
@@ -1067,10 +1073,10 @@ input:focus {
 }
 .field .item {
 	position: absolute;
-	width:30px;
-	height:30px;
+	width:32px;
+	height:32px;
 	bottom:321px;
-	background-size:30px;
+	background-size:32px;
 	animation-name:item;
 	animation-duration: 2s;
 	animation-iteration-count: infinite;
@@ -1097,7 +1103,6 @@ input:focus {
 }
 .field .item.picked {
 	animation-name: picked;
-	animation-duration: 400ms;
 }
 .field .item.picked:after {
 	opacity:0;

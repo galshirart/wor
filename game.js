@@ -1,3 +1,4 @@
+player = {}
 fetch('https://galshir.com/php/wor.php')
 .then(res => res.json())
 .then(data => {
@@ -45,62 +46,71 @@ fetch('https://galshir.com/php/wor.php')
 })
 
 function enterMap(originMap) {
-	$('.overlay').css('opacity',1)
+    $('.overlay').css('opacity', 1);
 
-	setTimeout(function() {
+	imagesToLoad = [];
+	imagesToLoad.push(`assets/map-${player.location}.webp`);
+	if (maps[player.location].layers.includes('front')) imagesToLoad.push(`assets/map-${player.location}-front.webp`);
+	if (maps[player.location].layers.includes('back')) imagesToLoad.push(`assets/map-${player.location}-back.webp`);
+
+	(Object.keys(maps[player.location].enemies)).forEach(type => {
+		imagesToLoad.push(`assets/enemy-${type}.webp`);
+		imagesToLoad.push(`assets/item-${enemies[type].item}.webp`);
+	});
+	(Object.keys(maps[player.location].npc)).forEach(npc => {
+		imagesToLoad.push(`assets/npc-${npc}.webp`);
+	});
+
+	setTimeout(() => {
 		$('.back, .front').remove();
-		$('.field').html('').append('<img class="map" src="assets/map-'+player.location+'.webp" />')
+		$('.field').html('').append(`<img class="map" src="assets/map-${player.location}.webp" />`);
+		(maps[player.location].layers || []).forEach(layer =>
+			$('.field').after(`<img class="${layer}" src="assets/map-${player.location}-${layer}.webp" />`)
+		);
+	}, 100);
 
-		for (layer in maps[player.location].layers) {
-			$('.field').after('<img class="'+maps[player.location].layers[layer]+'" src="assets/map-'+player.location+'-'+maps[player.location].layers[layer]+'.webp" />')
-		}
+	Promise.all(imagesToLoad.map(src => {
+		return new Promise((resolve, reject) => {
+			const img = new window.Image();
+			img.onload = resolve;
+			img.onerror = resolve;
+			img.src = src;
+		});
+	})).then(() => {
+		setTimeout(() => {
+			if (originMap) { player.position = 634 + (i('.map', 'width') - 1270) * (maps[player.location].ports[originMap] || 0) / 100; }
 
-		isMapLoaded = setInterval(() => {
-			if (i('.map','width') < 1 ) { return }
-			if ((maps[player.location].layers.includes('front') && i('.front','width') < 1) || 
-				(maps[player.location].layers.includes('back') && i('.back','width') < 1)) {
-				return;
-			}
-
-			clearInterval(isMapLoaded)
-
-			for (type in maps[player.location].enemies) { Array.from({length: maps[player.location].enemies[type]}, () => enemySpawn(type, player.location)); }
-			for (port in maps[player.location].ports) { placePort(port) }
-			for (npc in maps[player.location].npc) { placeNPC(npc) }
-
-			if (originMap) {
-				player.position = 634 + (i('.map','width') - 1270) * maps[player.location].ports[originMap] / 100
-			}
-
-			windowWidth = i('.window', 'width');
 			mapWidth = i('.map', 'width');
 			backWidth = i('.back', 'width');
 			frontWidth = i('.front', 'width');
+			walk(keyState);
 
-			gameBeat = setInterval(() => { 
-				walk(keyState)
-				collide()
-				recover()
-				save()
-			},100)
-
-			setTimeout(function() {
-				$('.overlay').css('opacity',0)
-				$('.mapsign').remove()
-				$('.window').append('<div class="mapsign"><span></span><span>'+spcDash(player.location)+'</span><span></span></div>')
-				log('Entered '+player.location, 'location')
-			}, 400)
-
+			Object.keys(maps[player.location].enemies || {}).forEach(type => { Array.from({ length: maps[player.location].enemies[type] }).forEach(() => enemySpawn(type, player.location)); });
+			Object.keys(maps[player.location].ports || {}).forEach(placePort);
+			Object.keys(maps[player.location].npc || {}).forEach(placeNPC);
+		
 			if (!player.mapsVisited.includes(player.location)) {
-				player.mapsVisited.push(player.location)
-				setTimeout(function() { monologue(maps[player.location].monologue) }, 2000)
+				player.mapsVisited.push(player.location);
+				setTimeout(() => monologue(maps[player.location].monologue), 2000);
 			}
-			
-			if (player.location == 'a-box' || player.location == 'box-shore') { 
-				setTutorial()
-			}
-		}, 50)
-	}, 400)
+
+			if (['a-box', 'box-shore'].includes(player.location)) setTutorial();
+		}, 200);
+
+		setTimeout(() => {
+			gameBeat = setInterval(() => {
+				walk(keyState);
+				collide();
+				recover();
+				save();
+			}, 100);
+
+			$('.overlay').css('opacity', 0);
+			$('.mapsign').remove();
+			$('.window').append(`<div class="mapsign"><span></span><span>${spcDash(player.location)}</span><span></span></div>`);
+			log('Entered ' + player.location, 'location');
+		}, 300);
+	});
 }
 
 function walk(keyState) {
@@ -137,6 +147,7 @@ function walk(keyState) {
 		closeCard('npc');
 	}
 
+	windowWidth = i('.window', 'width');
 	offset = (windowWidth / 2) - player.position;
 	$('.field').css('left', offset + 'px');
 	parallaxRatio = (mapWidth - windowWidth) > 0 ? (offset / (mapWidth - windowWidth)) : 0;
@@ -233,8 +244,8 @@ function jump() {
 	if (mode() == 'fight' || mode() == 'jump' || skillCooldown) return
 	mode('jump')
 	hero.addClass('jumping')
-	setTimeout(() => hero.removeClass('jumping'), 300);
-	setTimeout(() => { mode('rest'); sound('land') }, 599);
+	setTimeout(() => hero.removeClass('jumping'), 400);
+	setTimeout(() => { mode('rest'); sound('land') }, 800);
 	sound('jump')
 }
 
@@ -476,8 +487,8 @@ function enemyMove(enemy, hitCount) {
 
 function collide() {
 	$('.enemy[active=true]').each(function() {
-		if (player.position < i($(this),'left') ||
-			player.position > i($(this),'left') + i($(this),'width') ||
+		if (player.position+10 < i($(this),'left') ||
+			player.position-10 > i($(this),'left') + i($(this),'width') ||
 			hero.attr('in-damage') == 'true' ||
 			i(hero, 'margin-bottom') > i($(this),'height')-20 ||
 			enemies[$(this).attr('type')].attack == 0)
@@ -489,7 +500,6 @@ function collide() {
 		hero.attr('in-damage','true')
 
 		player.hp = player.hp-damage
-
 		player.position = player.position-heroDirection*40
 		// this is the knockback, should be more than 40 maybe if it's a boss or something
 
@@ -507,7 +517,7 @@ function enemyDeath(enemy) {
 
 	if (enemies[enemyType].gold == 'TRUE' && random(1,2) == 1) {
 		itemType = 'gold'
-		amount = Math.round(average([enemies[enemyType].hp, enemies[enemyType].attack])/20)
+		amount = Math.round(average([enemies[enemyType].hp, enemies[enemyType].attack])/30)
 		if (amount < 1) { amount = 1 }
 	}
 
@@ -1059,7 +1069,7 @@ function mode(mode) {
 	modeDurations = {
 		walk: (80 - player.speed) * 7 + 'ms',
 		rest: '2000ms',
-		jump: '600ms',
+		jump: '800ms',
 		fight: '400ms'
 	};
 	if (modeDurations[mode]) {
