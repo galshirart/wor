@@ -325,7 +325,11 @@ function handleAttackHits(x1, x2, atkMultiplier, maxTargets) {
         if ( x1 > i($(this),'left')+i($(this),'width') || x2 < i($(this),'left') ) return
 
         attack = spread(equipments[player.equipments.weapon].attack*atkMultiplier,20)
-
+		iscritical = random(1, 100) <= player.criticalChance
+        if (iscritical) {
+            attack = Math.round(attack * player.criticalMultiplier)
+        }
+		
         $(this).attr({
             'state': 'enemy-hit',
             'angry': 'true', 
@@ -339,7 +343,10 @@ function handleAttackHits(x1, x2, atkMultiplier, maxTargets) {
         })
         .find('.bar').css('width', $(this).attr('hp')/enemies[$(this).attr('type')].hp*100+'%')
 
-        hit = $('<div class="hit">'+prettyNumber(attack,'yellow')+'</div>').css('left', i($(this),'left')).appendTo('.field')
+		damageColor = iscritical ? 'orange' : 'yellow'
+        hit = $('<div class="hit'+(iscritical ? ' critical' : '')+'">'+prettyNumber(attack, damageColor)+'</div>')
+            .css('left', i($(this),'left'))
+            .appendTo('.field')
         setTimeout((hit)=> { hit.remove() },800, hit)
 
         if ($(this).attr('hp') <= 0) { enemyDeath($(this)) } 
@@ -932,6 +939,12 @@ function setBackpack() {
 			sound('click')
 		}
 	});
+	for (slot in player.equipments) {
+        item = player.equipments[slot]
+        if (item && equipments[item]) {
+            player.criticalChance += (equipments[item].criticalChance || 0)
+        }
+    }
 
 	setTooltips();
 }
@@ -1022,6 +1035,8 @@ function resetPlayer() {
 	player.enemiesSlained = {}
 	player.totalEnemiesSlained = 0
 	player.mapsVisited = []
+	player.criticalChance = 20 // 20% base chance to critical
+	player.criticalMultiplier = 1.5 // 150% damage
 	save()
 	location.reload()
 }
