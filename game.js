@@ -325,7 +325,7 @@ function handleAttackHits(x1, x2, atkMultiplier, maxTargets) {
         if ( x1 > i($(this),'left')+i($(this),'width') || x2 < i($(this),'left') ) return
 
         attack = spread(equipments[player.equipments.weapon].attack*atkMultiplier,20)
-		iscritical = random(1, 100) <= player.criticalChance
+		iscritical = random(1, 100) <= player.critical
         if (iscritical) {
             attack = Math.round(attack * player.criticalMultiplier)
         }
@@ -942,7 +942,7 @@ function setBackpack() {
 	for (slot in player.equipments) {
         item = player.equipments[slot]
         if (item && equipments[item]) {
-            player.criticalChance += (equipments[item].criticalChance || 0)
+            player.critical += (equipments[item].critical || 0)
         }
     }
 
@@ -1035,7 +1035,7 @@ function resetPlayer() {
 	player.enemiesSlained = {}
 	player.totalEnemiesSlained = 0
 	player.mapsVisited = []
-	player.criticalChance = 20 // 20% base chance to critical
+	player.critical = 20 // 20% base chance to critical
 	player.criticalMultiplier = 1.5 // 150% damage
 	save()
 	location.reload()
