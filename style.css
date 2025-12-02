@@ -648,33 +648,44 @@ input:focus {
 	0% { transform: translateY(10px); opacity:0}
 	100% { transform:translateY(0); opacity:1 }
 }
-.monologue {
+.chat-bubble {
 	position: absolute;
-	z-index: 100;
-	right: 0;
-	left: 0;
-	margin:auto;
-	bottom:398px;
 	width: fit-content;
-	background:#FFF6C1;
+	background:white;
 	border:1px solid #400000;
 	border-radius: 8px;
+	min-width:30px;
+	min-height:22px;
+	text-align: center;
 	text-transform: none;
 	padding:4px 8px;
 	font-weight:400;
 	letter-spacing: 0;
 	font-family: 'Roboto Slab';
 }
-.monologue:after {
+.chat-bubble:after {
 	content: " ";
 	display: block;
-	width: 10px;
-	height: 10px;
-	background: #FFF6C1;
+	width: 6px;
+	height: 6px;
+	background: white;
+	border-bottom: 1px solid #400000;
+	border-right: 1px solid #400000;
 	position: absolute;
-	bottom: -5px;
+	bottom: -4px;
 	left: 50%;
 	transform: translateX(-50%) rotate(45deg);
+}
+.chat-bubble.dots {
+	background-image: url(assets/icon-dots.webp);
+	background-size: 30px 30px;
+	background-position: 50% 50%;
+}
+.monologue {
+	right: 0;
+	left: 0;
+	margin:auto;
+	bottom:398px;
 }
 
 /************** HERO **************/
@@ -1134,7 +1145,6 @@ input:focus {
 	animation-iteration-count: infinite;
 	animation-duration: 800ms;
 	animation-direction: alternate;
-
 }
 @keyframes npc {
 	0% { background-position:0 0 }
@@ -1143,53 +1153,14 @@ input:focus {
 	60% { background-position:-300% 0 }
 	80% { background-position:-400% 0 }
 }
-.field .npc span {
+.field .npc .chat-bubble {
+	transition: all 200ms;
 	opacity:0;
-	position: absolute;
-	bottom:-23px;
-	background:#FFF6C1;
-	display: inline-block;
-	padding:1px 3px;
-	border:1px solid #400000;
-	transition: all 200ms;
-	border-radius: 4px;
-	font-size:10px;
+	top:-18px;
 }
-/* .field .npc.near-player span {
+.field .npc.near-player .chat-bubble {
 	opacity:1;
-	bottom:-25px;
-} */
-.field .npc .questSign {
-	position: absolute;
-	top:-26px;
-	width:22px;
-	height:22px;
-	background-color: #ffffff10;
-	backdrop-filter: blur(3px);
-	transition: all 200ms;
-	border-radius: 50px 50px 50px 0;
-    border: 1px solid #400000;
-    transform: rotate(-45deg);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background-image:url('assets/icon-sign.webp');
-	background-size: 30px 30px;
-	background-position: center center;
-	animation-name: questSign;
-	animation-duration: 2s;
-	animation-iteration-count: infinite;
-	animation-timing-function: ease-in-out;
-}
-@keyframes questSign {
-	0% { transform: translateY(-8px) rotate(-45deg) }
-	50% { transform: translateY(0px) rotate(-45deg) }
-	100% { transform: translateY(-8px) rotate(-45deg) }
-}
-.field .npc.near-player .questSign {
-	background-color:white;
-	width:26px;
-	height:26px;
+	top:-24px;
 }
 
 /************** TUTORIAL **************/
