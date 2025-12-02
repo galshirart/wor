@@ -110,6 +110,7 @@ function enterMap(originMap) {
 			$('.overlay').css('opacity', 0);
 			$('.mapsign').remove();
 			$('.window').append(`<div class="mapsign"><span></span><span>${spcDash(player.location)}</span><span></span></div>`);
+			$('.port').addClass('active');
 		}, 300);
 	});
 }
@@ -664,12 +665,12 @@ function calcItemPrice(item) {
 function interact() {
 	if (mode() == 'fight' || mode() == 'jump' || mode() == 'skill' || attackCooldown) return
 
-	$('.port:not(.used)').each(function() {
+	$('.port.active').each(function() {
 		if (player.position < i($(this),'left') ||
 			player.position > i($(this),'left') + i($(this),'width'))
 		{ return }
 
-		$(this).addClass('used')
+		$(this).removeClass('active')
 		originMap = player.location
 		player.location = $(this).attr('target')
 		clearInterval(gameBeat)
