@@ -651,9 +651,12 @@ input:focus {
 .chat-bubble {
 	position: absolute;
 	width: fit-content;
-	background:#FFF6C1;
+	background:white;
 	border:1px solid #400000;
-	border-radius: 40px;
+	border-radius: 8px;
+	min-width:30px;
+	min-height:22px;
+	text-align: center;
 	text-transform: none;
 	padding:4px 8px;
 	font-weight:400;
@@ -665,13 +668,18 @@ input:focus {
 	display: block;
 	width: 6px;
 	height: 6px;
-	background: #FFF6C1;
+	background: white;
 	border-bottom: 1px solid #400000;
 	border-right: 1px solid #400000;
 	position: absolute;
 	bottom: -4px;
 	left: 50%;
 	transform: translateX(-50%) rotate(45deg);
+}
+.chat-bubble.dots {
+	background-image: url(assets/icon-dots.webp);
+	background-size: 30px 30px;
+	background-position: 50% 50%;
 }
 .monologue {
 	right: 0;

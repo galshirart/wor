@@ -189,7 +189,7 @@ function placeNPC(npc) {
 		'questID': npcs[npc].questID,
 		'npc-name': npc
 	})
-	.append('<div class="chat-bubble">...</div>')
+	.append('<div class="chat-bubble dots"></div>')
 	.appendTo('.field');
 }
 
