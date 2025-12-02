@@ -939,7 +939,8 @@ function setBackpack() {
 	for (slot in player.equipments) {
         item = player.equipments[slot]
         if (item && equipments[item]) {
-            totalCritical += Number(equipments[item].critical || 0)
+			const crit = parseInt(equipments[item].critical, 10);
+            totalCritical += isNaN(crit) ? 0 : crit;
         }
     }
 	player.critical = totalCritical;
