@@ -716,7 +716,7 @@ input:focus {
 }
 [mode=jump] {
 	animation-name: jump;
-	transition: margin-bottom 400ms ease-in;
+	transition: margin-bottom 400ms cubic-bezier(.58,0,1,1) 
 }
 [mode=fight][atkType='1'], [mode=fight][atkType='1'] .equipment { animation-name:atk-1}
 [mode=fight][atkType='2'], [mode=fight][atkType='2'] .equipment { animation-name:atk-2 }
@@ -728,7 +728,7 @@ input:focus {
 
 .hero.jumping {
 	margin-bottom:100px;
-	transition-timing-function:ease-out
+	transition-timing-function: cubic-bezier(0,0,.42,1);
 }
 @keyframes rest {
 	0% { background-position-x: 0; }
