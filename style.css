@@ -1108,13 +1108,14 @@ input:focus {
 }
 .field .item.picked {
 	animation-name: picked;
+	animation-duration:400ms;
 }
 .field .item.picked:after {
 	opacity:0;
 }
 @keyframes picked {
 	0% { transform: translateY(-13px) }
-	50% { transform:translateY(-20px) }
+	50% { transform:translateY(-32px) }
 	100% { transform: translateY(-13px); opacity:0 }
 }
 

@@ -41,7 +41,8 @@ fetch('https://galshir.com/php/wor.php')
 		}
 	}
 
-	setHeroAndBackpack()
+	setHero()
+	setBackpack()
 	enterMap()
 })
 
@@ -109,7 +110,6 @@ function enterMap(originMap) {
 			$('.overlay').css('opacity', 0);
 			$('.mapsign').remove();
 			$('.window').append(`<div class="mapsign"><span></span><span>${spcDash(player.location)}</span><span></span></div>`);
-			log('Entered ' + player.location, 'location');
 		}, 300);
 	});
 }
@@ -547,6 +547,7 @@ function enemyDeath(enemy) {
 }
 
 function pickUp() {
+	if (mode() == 'fight' || mode() == 'jump' || mode() == 'skill' || attackCooldown) return
 	$('.field .item').not('.picked').each(function() {
 		if (player.position+20 < i($(this),'left') ||
 			player.position-20 > i($(this),'left') + i($(this),'width') )
@@ -578,7 +579,7 @@ function acquireItem(item, amount = 1) {
 	}
 
 	player.backpack[item] = (player.backpack[item] || 0) + amount;
-	setHeroAndBackpack()
+	setBackpack()
 }
 
 function useItem(item) {
@@ -589,7 +590,8 @@ function useItem(item) {
 		sound('heavy-item')
 		log((isEquipped ? 'unequipped ' : 'equipped ') + item, item)
 	}
-	setHeroAndBackpack()
+	setHero()
+	setBackpack()
 }
 
 function sellItem(item) {
@@ -624,7 +626,8 @@ function sellItem(item) {
 
 		player.backpack.gold += amount*calcItemPrice(item)
 		sound('pickup-gold')
-		setHeroAndBackpack()
+		setHero()
+		setBackpack()
 
 		log('Sold '+amount+' '+item, item)
 		log('Received '+amount*calcItemPrice(item)+' gold', 'gold')
@@ -812,7 +815,6 @@ function buy(item) {
 	}
 
 	acquireItem(item)
-	setHeroAndBackpack()
 	pop($('.card.backpack').find('[type='+item+']'))
 	sound('heavy-item')
 	log('Bought '+item, item)
@@ -847,7 +849,7 @@ function completeQuest(questID) {
 	sound('quest')
 }
 
-function setHeroAndBackpack() {
+function setHero() {
     hero = $('.hero').html('');
 
 	if (player.equipments.shield) {
@@ -870,6 +872,11 @@ function setHeroAndBackpack() {
 		.attr('type','range')
 	}
 
+	mode('walk') //reset animation
+	setTimeout(() => { mode('rest') });
+}
+
+function setBackpack() {
 	$('.bar.gold .value').html(player.backpack.gold.toLocaleString());
 
 	if (player.backpack.gold == 0) {
@@ -893,11 +900,13 @@ function setHeroAndBackpack() {
             delete player.backpack[item];
         }
     }
+
     for (item in player.equipments) {
         if (player.equipments[item]) {
             $('.backpack').find('[type=' + player.equipments[item] + ']').addClass('equiped');
         }
     }
+
 	$('.backpack .grid').sortable({
 		stop: function(event, ui) {
 			sortedItems = [];
@@ -922,10 +931,8 @@ function setHeroAndBackpack() {
 			sound('click')
 		}
 	});
-	
-	mode('walk') //reset animation
-	setTimeout(() => { mode('rest') });
-    setTooltips();
+
+	setTooltips();
 }
 
 function recover() {
