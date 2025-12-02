@@ -18,6 +18,7 @@ fetch('https://galshir.com/php/wor.php')
 	skillCooldown = false;
 	projectileActive = false;
 	tutorialInterval = null;
+	baseCritical = 20;
 
 	document.onkeydown = (e) => {
 		switch(e.keyCode) {
@@ -344,7 +345,6 @@ function handleAttackHits(x1, x2, atkMultiplier, maxTargets) {
             .css('left', i($(this),'left'))
             .appendTo('.field')
         setTimeout((hit)=> { hit.remove() },800, hit)
-
         if ($(this).attr('hp') <= 0) { enemyDeath($(this)) } 
         else { setTimeout(() => {
 			$(this).css('transition-timing-function', 'linear')
@@ -935,12 +935,14 @@ function setBackpack() {
 			sound('click')
 		}
 	});
+	totalCritical = baseCritical; // reset to base critical chance
 	for (slot in player.equipments) {
         item = player.equipments[slot]
         if (item && equipments[item]) {
-            player.critical += (equipments[item].critical || 0)
+            totalCritical += Number(equipments[item].critical || 0)
         }
     }
+	player.critical = totalCritical;
 
 	setTooltips();
 }
@@ -1032,7 +1034,7 @@ function resetPlayer() {
 	player.enemiesSlained = {}
 	player.totalEnemiesSlained = 0
 	player.mapsVisited = []
-	player.critical = 20 // 20% base chance to critical
+	player.critical = baseCritical // 20% base chance to critical
 	player.criticalMultiplier = 1.5 // 150% damage
 	save()
 	location.reload()
