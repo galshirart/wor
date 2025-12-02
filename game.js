@@ -189,12 +189,8 @@ function placeNPC(npc) {
 		'questID': npcs[npc].questID,
 		'npc-name': npc
 	})
-	.append('<span>' + spcDash(npc) + '</span>')
+	.append('<div class="chat-bubble">...</div>')
 	.appendTo('.field');
-
-	if (npcs[npc].questID && !player.completedQuests.includes(npcs[npc].questID)) {
-		npcElement.append('<div class="questSign"></div>')
-	}
 }
 
 function setTutorial() {
@@ -685,6 +681,7 @@ function interact() {
 	}
 
 	$('.npc.near-player').each(function() {
+		$(this).find('.chat-bubble').addClass('hide')
 		npcInteraction($(this).attr('npc-name'))
 		sound('click')
 	})
@@ -843,7 +840,6 @@ function completeQuest(questID) {
 		acquireItem(reward, amount)
 	}
 
-	$('.field .npc[questID="'+questID+'"]').find('.questSign').remove()
 	player.completedQuests.push(questID)
 	log('Quest completed', 'crown')
 	closeCard()
@@ -967,7 +963,7 @@ function setTooltips() {
 
 function monologue(text) {
 	if (text == '') { return }
-	monologueDiv = $('<div class="monologue"><div class="text"></div></div>');
+	monologueDiv = $('<div class="monologue chat-bubble"><div class="text"></div></div>');
 	$('.window').append(monologueDiv);
 	characterIndex = 0;
 	function typeWriter() {
@@ -987,6 +983,7 @@ function closeCard(element) {
 	zoom('out');
 	if (element == 'npc') {
 		$('.card.left').remove()
+		$('.chat-bubble').removeClass('hide')
 	} else {
 		$('.card.left').remove()
 		$('.card.middle').remove()
