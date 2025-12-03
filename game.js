@@ -626,6 +626,7 @@ function consume(item) {
 			activeConsumables.splice(activeConsumables.indexOf(item), 1);
 			$('.consumables .icon[type='+item+']').removeClass('active');
 			setStats()
+			setConsumables()
 		}, consumables[item].duration*60000);
 	}
 	
@@ -1007,10 +1008,14 @@ function setConsumables() {
 		if (consumables.hasOwnProperty(item)) {
 			$('<div class="icon" type="' + item + '"></div>').appendTo('.consumables')
 			.css('background-image', 'url(assets/item-' + item + '.webp)')
-			.html('<span class="amount">' + player.backpack[item] + '</span>');
 		}
 	}
 	activeConsumables.forEach(item => {
+		if ($('.consumables [type="' + item + '"]').length == 0) {
+			$('<div class="icon" type="' + item + '"></div>').appendTo('.consumables')
+			.css('background-image', 'url(assets/item-' + item + '.webp)')
+		}
+
 		$('.consumables [type="' + item + '"]').addClass('active');
 	});
 }
