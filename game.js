@@ -8,9 +8,10 @@ fetch('https://galshir.com/php/wor.php')
 	skills = data['skills']
 	npcs = data['npcs']
 	quests = data['quests']
+	consumables = data['consumables']
 
 	player = JSON.parse(localStorage.getItem('player'))
-	if (!player || player.version != '3') { resetPlayer() }
+	if (!player || player.version != '4') { resetPlayer() }
 
 	keyState = {left: false, right: false};
 	heroDirection = 1
@@ -18,7 +19,7 @@ fetch('https://galshir.com/php/wor.php')
 	skillCooldown = false;
 	projectileActive = false;
 	tutorialInterval = null;
-	baseCritical = 20;
+	activeConsumables = [];
 
 	document.onkeydown = (e) => {
 		switch(e.keyCode) {
@@ -32,6 +33,15 @@ fetch('https://galshir.com/php/wor.php')
 			case 32: interact(); break;
 			case 66: $('.card.backpack').toggle(); break;
 			case 27: closeCard(); break;
+			case 49: consume(1); break;
+			case 50: consume(2); break;
+			case 51: consume(3); break;
+			case 52: consume(4); break;
+			case 53: consume(5); break;
+			case 54: consume(6); break;
+			case 55: consume(7); break;
+			case 56: consume(8); break;
+			case 57: consume(9); break;
 		}
 	}
 	
@@ -42,8 +52,10 @@ fetch('https://galshir.com/php/wor.php')
 		}
 	}
 
+	setStats()
 	setHero()
 	setBackpack()
+	setConsumables()
 	enterMap()
 })
 
@@ -55,18 +67,16 @@ function enterMap(originMap) {
 	if (maps[player.location].layers.includes('front')) imagesToLoad.push(`assets/map-${player.location}-front.webp`);
 	if (maps[player.location].layers.includes('back')) imagesToLoad.push(`assets/map-${player.location}-back.webp`);
 
-	(Object.keys(maps[player.location].enemies)).forEach(type => {
-		imagesToLoad.push(`assets/enemy-${type}.webp`);
-		imagesToLoad.push(`assets/item-${enemies[type].item}.webp`);
+	Object.keys(maps[player.location].enemies).forEach(type => {
+		imagesToLoad.push(`assets/enemy-${type}.webp`, `assets/item-${enemies[type].item}.webp`);
 	});
-	(Object.keys(maps[player.location].npc)).forEach(npc => {
-		imagesToLoad.push(`assets/npc-${npc}.webp`);
-		imagesToLoad.push(`assets/avatar-${npc}.webp`);
+	Object.keys(maps[player.location].npc).forEach(npc => {
+		imagesToLoad.push(`assets/npc-${npc}.webp`, `assets/avatar-${npc}.webp`);
 	});
 
 	setTimeout(() => {
 		$('.back, .front').remove();
-		$('.field').html('').append(`<img class="map" src="assets/map-${player.location}.webp" />`);
+		$('.field').html(`<img class="map" src="assets/map-${player.location}.webp" />`);
 		(maps[player.location].layers || []).forEach(layer =>
 			$('.field').after(`<img class="${layer}" src="assets/map-${player.location}-${layer}.webp" />`)
 		);
@@ -97,7 +107,11 @@ function enterMap(originMap) {
 				setTimeout(() => monologue(maps[player.location].monologue), 2000);
 			}
 
-			if (['a-box', 'box-shore'].includes(player.location)) setTutorial();
+			if (['a-box', 'box-shore'].includes(player.location)) {
+				setTutorial()
+			} else {
+				$('.tutorial').remove()
+			}
 		}, 200);
 
 		setTimeout(() => {
@@ -120,15 +134,12 @@ function walk(keyState) {
 	if (mode() === 'fight' || skillCooldown) return;
 	isWalking = false
 
-	if (keyState.right) {
-		isWalking = true;
-		change = player.speed;
-	} else if (keyState.left) {
-		isWalking = true;
-		change = -player.speed;
-	}
+	let change = 0;
+	if (keyState.right) change = totalSpeed;
+	else if (keyState.left) change = -totalSpeed;
 
-	if (isWalking) {
+	if (change) {
+		isWalking = true;
 		heroDirection = Math.sign(change);
 		hero.css('transform', 'scaleX(' + heroDirection + ')').attr('direction', heroDirection);
 		if (mode() !== 'jump') mode('walk');
@@ -139,7 +150,7 @@ function walk(keyState) {
 	}
 
 	if (player.position < 610) player.position = 610;
-	if (mapWidth > 1 && player.position > mapWidth - 610) player.position = mapWidth - 610;
+	if (player.position > mapWidth - 610) player.position = mapWidth - 610;
 
 	$('.field .npc').each(function() {
 		near = player.position >= i(this, 'left') - 60 && player.position <= i(this, 'left') + i(this, 'width') + 60;
@@ -150,34 +161,28 @@ function walk(keyState) {
 		closeCard('npc');
 	}
 
-	windowWidth = i('.window', 'width');
-	offset = (windowWidth / 2) - player.position;
+	offset = (i('.window', 'width') / 2) - player.position;
 	$('.field').css('left', offset + 'px');
-	parallaxRatio = (mapWidth - windowWidth) > 0 ? (offset / (mapWidth - windowWidth)) : 0;
-	$('.back').css('left', parallaxRatio * (backWidth - windowWidth) + 'px');
-	$('.front').css('left', parallaxRatio * (frontWidth - windowWidth) + 'px');
+	parallaxRatio = (mapWidth - i('.window', 'width')) > 0 ? (offset / (mapWidth - i('.window', 'width'))) : 0;
+	$('.back').css('left', parallaxRatio * (backWidth - i('.window', 'width')) + 'px');
+	$('.front').css('left', parallaxRatio * (frontWidth - i('.window', 'width')) + 'px');
 }
 
 function placePort(port) {
 	portX = 590 + (i('.map','width') - 1270) * maps[player.location].ports[port] / 100
-
-	$("<div class='port'></div>")
-	.css('left', portX)
-	.attr('target',port)
-	.appendTo('.field')
-
-	$("<div class='sparkles'></div>")
-	.css('left', portX)
-	.appendTo('.field')
+	$("<div class='port'></div>").css('left', portX).attr('target',port).appendTo('.field')
+	$("<div class='sparkles'></div>").css('left', portX).appendTo('.field')
 }
 
-function placeNPC(npc) {
-	npcX = 600 + (i('.map','width') - 1200) * maps[player.location].npc[npc][0] / 100
-	npcX = npcX - npcs[npc].size[0] / 2
-				
-	npcElement = $("<div class='npc'><div class='image'></div></div>")
-	.css('left', npcX)
+function placeNPC(npc) {		
+	npcElement = $("<div class='npc'><div class='image'></div></div>").appendTo('.field')
+	.css('left', (i('.map','width') - 1200) * maps[player.location].npc[npc][0] / 100 + 600 - npcs[npc].size[0] / 2)
 	.css('margin-bottom', maps[player.location].npc[npc][1]+'px')
+	.attr({
+		'questID': npcs[npc].questID,
+		'npc-name': npc
+	})
+	.append('<div class="chat-bubble dots"></div>')
 	.find('.image')
 	.css({
 		'background-image': 'url(assets/npc-' + npc + '.webp)',
@@ -185,13 +190,6 @@ function placeNPC(npc) {
 		'width': npcs[npc].size[0],
 		'height': npcs[npc].size[1]
 	})
-	.end()
-	.attr({
-		'questID': npcs[npc].questID,
-		'npc-name': npc
-	})
-	.append('<div class="chat-bubble dots"></div>')
-	.appendTo('.field');
 }
 
 function setTutorial() {
@@ -322,8 +320,8 @@ function handleAttackHits(x1, x2, atkMultiplier, maxTargets) {
         if ( x1 > i($(this),'left')+i($(this),'width') || x2 < i($(this),'left') ) return
 
         attack = spread(equipments[player.equipments.weapon].attack*atkMultiplier,20)
-		iscritical = random(1, 100) <= player.critical
-        if (iscritical) {
+		isCritical = random(1, 100) <= totalCritical
+        if (isCritical) {
             attack = Math.round(attack * player.criticalMultiplier)
         }
 		
@@ -340,8 +338,8 @@ function handleAttackHits(x1, x2, atkMultiplier, maxTargets) {
         })
         .find('.bar').css('width', $(this).attr('hp')/enemies[$(this).attr('type')].hp*100+'%')
 
-		damageColor = iscritical ? 'orange' : 'yellow'
-        hit = $('<div class="hit'+(iscritical ? ' critical' : '')+'">'+prettyNumber(attack, damageColor)+'</div>')
+		damageColor = isCritical ? 'orange' : 'yellow'
+        hit = $('<div class="hit'+(isCritical ? ' critical' : '')+'">'+prettyNumber(attack, damageColor)+'</div>')
             .css('left', i($(this),'left'))
             .appendTo('.field')
         setTimeout((hit)=> { hit.remove() },800, hit)
@@ -414,8 +412,7 @@ function enemySpawn(type,map) {
 	destination = random(800, i('.map','width')-800)
 	yOffset = random(-5,5)
 
-	enemy = $('<div class="enemy" type="'+type+'"><div class="image"></div><div class="hpBar"><div class="bar"></div></div></div>')
-	.appendTo('.field')
+	enemy = $('<div class="enemy" type="'+type+'"><div class="image"></div><div class="hpBar"><div class="bar"></div></div></div>').appendTo('.field')
 	.css({
 		'left': destination,
 		'margin-bottom': yOffset+'px',
@@ -504,9 +501,8 @@ function collide() {
 		$('body').append('<div class="hit self">'+prettyNumber(damage,'red')+'</div>')
 		hero.attr('in-damage','true')
 
-		player.hp = player.hp-damage
-		player.position = player.position-heroDirection*40
-		// this is the knockback, should be more than 40 maybe if it's a boss or something
+		player.hp -= damage
+		player.position -= heroDirection * 40
 
 		setTimeout(() => {
 			hero.attr('in-damage','false')
@@ -544,7 +540,6 @@ function enemyDeath(enemy) {
 
 	if (enemies[enemyType].attack >= 1) {
 		player.enemiesSlained[enemyType] = (player.enemiesSlained[enemyType] || 0) + 1
-		player.totalEnemiesSlained++
 	}
 	sound(enemies[enemyType].sound)
 	log('Slained '+enemyType, 'slain')
@@ -566,7 +561,7 @@ function pickUp() {
 			log('Picked '+$(this).attr('type'), $(this).attr('type'))
 		}
 
-		acquireItem($(this).attr('type'), $(this).attr('amount')*1)
+		acquire($(this).attr('type'), $(this).attr('amount')*1)
 
 		setTimeout(function(item) {
 			$(item).remove()
@@ -575,7 +570,7 @@ function pickUp() {
 	});
 }
 
-function acquireItem(item, amount = 1) {
+function acquire(item, amount = 1) {
 	if ( item == 'gold' ) {
 		sound('pickup-gold')
 	} else {
@@ -584,18 +579,62 @@ function acquireItem(item, amount = 1) {
 
 	player.backpack[item] = (player.backpack[item] || 0) + amount;
 	setBackpack()
+	setConsumables()
 }
 
-function useItem(item) {
+function equip(item) {
 	if (equipments.hasOwnProperty(item)) { 
 		itemCategory = equipments[item].category
 		isEquipped = player.equipments[itemCategory] == item
 		player.equipments[itemCategory] = isEquipped ? '' : item;
 		sound('heavy-item')
 		log((isEquipped ? 'unequipped ' : 'equipped ') + item, item)
+		setHero()
 	}
-	setHero()
 	setBackpack()
+	setStats()
+}
+
+function consume(item) {
+	item = $('.consumables .icon:nth-child(' + item + ')').attr('type');
+	if (!item) { return }
+
+	if (activeConsumables.includes(item)) { 
+		shake($('.consumables'));
+		return 
+	}
+
+	if (consumables[item].effect == 'hp recover') {
+		if (player.hp == player.maxHp) {
+			shake($('.bar.hp').parent('.bar-container'));
+			return 
+		}
+		player.hp += Number(consumables[item].value)
+	}
+	if (consumables[item].effect == 'mp recover') {
+		if (player.mp == player.maxMp) {
+			shake($('.bar.mp').parent('.bar-container'));
+			return 
+		}
+		player.mp = Math.min(player.mp + consumables[item].value, player.maxMp);
+	}
+
+	if (consumables[item].duration > 0) {
+		activeConsumables.push(item);
+		setStats()
+		setTimeout(() => {
+			activeConsumables.splice(activeConsumables.indexOf(item), 1);
+			$('.consumables .icon[type='+item+']').removeClass('active');
+			setStats()
+		}, consumables[item].duration*60000);
+	}
+	
+	log(consumables[item].effect+' +'+consumables[item].value, item)
+
+	player.backpack[item] = player.backpack[item] - 1;
+	setBackpack()
+	setConsumables()
+	sound('bless')
 }
 
 function sellItem(item) {
@@ -632,6 +671,7 @@ function sellItem(item) {
 		sound('pickup-gold')
 		setHero()
 		setBackpack()
+		setConsumables()
 
 		log('Sold '+amount+' '+item, item)
 		log('Received '+amount*calcItemPrice(item)+' gold', 'gold')
@@ -819,7 +859,7 @@ function buy(item) {
 		log('Paid '+amountRequired+' '+requiredItem, requiredItem)
 	}
 
-	acquireItem(item)
+	acquire(item)
 	pop($('.card.backpack').find('[type='+item+']'))
 	sound('heavy-item')
 	log('Bought '+item, item)
@@ -844,7 +884,7 @@ function completeQuest(questID) {
 	for (reward in quests[questID].reward) {
 		amount = quests[questID].reward[reward];
 		log('Rewarded '+(amount > 1 ? amount+' ' : '')+reward, reward)
-		acquireItem(reward, amount)
+		acquire(reward, amount)
 	}
 
 	player.completedQuests.push(questID)
@@ -894,11 +934,11 @@ function setBackpack() {
         if (player.backpack[item] >= 1 && item != 'gold') {
             let thumb = $('<div class="thumb tooltip"></div>').appendTo('.backpack .grid')
                 .attr('type', item)
-                .attr('ondblclick', 'useItem("' + item + '")')
+                .attr('ondblclick', 'equip("' + item + '")')
                 .attr('onclick', 'sellItem("' + item + '")')
                 .css('background-image', 'url(assets/item-' + item + '.webp)');
             if (player.backpack[item] > 1) {
-                thumb.html('<span>' + player.backpack[item] + '</span>');
+                thumb.html('<span class="amount">' + player.backpack[item] + '</span>');
             }
         } else if (item != 'gold') {
             delete player.backpack[item];
@@ -931,20 +971,48 @@ function setBackpack() {
 				}
 			}
 			player.backpack = sortedBackpack;
+			setConsumables()
 			save()
 			sound('click')
 		}
 	});
-	totalCritical = baseCritical; // reset to base critical chance
-	for (slot in player.equipments) {
-        item = player.equipments[slot]
-        if (item && equipments[item]) {
-            totalCritical += Number(equipments[item].critical || 0)
-        }
-    }
-	player.critical = totalCritical;
 
 	setTooltips();
+}
+
+function setStats() {
+	totalSpeed = player.speed;
+	totalCritical = player.critical;
+
+	for (slot in player.equipments) {
+		item = player.equipments[slot]
+		if (item && equipments[item]) {
+			totalCritical += Number(equipments[item].critical || 0)
+		}
+	}
+
+	activeConsumables.forEach(item => {
+		if (consumables[item].effect == 'walk speed') {
+			totalSpeed += Number(consumables[item].value);
+		}
+		if (consumables[item].effect == 'critical') {
+			totalCritical += Number(consumables[item].value.replace('%', ''))
+		}
+	})
+}
+
+function setConsumables() {
+	$('.consumables').html('')
+	for (item in player.backpack) {
+		if (consumables.hasOwnProperty(item)) {
+			$('<div class="icon" type="' + item + '"></div>').appendTo('.consumables')
+			.css('background-image', 'url(assets/item-' + item + '.webp)')
+			.html('<span class="amount">' + player.backpack[item] + '</span>');
+		}
+	}
+	activeConsumables.forEach(item => {
+		$('.consumables [type="' + item + '"]').addClass('active');
+	});
 }
 
 function recover() {
@@ -969,6 +1037,15 @@ function setTooltips() {
 		if ( equipments.hasOwnProperty(itemType) ) {
 			card.append('<div><div class="tip">DOUBLE CLICK TO EQUIP</div></div>')
 			.append(itemStats(itemType))
+		}
+
+		if ( consumables.hasOwnProperty(itemType) ) {
+			consumableIndex = $('.consumables .icon[type='+itemType+']').index() + 1;
+			card.append('<div><div class="tip">PRESS '+consumableIndex+' TO CONSUME</div></div>')
+			card.append('<div class="flex stat"><label>'+consumables[itemType].effect+'</label><label>+'+consumables[itemType].value+'</label></div>')
+			if (consumables[itemType].duration > 0) {
+				card.append('<div class="flex stat"><label>DURATION</label><label>'+consumables[itemType].duration+' minutes</label></div>')
+			}
 		}
 
 	}, function() {
@@ -1008,7 +1085,6 @@ function closeCard(element) {
 
 $(document).on('click', function(e) {
 	if (!$(e.target).closest('.card').length 
-	&& !$(e.target).closest('.npc').length
 	&& !$(e.target).closest('.button.sell').length
 	&& !$(e.target).closest('.backpack').length) {
 		closeCard()
@@ -1018,12 +1094,10 @@ $(document).on('click', function(e) {
 
 function resetPlayer() {
 	player = {}
-	player.version = 3
+	player.version = 4
 	player.speed = 15
-	player.backpack = {}
-	player.backpack['gold'] = 0
-	player.equipments = {}
-	player.equipments['weapon'] = 'none'
+	player.backpack = { gold: 0 }
+	player.equipments = { weapon: 'none' }
 	player.location = 'a-box'
 	player.position = 905
 	player.hp = 10
@@ -1032,9 +1106,8 @@ function resetPlayer() {
 	player.maxMp = 10
 	player.completedQuests = []
 	player.enemiesSlained = {}
-	player.totalEnemiesSlained = 0
 	player.mapsVisited = []
-	player.critical = baseCritical // 20% base chance to critical
+	player.critical = 20 // 20% base chance to critical
 	player.criticalMultiplier = 1.5 // 150% damage
 	save()
 	location.reload()
@@ -1092,7 +1165,7 @@ function mode(mode) {
 		hero.find('.equipment').attr('mode',mode) 
 	}
 	modeDurations = {
-		walk: (80 - player.speed) * 4 + 'ms',
+		walk: (80 - totalSpeed) * 4 + 'ms',
 		rest: '2000ms',
 		jump: '800ms',
 		fight: '400ms'
