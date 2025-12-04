@@ -696,7 +696,7 @@ input:focus {
 	background: linear-gradient(90deg, #FFF6C1 0%, #fff6c100 100%);
 	border-radius: 6px;
 	font-size:10px;
-	z-index: 10;
+	z-index: 13;
 }
 .log div {
 	padding:0 50px 0 7px;
@@ -1211,6 +1211,7 @@ input:focus {
 .field .item.picked {
 	animation-name: picked;
 	animation-duration:400ms;
+	animation-iteration-count: 1;
 }
 .field .item.picked:after {
 	opacity:0;
