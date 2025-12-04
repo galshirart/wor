@@ -1,3 +1,4 @@
+latestVersion = 5
 player = {}
 fetch('https://galshir.com/php/wor.php')
 .then(res => res.json())
@@ -11,7 +12,7 @@ fetch('https://galshir.com/php/wor.php')
 	consumables = data['consumables']
 
 	player = JSON.parse(localStorage.getItem('player'))
-	if (!player || player.version != '4') { resetPlayer() }
+	if (!player || player.version != latestVersion) { resetPlayer() }
 
 	keyState = {left: false, right: false};
 	heroDirection = 1
@@ -193,15 +194,8 @@ function placeNPC(npc) {
 }
 
 function setTutorial() {
-	$('.ui.bottom').hide();
-	$('.log').hide();
 	if (tutorialInterval) return;
 	tutorialInterval = setInterval(() => {
-		if (player.location == 'box-shore') { 
-			$('.ui.bottom').show();
-			$('.log').show();
-		}
-
 		$('.tutorial').removeClass('show');
 
 		if (player.location == 'a-box') { 
@@ -261,12 +255,12 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 		}
 
 		setTimeout(() => {
-			handleAttackHits(x1, x2, atkMultiplier, maxTargets)
+			hit(x1, x2, atkMultiplier, maxTargets)
 		}, 200)
 	}
 
 	if (equipments[player.equipments.weapon].type == 'range') {
-		atkType = 7
+		atkType = 6
 
 		if (projectileActive) { 
 			clearInterval(projectile)
@@ -286,7 +280,7 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 				x1 = x1 + direction*10;
 				x2 = x2 + direction*10;
 				projectileElement.css('left', x1-40)
-				handleAttackHits(x1, x2, atkMultiplier, maxTargets)
+				hit(x1, x2, atkMultiplier, maxTargets)
 				if (Math.abs(x1 - player.position) > 500) {
 					clearInterval(projectile);
 					projectileElement.remove();
@@ -298,7 +292,8 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 	// showRange(x1,x2)
 	hero.attr('atkType',atkType)
     $('.weapon').css('animation-name','weapon-'+atkType)
-    sound('attack-'+atkType)
+    
+	setTimeout(() => { sound('attack-'+atkType) }, 100)
 
     setTimeout(() => { 
         mode('rest')
@@ -314,8 +309,8 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
     },390)
 }
 
-function handleAttackHits(x1, x2, atkMultiplier, maxTargets) {
-    enemiesAttacked = 0
+function hit(x1, x2, atkMultiplier, maxTargets) {
+    enemiesHit = 0
     $('.enemy[active=true][hitable=TRUE]').each(function() {
         if ( x1 > i($(this),'left')+i($(this),'width') || x2 < i($(this),'left') ) return
 
@@ -339,10 +334,10 @@ function handleAttackHits(x1, x2, atkMultiplier, maxTargets) {
         .find('.bar').css('width', $(this).attr('hp')/enemies[$(this).attr('type')].hp*100+'%')
 
 		damageColor = isCritical ? 'orange' : 'yellow'
-        hit = $('<div class="hit'+(isCritical ? ' critical' : '')+'">'+prettyNumber(attack, damageColor)+'</div>')
-            .css('left', i($(this),'left'))
-            .appendTo('.field')
-        setTimeout((hit)=> { hit.remove() },800, hit)
+        hitDigits = $('<div class="hit'+(isCritical ? ' critical' : '')+'">'+prettyNumber(attack, damageColor)+'</div>')
+        .css('left', i($(this),'left'))
+        .appendTo('.field')
+        setTimeout((hitDigits)=> { hitDigits.remove() },800, hitDigits)
         if ($(this).attr('hp') <= 0) { enemyDeath($(this)) } 
         else { setTimeout(() => {
 			$(this).css('transition-timing-function', 'linear')
@@ -351,9 +346,9 @@ function handleAttackHits(x1, x2, atkMultiplier, maxTargets) {
     
         setTimeout(function() {
             sound('hit-'+random(1,3)) 
-        },enemiesAttacked*50)
+        },enemiesHit*50)
 
-        if (++enemiesAttacked == maxTargets) {
+        if (++enemiesHit == maxTargets) {
 			if (equipments[player.equipments.weapon].type == 'range') {	
 				clearInterval(projectile)
 				projectileElement.remove()
@@ -1099,7 +1094,7 @@ $(document).on('click', function(e) {
 
 function resetPlayer() {
 	player = {}
-	player.version = 4
+	player.version = latestVersion
 	player.speed = 15
 	player.backpack = { gold: 0 }
 	player.equipments = { weapon: 'none' }
@@ -1120,7 +1115,7 @@ function resetPlayer() {
 
 function sound(sound) {
 	let audio = new Audio('sounds/'+sound+'.wav');
-	if (sound === 'attack-7') {
+	if (sound === 'attack-6') {
 		audio.volume = 0.5;
 	}
 	audio.play();
@@ -1241,6 +1236,17 @@ function pose(atkType) {
 	hero.attr('atkType',atkType)
 	$('.hero, .weapon').css('animation-duration','4000ms')
 	$('.weapon').css('animation-name','weapon-'+atkType)
+}
+
+function shefa(){
+	acquire('wood-sword')
+	acquire('wood-bow')
+	acquire('wood-shield')
+	acquire('red-bandana')
+	acquire('coconut-water',20)
+	acquire('speed-potion',15)
+	acquire('focus-potion',10)
+	$('.card.backpack').show()
 }
 
 function spcDash(string) {

@@ -845,33 +845,43 @@ input:focus {
 }
 @keyframes atk-1 {
 	0% { background-position-x: -960px; }
-	25% { background-position-x: -1040px; }
-	50% { background-position-x: -1120px; }
+	15% { background-position-x: -1040px; }
+	30% { background-position-x: -1120px; }
+	55% { background-position-x: -1200px; }
+	85% { background-position-x: -1280px; }
 }
 @keyframes atk-2 {
 	0% { background-position-x: -960px; }
-	25% { background-position-x: -1200px; }
-	50% { background-position-x: -1280px; }
+	15% { background-position-x: -1360px; }
+	30% { background-position-x: -1440px; }
+	55% { background-position-x: -1520px; }
+	85% { background-position-x: -1280px; }
 }
 @keyframes atk-3 {
-	0% { background-position-x: -1360px; }
-	25% { background-position-x: -1440px; }
-	50% { background-position-x: -1280px; }
+	0% { background-position-x: -1600px; }
+	15% { background-position-x: -1680px; }
+	30% { background-position-x: -1760px; }
+	55% { background-position-x: -1520px; }
+	85% { background-position-x: -1280px; }
 }
 @keyframes atk-4 {
-	0% { background-position-x: -1520px; }
-	25% { background-position-x: -1600px; }
-	50% { background-position-x: -1280px; }
+	0% { background-position-x: -1840px; }
+	15% { background-position-x: -1920px; }
+	30% { background-position-x: -2000px; }
+	55% { background-position-x: -2080px; }
+	85% { background-position-x: -1840px; }
 }
 @keyframes atk-5 {
-	0% { background-position-x: -1520px; }
-	25% { background-position-x: -1680px; }
-	50% { background-position-x: -1760px; }
+	0% { background-position-x: -1840px; }
+	20% { background-position-x: -1920px; }
+	55% { background-position-x: -2000px; }
+	85% { background-position-x: -1280px; }
 }
-@keyframes atk-6 {
-	0% { background-position-x: -1520px; }
-	25% { background-position-x: -1600px; }
-	50% { background-position-x: -1840px; }
+@keyframes atk-6 { /* BOW: */
+	0% { background-position-x: -960px; }
+	20% { background-position-x: -1040px; }
+	40% { background-position-x: -1120px; }
+	80% { background-position-x: -1040px; }
 }
 @keyframes atk-7 {
 	0% { background-position-x: -960px; }
@@ -945,38 +955,42 @@ input:focus {
 	0% { left:-16; bottom:16; transform:rotate(0deg)  }
 	20% { left:-16; bottom:16; transform:rotate(0deg) }
 	40% { left:-13 ; bottom:-10; transform:rotate(40deg) }
-	60% { left:-12 ; bottom:-16; transform:rotate(60deg) }
-	80% { left:-11 ; bottom:-20; transform:rotate(65deg) }
+	60% { left:-13 ; bottom:-16; transform:rotate(60deg) }
+	80% { left:-14 ; bottom:-18; transform:rotate(65deg) }
 }
 @keyframes weapon-1 {
-	0% { left:-13; bottom:-10; transform: rotate(60deg); }
-	25% { left:-27; bottom:-6; transform: rotate(90deg); }
-	50% { left:22; bottom:-6; transform: rotate(90deg); }
+	0% {  left:-9; bottom:-17; transform: rotate(70deg); }
+	15% {  left:-11; bottom:-8; transform: rotate(80deg);}
+	30% { left:-27; bottom:-6; transform: rotate(90deg); }
+	55% { left:22; bottom:-6; transform: rotate(90deg);}
+	85% { left:9; bottom:-19; transform: rotate(70deg); }
 }
 @keyframes weapon-2 {
-	0% { left:-11; bottom:-9; transform: rotate(30deg); }
-	25% { left:-23; bottom:11; transform: rotate(0deg); }
-	50% { left:16; bottom:-19; transform: rotate(120deg); }
+	0% {  left:-9; bottom:-17; transform: rotate(60deg); }
+	15% {  left:-8; bottom:-2; transform: rotate(20deg);}
+	30% { left:-22; bottom:13; transform: rotate(0deg); }
+	55% { left:17; bottom:-19; transform: rotate(120deg);}
+	85% { left:9; bottom:-19; transform: rotate(70deg); }
 }
 @keyframes weapon-3 {
-	0% { left:-31; bottom:-8; transform: rotate(0deg); }
-	25% { left:12; bottom:3; transform: rotate(0deg); }
-	50% { left:16; bottom:-19; transform: rotate(120deg); }
+	0% {  left:-10; bottom:-17; transform: rotate(40deg); }
+	15% {  left:-33; bottom:-7; transform: rotate(-20deg);}
+	30% { left:12; bottom:3; transform: rotate(0deg); }
+	55% { left:17; bottom:-19; transform: rotate(120deg); }
+	85% { left:9; bottom:-19; transform: rotate(70deg); }
 }
 @keyframes weapon-4 {
-	0% { left:-5; bottom:-21; transform: rotate(45deg); }
-	25% { left:-23; bottom:29; transform: rotate(0deg); }
-	50% { left:16; bottom:-19; transform: rotate(120deg); }
+	0% {  left:-11; bottom:-20; transform: rotate(70deg); }
+	15% {  left:-10; bottom:-21; transform: rotate(80deg);}
+	30% { left:15; bottom:21; transform: rotate(-20deg); }
+	55% { left:8; bottom:-24; transform: rotate(135deg); }
+	85% { left:-12; bottom:-21; transform: rotate(100deg); }
 }
 @keyframes weapon-5 {
-	0% { left:-5; bottom:-21; transform: rotate(80deg); }
-	25% { left:-7; bottom:-25; transform: rotate(120deg); }
-	50% { left:16; bottom:23; transform: rotate(0deg); }
-}
-@keyframes weapon-6 {
-	0% { left:-5; bottom:-20; transform: rotate(45deg); }
-	25% { left:-23; bottom:29; transform: rotate(0deg); }
-	50% { left:10; bottom:-28; transform: rotate(0); }
+	0% {  left:-11; bottom:-20; transform: rotate(120deg); }
+	20% {  left:-10; bottom:-21; transform: rotate(130deg);}
+	55% { left:15; bottom:21; transform: rotate(0deg); }
+	85% { left:9; bottom:-19; transform: rotate(30deg); }
 }
 .weapon:after {
 	content: " ";
@@ -989,8 +1003,7 @@ input:focus {
 	left:43px;
 	z-index: 100;
 	border-radius: 50%;
-	border-right: 1px solid #400000;
-	border-bottom: 1px solid #400000;
+	outline: 1px solid #40000050;
 }
 .weapon[name='none']:after {
 	display: none;
@@ -1023,10 +1036,12 @@ input:focus {
 	60% { left:-11px; bottom:-22px;transform: rotate(168deg)}
 	80% { left:-13px; bottom:-21px; transform: rotate(170deg) }
 }
-@keyframes weapon-7 {
-	0% { left:5; bottom:-8; transform: rotate(90deg); background-position: 0 0; }
-	25% { left:10; bottom:-6; transform: rotate(90deg); background-position: -100% 0; }
-	50% { left:10; bottom:-6; transform: rotate(90deg); background-position: 0 0; }
+@keyframes weapon-6 { /* BOW: */
+	0% { left:12; bottom:-17; transform: rotate(120deg); background-position: 0 0; }
+	20% { left:14; bottom:-11; transform: rotate(100deg); background-position: -100% 0; }
+	40% { left:14; bottom:-5; transform: rotate(90deg); background-position: -200% 0; }
+	60% { left:14 ; bottom:-5;transform: rotate(90deg); background-position: 0 0; }
+	80% { left:14 ; bottom:-11;transform: rotate(100deg); background-position: 0 0; }
 }
 [mode=fight] .weapon[type='range']:after {
 	display: none;
