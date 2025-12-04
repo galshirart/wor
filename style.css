@@ -989,7 +989,7 @@ input:focus {
 @keyframes weapon-5 {
 	0% {  left:-11; bottom:-20; transform: rotate(120deg); }
 	20% {  left:-10; bottom:-21; transform: rotate(130deg);}
-	55% { left:15; bottom:21; transform: rotate(0deg); }
+	55% { left:17; bottom:23; transform: rotate(0deg); }
 	85% { left:9; bottom:-19; transform: rotate(30deg); }
 }
 .weapon:after {

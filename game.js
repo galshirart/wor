@@ -496,6 +496,12 @@ function collide() {
 
 		damage = spread(enemies[$(this).attr('type')].attack,20)
 
+		for (equipment in player.equipments) {
+			damage -= equipments[player.equipments[equipment]].defense
+		}
+
+		if (damage <= 0) { damage = 1 }
+
 		$('body').append('<div class="hit self">'+prettyNumber(damage,'red')+'</div>')
 		hero.attr('in-damage','true')
 
@@ -588,6 +594,11 @@ function equip(item) {
 		sound('heavy-item')
 		log((isEquipped ? 'unequipped ' : 'equipped ') + item, item)
 		setHero()
+	}
+	for (equipment in player.equipments) {
+		if (player.equipments[equipment] == "") {
+			delete player.equipments[equipment];
+		}
 	}
 	setBackpack()
 	setStats()
