@@ -254,9 +254,11 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 			x2 = player.position-rangeStart
 		}
 
+		setTimeout(() => { sound('attack') }, totalAtkSpeed/4)
+
 		setTimeout(() => {
 			hit(x1, x2, atkMultiplier, maxTargets)
-		}, 200)
+		}, totalAtkSpeed/2)
 	}
 
 	if (equipments[player.equipments.weapon].type == 'range') {
@@ -267,6 +269,8 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 			projectileElement.remove()
 			projectileActive = false;
 		}
+
+		setTimeout(() => { sound('bow') }, totalAtkSpeed/4)
 
 		setTimeout(() => {
 			x1 = player.position
@@ -286,14 +290,13 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 					projectileElement.remove();
 				}
 			}, 10, heroDirection)
-		}, 200)
+		}, totalAtkSpeed/2)
 	}
 
 	// showRange(x1,x2)
 	hero.attr('atkType',atkType)
     $('.weapon').css('animation-name','weapon-'+atkType)
     
-	setTimeout(() => { sound('attack-'+atkType) }, 100)
 
     setTimeout(() => { 
         mode('rest')
@@ -302,11 +305,11 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 		if (equipments[player.equipments.weapon].type == 'range') {
 			setTimeout(() => {
 				attackCooldown = false;
-			}, 300)
+			}, totalAtkSpeed-10)
 		} else {
 			attackCooldown = false;
 		}
-    },390)
+    },totalAtkSpeed-10)
 }
 
 function hit(x1, x2, atkMultiplier, maxTargets) {
@@ -838,11 +841,17 @@ function openBuyMenu(item) {
 function itemStats(item) {
 	stats = ''
 	for (stat in equipments[item]) {
-		if ( stat == 'description' && equipments[item][stat] != '' ) {
+		if (stat == 'description' && equipments[item][stat] != '') {
 			stats+='<div class="flex stat"><div class="tip">'+equipments[item][stat]+'</tip></div>'
 		}
-		else if (stat != 'price' && stat != 'type' && equipments[item][stat] != 0) { 
-			stats+='<div class="flex stat"><label>'+stat+'</label><label>'+equipments[item][stat]+'</label></div>'
+		if (stat == 'attack' && equipments[item][stat] != 0) {
+			stats+='<div class="flex stat"><label>ATTACK</label><label>'+equipments[item][stat]+'</label></div>'
+		}
+		if (stat == 'defense' && equipments[item][stat] != 0) {
+			stats+='<div class="flex stat"><label>DEFENSE</label><label>'+equipments[item][stat]+'</label></div>'
+		}
+		if (stat == 'critical' && equipments[item][stat] != 0) {
+			stats+='<div class="flex stat"><label>CRITICAL</label><label>+'+equipments[item][stat]+'%</label></div>'
 		}
 	}
 	return stats
@@ -969,7 +978,7 @@ function setBackpack() {
 			player.backpack = sortedBackpack;
 			setConsumables()
 			save()
-			sound('click')
+			sound('heavy-item')
 		}
 	});
 
@@ -978,6 +987,7 @@ function setBackpack() {
 
 function setStats() {
 	totalSpeed = player.speed;
+	totalAtkSpeed = 400;
 	totalCritical = player.critical;
 
 	for (slot in player.equipments) {
@@ -1168,7 +1178,7 @@ function mode(mode) {
 		walk: (80 - totalSpeed) * 4 + 'ms',
 		rest: '2000ms',
 		jump: '800ms',
-		fight: '400ms'
+		fight: totalAtkSpeed+'ms'
 	};
 	if (modeDurations[mode]) {
 		$(`[mode=${mode}]`).css('animation-duration', modeDurations[mode]);
