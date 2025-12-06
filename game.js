@@ -998,7 +998,7 @@ function setBackpack() {
 
 function setStats() {
 	totalSpeed = player.speed;
-	totalAtkSpeed = 400;
+	totalAtkSpeed = 500;
 	totalCritical = player.critical;
 
 	for (slot in player.equipments) {
