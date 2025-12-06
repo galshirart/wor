@@ -647,7 +647,7 @@ function consume(item) {
 	sound('bless')
 }
 
-function sellItem(item) {
+function sell(item) {
 	$('.npc.sell .speech ~ *').remove()
 	$('.npc.sell').append(createItemRow(item))
 
@@ -951,7 +951,7 @@ function setBackpack() {
             let thumb = $('<div class="thumb tooltip"></div>').appendTo('.backpack .grid')
                 .attr('type', item)
                 .attr('ondblclick', 'equip("' + item + '")')
-                .attr('onclick', 'sellItem("' + item + '")')
+                .attr('onclick', 'sell("' + item + '")')
                 .css('background-image', 'url(assets/item-' + item + '.webp)');
             if (player.backpack[item] > 1) {
                 thumb.html('<span class="amount">' + player.backpack[item] + '</span>');
