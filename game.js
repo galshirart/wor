@@ -737,7 +737,8 @@ function interact() {
 		$(this).removeClass('active')
 		originMap = player.location
 		player.location = $(this).attr('target')
-		clearInterval(gameBeat, projectileBeat)
+		clearInterval(gameBeat);
+		clearInterval(projectileBeat);
 		enterMap(originMap)
 		closeCard()
 		sound('port')
@@ -1258,7 +1259,8 @@ function shake(element) {
 function teleport(location) {
 	player.location = location
 	player.position = 630
-	clearInterval(gameBeat, projectileBeat)
+	clearInterval(gameBeat)
+	clearInterval(projectileBeat);
 	enterMap()
 }
 
