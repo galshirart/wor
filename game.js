@@ -611,9 +611,18 @@ function consume(item) {
 	item = $('.consumables .icon:nth-child(' + item + ')').attr('type');
 	if (!item) { return }
 
+	// check if the item is already active
 	if (activeConsumables.includes(item)) { 
 		shake($('.consumables'));
 		return 
+	}
+
+	// check if the same effect is already active
+	for (activeItem in activeConsumables) {
+		if (consumables[activeConsumables[activeItem]].effect == consumables[item].effect) {
+			shake($('.consumables'));
+			return 
+		}
 	}
 
 	if (consumables[item].effect == 'hp recover') {
