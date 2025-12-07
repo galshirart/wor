@@ -19,6 +19,7 @@ fetch('https://galshir.com/php/wor.php')
 	attackCooldown = false;
 	skillCooldown = false;
 	projectileActive = false;
+	projectileInt = {};
 	tutorialInterval = null;
 	activeConsumables = [];
 
@@ -122,6 +123,10 @@ function enterMap(originMap) {
 				recover();
 				save();
 			}, 100);
+
+			projectileBeat = setInterval(() => {
+				projectileMove();
+			}, 10);
 
 			$('.overlay').css('opacity', 0);
 			$('.mapsign').remove();
@@ -257,39 +262,31 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 		setTimeout(() => { sound('attack') }, totalAtkSpeed/4)
 
 		setTimeout(() => {
-			hit(x1, x2, atkMultiplier, maxTargets)
+			$('.enemy[active=true][hitable=TRUE]').each(function() {
+				if ( x1 > i($(this),'left')+i($(this),'width') || x2 < i($(this),'left') ) return
+				hit($(this), equipments[player.equipments.weapon].attack*atkMultiplier)
+				return false
+			})
 		}, totalAtkSpeed/2)
 	}
 
 	if (equipments[player.equipments.weapon].type == 'range') {
 		atkType = 6
 
-		if (projectileActive) { 
-			clearInterval(projectile)
-			projectileElement.remove()
-			projectileActive = false;
-		}
-
 		setTimeout(() => { sound('bow') }, totalAtkSpeed/4)
 
 		setTimeout(() => {
-			x1 = player.position
-			x2 = player.position
-			projectileElement = $('<div class="projectile"></div>').css({
-				'transform': 'scaleX('+heroDirection+')'
-			}).appendTo('.field')
-
-			projectile = setInterval((direction) => {
-				projectileActive = true;
-				x1 = x1 + direction*10;
-				x2 = x2 + direction*10;
-				projectileElement.css('left', x1-40)
-				hit(x1, x2, atkMultiplier, maxTargets)
-				if (Math.abs(x1 - player.position) > 500) {
-					clearInterval(projectile);
-					projectileElement.remove();
-				}
-			}, 10, heroDirection)
+			projectileElement = $('<div class="projectile"></div>').appendTo('.field')
+			.css({
+				'transform': 'scaleX('+heroDirection+')',
+				'left': player.position+heroDirection*40-40,
+				'width': 80
+			})
+			.attr('direction', heroDirection)
+			.attr('range', 500)
+			.attr('originX', player.position)
+			.attr('attack', equipments[player.equipments.weapon].attack*atkMultiplier)
+			.attr('maxTargets', maxTargets)
 		}, totalAtkSpeed/2)
 	}
 
@@ -297,7 +294,6 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 	hero.attr('atkType',atkType)
     $('.weapon').css('animation-name','weapon-'+atkType)
     
-
     setTimeout(() => { 
         mode('rest')
         $('.weapon').css('animation-name','')
@@ -305,60 +301,45 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 		if (equipments[player.equipments.weapon].type == 'range') {
 			setTimeout(() => {
 				attackCooldown = false;
-			}, totalAtkSpeed-10)
+			}, totalAtkSpeed/4-10)
 		} else {
 			attackCooldown = false;
 		}
     },totalAtkSpeed-10)
 }
 
-function hit(x1, x2, atkMultiplier, maxTargets) {
-    enemiesHit = 0
-    $('.enemy[active=true][hitable=TRUE]').each(function() {
-        if ( x1 > i($(this),'left')+i($(this),'width') || x2 < i($(this),'left') ) return
+function hit(enemy, attack) {
+	attack = spread(attack,20)
+	isCritical = random(1, 100) <= totalCritical
+	if (isCritical) {
+		attack = Math.round(attack * player.criticalMultiplier*1)
+	}
+	
+	$(enemy).attr({
+		'state': 'enemy-hit',
+		'angry': 'true', 
+		'hp': $(enemy).attr('hp')-attack,
+		'hit-count': $(enemy).attr('hit-count')*1+1
+	})
+	.css({
+		'transition-duration': '50ms',
+		'transition-timing-function': 'ease-out',
+		'left': i($(enemy),'left')+heroDirection*5+'px'
+	})
+	.find('.bar').css('width', $(enemy).attr('hp')/enemies[$(enemy).attr('type')].hp*100+'%')
 
-        attack = spread(equipments[player.equipments.weapon].attack*atkMultiplier,20)
-		isCritical = random(1, 100) <= totalCritical
-        if (isCritical) {
-            attack = Math.round(attack * player.criticalMultiplier)
-        }
-		
-        $(this).attr({
-            'state': 'enemy-hit',
-            'angry': 'true', 
-            'hp': $(this).attr('hp')-attack,
-            'hit-count': $(this).attr('hit-count')*1+1
-		})
-        .css({
-			'transition-duration': '50ms',
-			'transition-timing-function': 'ease-out',
-            'left': i($(this),'left')+heroDirection*5+'px'
-        })
-        .find('.bar').css('width', $(this).attr('hp')/enemies[$(this).attr('type')].hp*100+'%')
+	damageColor = isCritical ? 'orange' : 'yellow'
+	hitDigits = $('<div class="hit'+(isCritical ? ' critical' : '')+'">'+prettyNumber(attack, damageColor)+'</div>')
+	.css('left', i($(enemy),'left'))
+	.appendTo('.field')
+	setTimeout((hitDigits)=> { hitDigits.remove() },800, hitDigits)
+	if ($(enemy).attr('hp') <= 0) { enemyDeath($(enemy)) } 
+	else { setTimeout(() => {
+		$(enemy).css('transition-timing-function', 'linear')
+		enemyMove($(enemy), $(enemy).attr('hit-count'))
+	}, 200) }
 
-		damageColor = isCritical ? 'orange' : 'yellow'
-        hitDigits = $('<div class="hit'+(isCritical ? ' critical' : '')+'">'+prettyNumber(attack, damageColor)+'</div>')
-        .css('left', i($(this),'left'))
-        .appendTo('.field')
-        setTimeout((hitDigits)=> { hitDigits.remove() },800, hitDigits)
-        if ($(this).attr('hp') <= 0) { enemyDeath($(this)) } 
-        else { setTimeout(() => {
-			$(this).css('transition-timing-function', 'linear')
-            enemyMove($(this), $(this).attr('hit-count'))
-        }, 200) }
-    
-        setTimeout(function() {
-            sound('hit-'+random(1,3)) 
-        },enemiesHit*50)
-
-        if (++enemiesHit == maxTargets) {
-			if (equipments[player.equipments.weapon].type == 'range') {	
-				clearInterval(projectile)
-				projectileElement.remove()
-			}
-			return false
-		}
-    });
+	sound('hit-'+random(1,3)) 
 }
 
 function useSkill(key) {
@@ -549,6 +530,28 @@ function enemyDeath(enemy) {
 	log('Slained '+enemyType, 'slain')
 }
 
+function projectileMove() {
+	$('.projectile').each(function() {
+		projectleElement = $(this)
+
+		projectleElement.css('left', i(projectleElement, 'left') + projectleElement.attr('direction')*10+'px')
+		if (Math.abs(i(projectleElement, 'left') - projectleElement.attr('originX')) > projectleElement.attr('range')) {
+			projectleElement.remove()
+		}
+
+		x1 = i($(this), 'left')
+		x2 = x1 + i(projectleElement, 'width')
+		attack = projectleElement.attr('attack')
+
+		$('.enemy[active=true][hitable=TRUE]').each(function() {
+			if ( x1 > i($(this),'left')+i($(this),'width') || x2 < i($(this),'left') ) return
+			hit($(this), attack)
+			projectleElement.remove()
+			return false
+		})
+	})
+}
+
 function pickUp() {
 	if (mode() == 'fight' || mode() == 'jump' || mode() == 'skill' || attackCooldown) return
 	$('.field .item').not('.picked').each(function() {
@@ -726,7 +729,7 @@ function interact() {
 		$(this).removeClass('active')
 		originMap = player.location
 		player.location = $(this).attr('target')
-		clearInterval(gameBeat)
+		clearInterval(gameBeat, projectileBeat)
 		enterMap(originMap)
 		closeCard()
 		sound('port')
@@ -997,10 +1000,12 @@ function setBackpack() {
 }
 
 function setStats() {
+	// BASE
 	totalSpeed = player.speed;
-	totalAtkSpeed = 500;
 	totalCritical = player.critical;
+	totalAtkSpeed = 800 - equipments[player.equipments.weapon].attackSpeed*50;
 
+	// EQUIPMENTS
 	for (slot in player.equipments) {
 		item = player.equipments[slot]
 		if (item && equipments[item]) {
@@ -1008,14 +1013,21 @@ function setStats() {
 		}
 	}
 
+	// CONSUMABLES
 	activeConsumables.forEach(item => {
 		if (consumables[item].effect == 'walk speed') {
 			totalSpeed += Number(consumables[item].value);
+		}
+		if (consumables[item].effect == 'attack speed') {
+			totalAtkSpeed = totalAtkSpeed * (1 - Number(consumables[item].value.replace('%', ''))/100);
 		}
 		if (consumables[item].effect == 'critical') {
 			totalCritical += Number(consumables[item].value.replace('%', ''))
 		}
 	})
+
+	// MINIMUMS
+	if (totalAtkSpeed < 200) { totalAtkSpeed = 200 }
 }
 
 function setConsumables() {
@@ -1240,7 +1252,7 @@ function shake(element) {
 function teleport(location) {
 	player.location = location
 	player.position = 630
-	clearInterval(gameBeat)
+	clearInterval(gameBeat, projectileBeat)
 	enterMap()
 }
 
@@ -1266,6 +1278,7 @@ function shefa(){
 	acquire('red-bandana')
 	acquire('coconut-water',20)
 	acquire('speed-potion',15)
+	acquire('turbo-berry',10)
 	acquire('focus-potion',10)
 	$('.card.backpack').show()
 }
