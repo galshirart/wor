@@ -620,8 +620,7 @@ function consume(item) {
 	// check if the same effect is already active
 	for (activeItem in activeConsumables) {
 		if (consumables[activeConsumables[activeItem]].effect == consumables[item].effect) {
-			shake($('.consumables'));
-			return 
+			activeConsumables.splice(activeConsumables.indexOf(activeItem), 1);
 		}
 	}
 
@@ -934,11 +933,11 @@ function setHero() {
 
 	if (player.equipments.weapon == '') { player.equipments.weapon = 'none' }
 
-	if ( equipments[player.equipments.weapon].type == 'melee') {
+	if (equipments[player.equipments.weapon].type == 'melee') {
     	hero.append('<div class="weapon" name="'+player.equipments.weapon+'"><img src="assets/weapon-'+player.equipments.weapon+'.webp" /></div>')
 	}
 
-	if ( equipments[player.equipments.weapon].type == 'range') {
+	if (equipments[player.equipments.weapon].type == 'range') {
     	hero.append('<div class="weapon range""></div>')
 		hero.find('.weapon').css('background-image','url(assets/weapon-'+player.equipments.weapon+'.webp)')
 		.attr('type','range')
@@ -1025,7 +1024,7 @@ function setStats() {
 	// consumable bonuses
 	activeConsumables.forEach(item => {
 		if (consumables[item].effect == 'walk speed') {
-			totalWalkSpeed += totalWalkSpeed * (1 - Number(consumables[item].value.replace('%', ''))/100);
+			totalWalkSpeed += totalWalkSpeed * Number(consumables[item].value.replace('%', '')/100);
 		}
 		if (consumables[item].effect == 'attack speed') {
 			totalAtkSpeed = totalAtkSpeed * (1 - Number(consumables[item].value.replace('%', ''))/100);
