@@ -284,7 +284,7 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 				'direction': heroDirection,
 				'range': 500,
 				'originX': player.position,
-				'speed': 20,
+				'speed': 30,
 				'attack': equipments[player.equipments.weapon].attack * atkMultiplier,
 				'maxTargets': maxTargets
 			})
