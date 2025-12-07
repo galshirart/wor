@@ -18,8 +18,6 @@ fetch('https://galshir.com/php/wor.php')
 	heroDirection = 1
 	attackCooldown = false;
 	skillCooldown = false;
-	projectileActive = false;
-	projectileInt = {};
 	tutorialInterval = null;
 	activeConsumables = [];
 
@@ -126,7 +124,7 @@ function enterMap(originMap) {
 
 			projectileBeat = setInterval(() => {
 				projectileMove();
-			}, 10);
+			}, 20);
 
 			$('.overlay').css('opacity', 0);
 			$('.mapsign').remove();
@@ -286,6 +284,7 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 				'direction': heroDirection,
 				'range': 500,
 				'originX': player.position,
+				'speed': 20,
 				'attack': equipments[player.equipments.weapon].attack * atkMultiplier,
 				'maxTargets': maxTargets
 			})
@@ -537,8 +536,9 @@ function projectileMove() {
 		projectleElement = $(this)
 		x1 = i(projectleElement, 'left')
 		x2 = x1 + i(projectleElement, 'width')
+		projectileSpeed = projectleElement.attr('speed');
 
-		projectleElement.css('left', x1 + projectleElement.attr('direction')*10+'px')
+		projectleElement.css('left', x1 + projectleElement.attr('direction')*projectileSpeed+'px')
 		if (Math.abs(x1 - projectleElement.attr('originX')) > projectleElement.attr('range')) {
 			projectleElement.remove()
 		}
