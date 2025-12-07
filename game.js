@@ -141,8 +141,8 @@ function walk(keyState) {
 	isWalking = false
 
 	let change = 0;
-	if (keyState.right) change = totalSpeed;
-	else if (keyState.left) change = -totalSpeed;
+	if (keyState.right) change = totalWalkSpeed;
+	else if (keyState.left) change = -totalWalkSpeed;
 
 	if (change) {
 		isWalking = true;
@@ -276,17 +276,19 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 		setTimeout(() => { sound('bow') }, totalAtkSpeed/4)
 
 		setTimeout(() => {
-			projectileElement = $('<div class="projectile"></div>').appendTo('.field')
+			$('<div class="projectile"></div>').appendTo('.field')
 			.css({
 				'transform': 'scaleX('+heroDirection+')',
 				'left': player.position+heroDirection*40-40,
 				'width': 80
 			})
-			.attr('direction', heroDirection)
-			.attr('range', 500)
-			.attr('originX', player.position)
-			.attr('attack', equipments[player.equipments.weapon].attack*atkMultiplier)
-			.attr('maxTargets', maxTargets)
+			.attr({
+				'direction': heroDirection,
+				'range': 500,
+				'originX': player.position,
+				'attack': equipments[player.equipments.weapon].attack * atkMultiplier,
+				'maxTargets': maxTargets
+			})
 		}, totalAtkSpeed/2)
 	}
 
@@ -533,19 +535,17 @@ function enemyDeath(enemy) {
 function projectileMove() {
 	$('.projectile').each(function() {
 		projectleElement = $(this)
+		x1 = i(projectleElement, 'left')
+		x2 = x1 + i(projectleElement, 'width')
 
-		projectleElement.css('left', i(projectleElement, 'left') + projectleElement.attr('direction')*10+'px')
-		if (Math.abs(i(projectleElement, 'left') - projectleElement.attr('originX')) > projectleElement.attr('range')) {
+		projectleElement.css('left', x1 + projectleElement.attr('direction')*10+'px')
+		if (Math.abs(x1 - projectleElement.attr('originX')) > projectleElement.attr('range')) {
 			projectleElement.remove()
 		}
 
-		x1 = i($(this), 'left')
-		x2 = x1 + i(projectleElement, 'width')
-		attack = projectleElement.attr('attack')
-
 		$('.enemy[active=true][hitable=TRUE]').each(function() {
 			if ( x1 > i($(this),'left')+i($(this),'width') || x2 < i($(this),'left') ) return
-			hit($(this), attack)
+			hit($(this), projectleElement.attr('attack'))
 			projectleElement.remove()
 			return false
 		})
@@ -1000,12 +1000,12 @@ function setBackpack() {
 }
 
 function setStats() {
-	// BASE
-	totalSpeed = player.speed;
-	totalCritical = player.critical;
+	// base stats
+	totalWalkSpeed = 15;
+	totalCritical = 10;
 	totalAtkSpeed = 800 - equipments[player.equipments.weapon].attackSpeed*50;
 
-	// EQUIPMENTS
+	// equipment bonuses
 	for (slot in player.equipments) {
 		item = player.equipments[slot]
 		if (item && equipments[item]) {
@@ -1013,10 +1013,10 @@ function setStats() {
 		}
 	}
 
-	// CONSUMABLES
+	// consumable bonuses
 	activeConsumables.forEach(item => {
 		if (consumables[item].effect == 'walk speed') {
-			totalSpeed += Number(consumables[item].value);
+			totalWalkSpeed += totalWalkSpeed * (1 - Number(consumables[item].value.replace('%', ''))/100);
 		}
 		if (consumables[item].effect == 'attack speed') {
 			totalAtkSpeed = totalAtkSpeed * (1 - Number(consumables[item].value.replace('%', ''))/100);
@@ -1026,7 +1026,7 @@ function setStats() {
 		}
 	})
 
-	// MINIMUMS
+	// minimums
 	if (totalAtkSpeed < 200) { totalAtkSpeed = 200 }
 }
 
@@ -1128,7 +1128,6 @@ $(document).on('click', function(e) {
 function resetPlayer() {
 	player = {}
 	player.version = latestVersion
-	player.speed = 15
 	player.backpack = { gold: 0 }
 	player.equipments = { weapon: 'none' }
 	player.location = 'a-box'
@@ -1140,7 +1139,6 @@ function resetPlayer() {
 	player.completedQuests = []
 	player.enemiesSlained = {}
 	player.mapsVisited = []
-	player.critical = 20 // 20% base chance to critical
 	player.criticalMultiplier = 1.5 // 150% damage
 	save()
 	location.reload()
@@ -1198,7 +1196,7 @@ function mode(mode) {
 		hero.find('.equipment').attr('mode',mode) 
 	}
 	modeDurations = {
-		walk: (80 - totalSpeed) * 4 + 'ms',
+		walk: (80 - totalWalkSpeed) * 4 + 'ms',
 		rest: '2000ms',
 		jump: '800ms',
 		fight: totalAtkSpeed+'ms'
