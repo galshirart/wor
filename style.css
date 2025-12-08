@@ -1132,7 +1132,7 @@ input:focus {
 @keyframes hit {
 	0% { transform:translateY(0px); }
 	50% { opacity:1 }
-	100% { transform:translateY(-20px); opacity:0 }
+	100% { transform:translateY(-16px); opacity:0 }
 }
 .hit img {
 	display: inline;

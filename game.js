@@ -324,7 +324,7 @@ function hit(enemy, attack) {
 
 	damageColor = isCritical ? 'orange' : 'yellow'
 	hitDigits = $('<div class="hit'+(isCritical ? ' critical' : '')+'">'+prettyNumber(attack, damageColor)+'</div>')
-	.css('left', i($(enemy),'left'))
+	.css('left', i($(enemy),'left')+i($(enemy),'width')/2-(String(attack).length*13))
 	.appendTo('.field')
 	setTimeout((hitDigits)=> { hitDigits.remove() },800, hitDigits)
 	if ($(enemy).attr('hp') <= 0) { enemyDeath($(enemy)) } 
@@ -481,10 +481,9 @@ function collide() {
 		$('body').append('<div class="hit self">'+prettyNumber(damage,'red')+'</div>')
 		hero.attr('in-damage','true')
 		
-		$('.field, .front, .back').css('transition', 'transform 200ms ease-out');
-		player.position -= heroDirection * 50
-		setTimeout(() => { $('.field, .front, .back').css('transition', 'none') }, 200);
-
+		knockback = setInterval(() => { player.position -= heroDirection * 4 }, 10);
+		setTimeout(() => { clearInterval(knockback); }, 200);
+		
 		setTimeout(() => {
 			hero.attr('in-damage','false')
 			$('.hit.self').remove()
