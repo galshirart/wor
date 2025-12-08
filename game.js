@@ -112,7 +112,7 @@ function enterMap(originMap) {
 			} else {
 				$('.tutorial').remove()
 			}
-		}, 200);
+		}, 100);
 
 		setTimeout(() => {
 			gameBeat = setInterval(() => {
@@ -128,7 +128,7 @@ function enterMap(originMap) {
 			$('.mapsign').remove();
 			$('.window').append(`<div class="mapsign"><span></span><span>${spcDash(player.location)}</span><span></span></div>`);
 			$('.port').addClass('active');
-		}, 300);
+		}, 200);
 	});
 }
 
@@ -1051,8 +1051,8 @@ function setConsumables() {
 }
 
 function recover() {
-	player.hp = Math.min(player.hp + player.maxHp * 0.001, player.maxHp);
-	player.mp = Math.min(player.mp + player.maxMp * 0.003, player.maxMp);
+	player.hp = Math.min(player.hp + player.maxHp * 0.0001, player.maxHp);
+	player.mp = Math.min(player.mp + player.maxMp * 0.0003, player.maxMp);
 
 	if (player.hp < 0) { player.hp = 0 }
 
