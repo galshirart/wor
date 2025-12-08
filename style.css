@@ -44,7 +44,6 @@ body {
 	position: absolute;
 	height:800px;
 	bottom:0;
-	transition: left 100ms linear, transform 500ms, margin-bottom 300ms ease-in;
 }
 .map {
 	height:800px;
@@ -52,7 +51,6 @@ body {
 .back, .front {
 	height:800px;
 	position: absolute;
-	transition: left 100ms linear, transform 500ms;
 	pointer-events: none;
 }
 .back {

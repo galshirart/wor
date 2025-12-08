@@ -117,14 +117,12 @@ function enterMap(originMap) {
 		setTimeout(() => {
 			gameBeat = setInterval(() => {
 				walk(keyState);
+				slideMap();
 				collide();
+				projectileMove();
 				recover();
 				save();
-			}, 100);
-
-			projectileBeat = setInterval(() => {
-				projectileMove();
-			}, 20);
+			}, 10);
 
 			$('.overlay').css('opacity', 0);
 			$('.mapsign').remove();
@@ -164,12 +162,14 @@ function walk(keyState) {
 	if ($('.field .npc.near-player').length === 0) {
 		closeCard('npc');
 	}
+}
 
+function slideMap() {
 	offset = (i('.window', 'width') / 2) - player.position;
-	$('.field').css('left', offset + 'px');
+	$('.field').css('transform', `translateX(${offset}px)`);
 	parallaxRatio = (mapWidth - i('.window', 'width')) > 0 ? (offset / (mapWidth - i('.window', 'width'))) : 0;
-	$('.back').css('left', parallaxRatio * (backWidth - i('.window', 'width')) + 'px');
-	$('.front').css('left', parallaxRatio * (frontWidth - i('.window', 'width')) + 'px');
+	$('.back').css('transform', `translateX(${parallaxRatio * (backWidth - i('.window', 'width'))}px)`);
+	$('.front').css('transform', `translateX(${parallaxRatio * (frontWidth - i('.window', 'width'))}px)`);
 }
 
 function placePort(port) {
@@ -284,7 +284,7 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
 				'direction': heroDirection,
 				'range': 500,
 				'originX': player.position,
-				'speed': 30,
+				'speed': 10,
 				'attack': equipments[player.equipments.weapon].attack * atkMultiplier,
 				'maxTargets': maxTargets
 			})
@@ -298,15 +298,8 @@ function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplie
     setTimeout(() => { 
         mode('rest')
         $('.weapon').css('animation-name','')
-
-		if (equipments[player.equipments.weapon].type == 'range') {
-			setTimeout(() => {
-				attackCooldown = false;
-			}, totalAtkSpeed/4-10)
-		} else {
-			attackCooldown = false;
-		}
-    },totalAtkSpeed-10)
+		setTimeout(() => { attackCooldown = false; }, totalAtkSpeed/4)
+    },totalAtkSpeed)
 }
 
 function hit(enemy, attack) {
@@ -340,7 +333,7 @@ function hit(enemy, attack) {
 		enemyMove($(enemy), $(enemy).attr('hit-count'))
 	}, 200) }
 
-	sound('hit-'+random(1,3)) 
+	sound('hit-1') 
 }
 
 function useSkill(key) {
@@ -483,12 +476,14 @@ function collide() {
 		}
 
 		if (damage <= 0) { damage = 1 }
+		player.hp -= damage
 
 		$('body').append('<div class="hit self">'+prettyNumber(damage,'red')+'</div>')
 		hero.attr('in-damage','true')
-
-		player.hp -= damage
-		player.position -= heroDirection * 40
+		
+		$('.field, .front, .back').css('transition', 'transform 200ms ease-out');
+		player.position -= heroDirection * 50
+		setTimeout(() => { $('.field, .front, .back').css('transition', 'none') }, 200);
 
 		setTimeout(() => {
 			hero.attr('in-damage','false')
@@ -738,7 +733,6 @@ function interact() {
 		originMap = player.location
 		player.location = $(this).attr('target')
 		clearInterval(gameBeat);
-		clearInterval(projectileBeat);
 		enterMap(originMap)
 		closeCard()
 		sound('port')
@@ -1010,7 +1004,7 @@ function setBackpack() {
 
 function setStats() {
 	// base stats
-	totalWalkSpeed = 15;
+	totalWalkSpeed = 1.5;
 	totalCritical = 10;
 	totalAtkSpeed = 800 - equipments[player.equipments.weapon].attackSpeed*50;
 
@@ -1260,7 +1254,6 @@ function teleport(location) {
 	player.location = location
 	player.position = 630
 	clearInterval(gameBeat)
-	clearInterval(projectileBeat);
 	enterMap()
 }
 
