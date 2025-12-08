@@ -484,7 +484,7 @@ function collide() {
 		$('.field, .front, .back').css('transition', 'transform 100ms ease-out');
 		player.position -= heroDirection * 50
 		setTimeout(() => { $('.field, .front, .back').css('transition', 'none') }, 100);
-		
+
 		setTimeout(() => {
 			hero.attr('in-damage','false')
 			$('.hit.self').remove()
@@ -1199,7 +1199,7 @@ function mode(mode) {
 		hero.find('.equipment').attr('mode',mode) 
 	}
 	modeDurations = {
-		walk: (80 - totalWalkSpeed) * 4 + 'ms',
+		walk: 400/totalWalkSpeed + 'ms',
 		rest: '2000ms',
 		jump: '800ms',
 		fight: totalAtkSpeed+'ms'
