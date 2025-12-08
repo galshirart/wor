@@ -481,9 +481,9 @@ function collide() {
 		$('body').append('<div class="hit self">'+prettyNumber(damage,'red')+'</div>')
 		hero.attr('in-damage','true')
 		
-		$('.field, .front, .back').css('transition', 'transform 100ms ease-out');
+		$('.field, .front, .back').css('transition', 'transform 200ms ease-out');
 		player.position -= heroDirection * 50
-		setTimeout(() => { $('.field, .front, .back').css('transition', 'none') }, 100);
+		setTimeout(() => { $('.field, .front, .back').css('transition', 'none') }, 200);
 
 		setTimeout(() => {
 			hero.attr('in-damage','false')
