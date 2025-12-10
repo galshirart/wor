@@ -863,23 +863,6 @@ function npcInteraction(npc) {
 			}
 		}
 		dialogLine();
-
-
-
-		// if (player.questsCompleted.includes(quest)) {
-		// 	card.append('<label class="completed">Quest completed</label>')
-		// 	return
-		// }
-
-		// card.append('<label class="light">QUEST REWARD</label>')
-		// for (reward in quests[quest].reward) {
-		// 	card.append(createItemRow(reward, quests[quest].reward[reward]))
-		// }
-
-		// if (availableAmount >= quests[quest].amount) {
-		// 	card.append('<div class="actions"><div class="button yellow">Complete Quest</div></div>')	
-		// 	card.find('.actions .button').attr('onclick','completeQuest("'+quest+'")')
-		// }
 	}
 	
 	zoom('in');
