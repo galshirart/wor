@@ -1,4 +1,4 @@
-latestVersion = 5
+latestVersion = 6
 player = {}
 fetch('https://galshir.com/php/wor.php')
 .then(res => res.json())
