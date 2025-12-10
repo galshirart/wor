@@ -68,7 +68,10 @@ function enterMap(originMap) {
 	if (maps[player.location].layers.includes('back')) imagesToLoad.push(`assets/map-${player.location}-back.webp`);
 
 	Object.keys(maps[player.location].enemies).forEach(type => {
-		imagesToLoad.push(`assets/enemy-${type}.webp`, `assets/item-${enemies[type].item}.webp`);
+		imagesToLoad.push(`assets/enemy-${type}.webp`);
+		if (enemies[type].item) {
+			imagesToLoad.push(`assets/item-${enemies[type].item}.webp`);
+		}
 	});
 	Object.keys(maps[player.location].npc).forEach(npc => {
 		imagesToLoad.push(`assets/npc-${npc}.webp`, `assets/avatar-${npc}.webp`);
@@ -166,10 +169,10 @@ function walk(keyState) {
 
 function slideMap() {
 	offset = (i('.window', 'width') / 2) - player.position;
-	$('.field').css('transform', `translateX(${offset}px)`);
+	$('.field').css('left', `${offset}px`);
 	parallaxRatio = (mapWidth - i('.window', 'width')) > 0 ? (offset / (mapWidth - i('.window', 'width'))) : 0;
-	$('.back').css('transform', `translateX(${parallaxRatio * (backWidth - i('.window', 'width'))}px)`);
-	$('.front').css('transform', `translateX(${parallaxRatio * (frontWidth - i('.window', 'width'))}px)`);
+	$('.back').css('left', `${parallaxRatio * (backWidth - i('.window', 'width'))}px`);
+	$('.front').css('left', `${parallaxRatio * (frontWidth - i('.window', 'width'))}px`);
 }
 
 function placePort(port) {
@@ -493,23 +496,26 @@ function collide() {
 
 function enemyDeath(enemy) {
 	enemyType = $(enemy).attr('type')
-	itemType = enemies[enemyType].item
-	amount = 1
 
-	if (enemies[enemyType].gold == 'TRUE' && random(1,2) == 1) {
-		itemType = 'gold'
-		amount = Math.round(average([enemies[enemyType].hp, enemies[enemyType].attack])/30)
-		if (amount < 1) { amount = 1 }
+	if (enemies[enemyType].item) {
+		itemType = enemies[enemyType].item
+		amount = 1
+
+		if (enemies[enemyType].gold == 'TRUE' && random(1,2) == 1) {
+			itemType = 'gold'
+			amount = Math.round(average([enemies[enemyType].hp, enemies[enemyType].attack])/30)
+			if (amount < 1) { amount = 1 }
+		}
+
+		$('<div class="item"></div>').appendTo('.field').css({
+			'left': number(enemy.css('left')),
+			'background-image': 'url(assets/item-'+itemType+'.webp)',
+			'margin-bottom': i(enemy,'margin-bottom')+'px',
+			'z-index': i(enemy,'z-index')
+		})
+		.attr('type',itemType)
+		.attr('amount',amount)
 	}
-
-	$('<div class="item"></div>').appendTo('.field').css({
-		'left': number(enemy.css('left')),
-		'background-image': 'url(assets/item-'+itemType+'.webp)',
-		'margin-bottom': i(enemy,'margin-bottom')+'px',
-		'z-index': i(enemy,'z-index')
-	})
-	.attr('type',itemType)
-	.attr('amount',amount)
 	
 	$(enemy).css('left', i(enemy,'left')).addClass('dead').attr('active','false')
 	.fadeOut(1000).promise().done(function(enemy) { $(enemy).remove() })
@@ -795,7 +801,7 @@ function npcInteraction(npc) {
 			questCard.find('.checkbox').addClass('completed')
 		}
 
-		if (player.completedQuests.includes(questID)) {
+		if (player.questsCompleted.includes(questID)) {
 			card.append('<label class="completed">Quest completed</label>')
 			return
 		}
@@ -908,7 +914,7 @@ function completeQuest(questID) {
 		acquire(reward, amount)
 	}
 
-	player.completedQuests.push(questID)
+	player.questsCompleted.push(questID)
 	log('Quest completed', 'crown')
 	closeCard()
 	sound('quest')
@@ -1138,7 +1144,8 @@ function resetPlayer() {
 	player.mp = 10
 	player.maxHp = 10
 	player.maxMp = 10
-	player.completedQuests = []
+	player.questsCompleted = []
+	player.questsAccepted = []
 	player.enemiesSlained = {}
 	player.mapsVisited = []
 	player.criticalMultiplier = 1.5 // 150% damage
