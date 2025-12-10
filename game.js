@@ -183,6 +183,10 @@ function placePort(port) {
 			portElement.addClass('locked');
 			$('<img src="assets/item-lock.webp" class="lock-icon" />').css('left', portX).appendTo('.field');
 		}
+		if ( condition == 'questCompleted' && !player.questsCompleted.includes(maps[port].conditions[condition]) ) {
+			portElement.addClass('locked');
+			$('<img src="assets/item-lock.webp" class="lock-icon" />').css('left', portX).appendTo('.field');
+		}
 	}
 
 	$("<div class='sparkles'></div>").css('left', portX).appendTo('.field')
