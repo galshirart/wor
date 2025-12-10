@@ -74,7 +74,7 @@ function enterMap(originMap) {
 		}
 	});
 	Object.keys(maps[player.location].npc).forEach(npc => {
-		imagesToLoad.push(`assets/npc-${npc}.webp`, `assets/avatar-${npc}.webp`);
+		imagesToLoad.push(`assets/npc-${npcs[npc].name}.webp`, `assets/avatar-${npcs[npc].name}.webp`);
 	});
 
 	setTimeout(() => {
@@ -186,13 +186,13 @@ function placeNPC(npc) {
 	.css('left', (i('.map','width') - 1200) * maps[player.location].npc[npc][0] / 100 + 600 - npcs[npc].size[0] / 2)
 	.css('margin-bottom', maps[player.location].npc[npc][1]+'px')
 	.attr({
-		'questID': npcs[npc].questID,
+		'quest': npcs[npc].quest,
 		'npc-name': npc
 	})
 	.append('<div class="chat-bubble dots"></div>')
 	.find('.image')
 	.css({
-		'background-image': 'url(assets/npc-' + npc + '.webp)',
+		'background-image': 'url(assets/npc-' + npcs[npc].name + '.webp)',
 		'background-size': npcs[npc].size[0] * 5 + 'px',
 		'width': npcs[npc].size[0],
 		'height': npcs[npc].size[1]
@@ -761,15 +761,15 @@ function npcInteraction(npc) {
 	card = $('<div class="card left npc"></div>').appendTo('.window')
 	.addClass(npcs[npc].type)
 	.append($('.person-header').clone())
-	.find('.avatar').css('background-image', 'url(assets/avatar-' + npc + '.webp)')
+	.find('.avatar').css('background-image', 'url(assets/avatar-' + npcs[npc].name + '.webp)')
 	.end()
-	.append('<div class="speech"><div>'+npcs[npc].speech+'</div></div>')
-	card.find('h3').html(spcDash(npc))
+	card.find('h3').html(spcDash(npcs[npc].name))
 	card.find('label').html(spcDash(npcs[npc].title))
 
 	showCursor()
 
 	if (npcs[npc].type == 'shop') {
+		card.append('<div class="speech"><div>'+npcs[npc].speech+'</div></div>')
 		$('.backpack').show()
 		for (item in npcs[npc].items) { 
 			createItemRow(npcs[npc].items[item]).appendTo(card)
@@ -778,43 +778,54 @@ function npcInteraction(npc) {
 	}
 
 	if (npcs[npc].type == 'sell') {
+		card.append('<div class="speech"><div>'+npcs[npc].speech+'</div></div>')
 		$('.backpack').show()
 		card.append('<div><div class="tip">Click on an item from your backpack</div></div>')
 	}
 
 	if (npcs[npc].type == 'quest') {
-		questID = npcs[npc].questID
-
-		if (quests[questID].type == 'achieve') {
-			availableAmount = player[quests[questID].requirement]
+		for (quest in npcs[npc].quests) {	
+			if (!player.questsCompleted.includes(npcs[npc].quests[quest])) {
+				targetQuest = npcs[npc].quests[quest]
+				break
+			}
 		}
+	
+		card.append('<div class="dialog"></div>')
 
-		if (quests[questID].type == 'collect') {
-			availableAmount = player.backpack[quests[questID].requirement] || 0
-		}
+		$('<div class="message"><div class="text"></div></div>')
+		.find('.text').html(quests[targetQuest].dialog[0][0])
+		.end().appendTo(card.find('.dialog'))
 
-		questCard = $('<div><div class="quest"><span class="checkbox"></span>'+quests[questID].task+'</div></div>')
-		.find('.quest').append('<div class="progress">'+Math.min(availableAmount, quests[questID].amount)+'/'+quests[questID].amount+'</div>').end()
-		.appendTo(card)
+		d = 1
+		dialog = setInterval(() => {
+			$('<div class="message"><div class="text"></div></div>')
+			.find('.text').html(quests[targetQuest].dialog[0][d])
+			.end().appendTo(card.find('.dialog'))
+			d++
+			if (d >= quests[targetQuest].dialog[0].length) {
+				clearInterval(dialog)
 
-		if (availableAmount >= quests[questID].amount) {
-			questCard.find('.checkbox').addClass('completed')
-		}
 
-		if (player.questsCompleted.includes(questID)) {
-			card.append('<label class="completed">Quest completed</label>')
-			return
-		}
+				$('<div class="actions"><div class="button yellow">Accept Quest</div></div>').appendTo(card)
+				.find('.button').attr('onclick','acceptQuest("'+targetQuest+'")')
+			}
+		}, 500)
 
-		card.append('<label class="light">QUEST REWARD</label>')
-		for (reward in quests[questID].reward) {
-			card.append(createItemRow(reward, quests[questID].reward[reward]))
-		}
+		// if (player.questsCompleted.includes(quest)) {
+		// 	card.append('<label class="completed">Quest completed</label>')
+		// 	return
+		// }
 
-		if (availableAmount >= quests[questID].amount) {
-			card.append('<div class="actions"><div class="button yellow">Complete Quest</div></div>')	
-			card.find('.actions .button').attr('onclick','completeQuest("'+questID+'")')
-		}
+		// card.append('<label class="light">QUEST REWARD</label>')
+		// for (reward in quests[quest].reward) {
+		// 	card.append(createItemRow(reward, quests[quest].reward[reward]))
+		// }
+
+		// if (availableAmount >= quests[quest].amount) {
+		// 	card.append('<div class="actions"><div class="button yellow">Complete Quest</div></div>')	
+		// 	card.find('.actions .button').attr('onclick','completeQuest("'+quest+'")')
+		// }
 	}
 	
 	zoom('in');
@@ -902,19 +913,19 @@ function createItemRow(item, amount) {
     return itemRow
 }
 
-function completeQuest(questID) {
-	if (quests[questID].type == 'collect') {
-		player.backpack[quests[questID].requirement] -= quests[questID].amount
-		log('Delivered '+(quests[questID].amount > 1 ? quests[questID].amount+' ' : '')+quests[questID].requirement, quests[questID].requirement)
+function completeQuest(quest) {
+	if (quests[quest].type == 'collect') {
+		player.backpack[quests[quest].requirement] -= quests[quest].amount
+		log('Delivered '+(quests[quest].amount > 1 ? quests[quest].amount+' ' : '')+quests[quest].requirement, quests[quest].requirement)
 	}
 
-	for (reward in quests[questID].reward) {
-		amount = quests[questID].reward[reward];
+	for (reward in quests[quest].reward) {
+		amount = quests[quest].reward[reward];
 		log('Rewarded '+(amount > 1 ? amount+' ' : '')+reward, reward)
 		acquire(reward, amount)
 	}
 
-	player.questsCompleted.push(questID)
+	player.questsCompleted.push(quest)
 	log('Quest completed', 'crown')
 	closeCard()
 	sound('quest')
