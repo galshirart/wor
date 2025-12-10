@@ -782,8 +782,10 @@ function npcInteraction(npc) {
 	}
 
 	if (npcs[npc].type == 'quest') {
+		targetQuest = npcs[npc].quests[0]
+
 		for (quest in npcs[npc].quests) {	
-			if (!player.questsCompleted.includes(npcs[npc].quests[quest])) {
+			if (!player.questsCompleted.includes(npcs[npc].quests[quest]) && npcs[npc].quests.length > 1) {
 				targetQuest = npcs[npc].quests[quest]
 				break
 			}
@@ -805,6 +807,10 @@ function npcInteraction(npc) {
 					step = 2
 				}
 			}
+		}
+
+		if (player.questsCompleted.includes(targetQuest)) {
+			step = 3
 		}
 
 		lines = quests[targetQuest].dialog[step]
@@ -829,7 +835,9 @@ function npcInteraction(npc) {
 				card.find('.reward').remove();
 				card.find('.actions').remove();
 
-				card.append('<div class="flex columns"><label>REWARD</label><div class="list"></div></div>')
+				if (step < 3) {
+					card.append('<div class="flex columns"><label>REWARD</label><div class="list"></div></div>')
+				}
 
 				if (quests[targetQuest].reward) {
 					for (reward in quests[targetQuest].reward) {
@@ -847,6 +855,10 @@ function npcInteraction(npc) {
 				if (step == 2) {
 					$('<div class="actions"><div class="button yellow">Accept Reward</div></div>').appendTo(card)
 					.find('.button').attr('onclick', 'completeQuest("' + targetQuest + '")');
+				}
+				if (step == 3) {
+					$('<div class="actions"><div class="button yellow">Close</div></div>').appendTo(card)
+					.find('.button').attr('onclick', 'closeCard()');
 				}
 			}
 		}
