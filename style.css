@@ -380,6 +380,9 @@ input:focus {
 	background:rgba(64,0,0,0.1);
 	padding:4px 12px;
 }
+.card .reward {
+	padding:10px 8px;
+}
 .card .quest {
 	background:rgba(64,0,0,0.1);
 	padding:6px 10px 10px 10px;
@@ -669,27 +672,9 @@ input:focus {
 .item-row .thumb {
 	margin-right:8px;
 }
-.stat.flex {
-	align-items: flex-start;
-	padding:10px 8px;
-}
-.stat.flex label:first-of-type {
+.flex.columns > label:first-of-type {
 	width:100px;
 	font-weight:700;
-}
-.list {
-	margin-top:-3px;
-}
-.list .thumb {
-	background-color: transparent;
-    border: 0;
-    width: 22px;
-    height: 22px;
-    background-size: cover;
-	background-position: center;
-	margin:0;
-    margin-right: 2px;
-	margin-left:-3px;
 }
 .card .amount-available {
 	text-align: right;

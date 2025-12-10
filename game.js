@@ -783,7 +783,6 @@ function npcInteraction(npc) {
 
 	if (npcs[npc].type == 'quest') {
 		for (quest in npcs[npc].quests) {	
-			console.log(npcs[npc].quests[quest])
 			if (!player.questsCompleted.includes(npcs[npc].quests[quest])) {
 				targetQuest = npcs[npc].quests[quest]
 				break
@@ -828,15 +827,27 @@ function npcInteraction(npc) {
 					}, 100);
 				});
 			} else {
+				card.find('.reward').remove();
+				card.find('.actions').remove();
+
+				card.append('<div class="flex columns"><label>REWARD</label><div class="list"></div></div>')
+
+				if (quests[targetQuest].reward) {
+					for (reward in quests[targetQuest].reward) {
+						card.find('.list').append(createItemRow(reward, quests[targetQuest].reward[reward]))
+					}
+				}
 				if (step == 0) {
-					card.find('.actions').remove();
 					$('<div class="actions"><div class="button yellow">Accept Quest</div></div>').appendTo(card)
 					.find('.button').attr('onclick', 'acceptQuest("' + targetQuest + '")');
 				}
 				if (step == 1) {
-					card.find('.actions').remove();
 					$('<div class="actions"><div class="button yellow">Close</div></div>').appendTo(card)
 					.find('.button').attr('onclick', 'closeCard()');
+				}
+				if (step == 2) {
+					$('<div class="actions"><div class="button yellow">Accept Reward</div></div>').appendTo(card)
+					.find('.button').attr('onclick', 'completeQuest("' + targetQuest + '")');
 				}
 			}
 		}
@@ -924,16 +935,16 @@ function itemStats(item) {
 	stats = ''
 	for (stat in equipments[item]) {
 		if (stat == 'description' && equipments[item][stat] != '') {
-			stats+='<div class="flex stat"><div class="tip">'+equipments[item][stat]+'</tip></div>'
+			stats+='<div class="flex"><div class="tip">'+equipments[item][stat]+'</tip></div>'
 		}
 		if (stat == 'attack' && equipments[item][stat] != 0) {
-			stats+='<div class="flex stat"><label>ATTACK</label><label>'+equipments[item][stat]+'</label></div>'
+			stats+='<div class="flex columns"><label>ATTACK</label><label>'+equipments[item][stat]+'</label></div>'
 		}
 		if (stat == 'defense' && equipments[item][stat] != 0) {
-			stats+='<div class="flex stat"><label>DEFENSE</label><label>'+equipments[item][stat]+'</label></div>'
+			stats+='<div class="flex columns"><label>DEFENSE</label><label>'+equipments[item][stat]+'</label></div>'
 		}
 		if (stat == 'critical' && equipments[item][stat] != 0) {
-			stats+='<div class="flex stat"><label>CRITICAL</label><label>+'+equipments[item][stat]+'%</label></div>'
+			stats+='<div class="flex columns"><label>CRITICAL</label><label>+'+equipments[item][stat]+'%</label></div>'
 		}
 	}
 	return stats
