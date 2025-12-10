@@ -797,7 +797,6 @@ function npcInteraction(npc) {
 		requirementsMet = true
 		if (quests[targetQuest].type == 'kill') { 
 			for (enemy in quests[targetQuest].requirement) {
-				console.log(player.enemiesSlained[enemy], quests[targetQuest].requirement[enemy])
 				if ((player.enemiesSlained[enemy] === undefined || player.enemiesSlained[enemy] < quests[targetQuest].requirement[enemy])) {
 					requirementsMet = false
 					break
@@ -1206,6 +1205,12 @@ function resetPlayer() {
 	location.reload()
 }
 
+function resetQuests() {
+	player.questsCompleted = []
+	player.questsAccepted = []
+	player.enemiesSlained = {}
+}
+
 function sound(sound) {
 	let audio = new Audio('sounds/'+sound+'.wav');
 	if (sound === 'attack-6') {
@@ -1246,7 +1251,6 @@ function i(element, param) {
 
 function number(input) {
     if (typeof input !== 'string') {
-        console.warn(`Expected string, got ${typeof input}`);
         return 0; // or some default value
     }
     return Math.round(parseFloat(input));

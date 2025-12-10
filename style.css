@@ -366,13 +366,17 @@ input:focus {
 	text-transform: none;
 	font-size:14px;
 	margin-top:16px;
+	background:#FFF6C1;
+	border:1px solid #40000020;
+	margin:16px 8px 8px;
+	border-radius: 4px;
 }
 .card .dialog .message:nth-child(even) {
 	display: flex;
 	justify-content: flex-end;
 }
 .card .dialog .text {
-	margin:4px;
+	margin:2px 0;
 	width:fit-content;
 	border-radius: 40px;
 }
