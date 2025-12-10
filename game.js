@@ -107,7 +107,6 @@ function enterMap(originMap) {
 		
 			if (!player.mapsVisited.includes(player.location)) {
 				player.mapsVisited.push(player.location);
-				setTimeout(() => monologue(maps[player.location].monologue), 2000);
 			}
 
 			if (['a-box', 'box-shore'].includes(player.location)) {
@@ -524,9 +523,8 @@ function enemyDeath(enemy) {
 		enemySpawn(enemyType, map)
 	}, random(10000,20000), enemyType, player.location)
 
-	if (enemies[enemyType].attack >= 1) {
-		player.enemiesSlained[enemyType] = (player.enemiesSlained[enemyType] || 0) + 1
-	}
+	player.enemiesSlained[enemyType] = (player.enemiesSlained[enemyType] || 0) + 1
+
 	sound(enemies[enemyType].sound)
 	log('Slained '+enemyType, 'slain')
 }
@@ -785,6 +783,7 @@ function npcInteraction(npc) {
 
 	if (npcs[npc].type == 'quest') {
 		for (quest in npcs[npc].quests) {	
+			console.log(npcs[npc].quests[quest])
 			if (!player.questsCompleted.includes(npcs[npc].quests[quest])) {
 				targetQuest = npcs[npc].quests[quest]
 				break
@@ -793,24 +792,57 @@ function npcInteraction(npc) {
 	
 		card.append('<div class="dialog"></div>')
 
-		$('<div class="message"><div class="text"></div></div>')
-		.find('.text').html(quests[targetQuest].dialog[0][0])
-		.end().appendTo(card.find('.dialog'))
+		step = 0
+		if (player.questsAccepted.includes(targetQuest)) { step = 1 }
 
-		d = 1
-		dialog = setInterval(() => {
-			$('<div class="message"><div class="text"></div></div>')
-			.find('.text').html(quests[targetQuest].dialog[0][d])
-			.end().appendTo(card.find('.dialog'))
-			d++
-			if (d >= quests[targetQuest].dialog[0].length) {
-				clearInterval(dialog)
-
-
-				$('<div class="actions"><div class="button yellow">Accept Quest</div></div>').appendTo(card)
-				.find('.button').attr('onclick','acceptQuest("'+targetQuest+'")')
+		requirementsMet = true
+		if (quests[targetQuest].type == 'kill') { 
+			for (enemy in quests[targetQuest].requirement) {
+				console.log(player.enemiesSlained[enemy], quests[targetQuest].requirement[enemy])
+				if ((player.enemiesSlained[enemy] === undefined || player.enemiesSlained[enemy] < quests[targetQuest].requirement[enemy])) {
+					requirementsMet = false
+					break
+				}
+				else {
+					step = 2
+				}
 			}
-		}, 500)
+		}
+
+		lines = quests[targetQuest].dialog[step]
+
+		lineIndex = 0;
+		let dialogInterval;
+		function dialogLine() {
+			if (lineIndex < lines.length) {
+				let text = $('<div class="message"><div class="text"></div></div>').appendTo(card.find('.dialog')).find('.text');
+				typeWriterEffect(text, lines[lineIndex++], 0, function() {
+					clearInterval(dialogInterval);
+					let wait = 0;
+					dialogInterval = setInterval(function() {
+						wait += 100;
+						if (wait >= 400) {
+							clearInterval(dialogInterval);
+							dialogLine();
+						}
+					}, 100);
+				});
+			} else {
+				if (step == 0) {
+					card.find('.actions').remove();
+					$('<div class="actions"><div class="button yellow">Accept Quest</div></div>').appendTo(card)
+					.find('.button').attr('onclick', 'acceptQuest("' + targetQuest + '")');
+				}
+				if (step == 1) {
+					card.find('.actions').remove();
+					$('<div class="actions"><div class="button yellow">Close</div></div>').appendTo(card)
+					.find('.button').attr('onclick', 'closeCard()');
+				}
+			}
+		}
+		dialogLine();
+
+
 
 		// if (player.questsCompleted.includes(quest)) {
 		// 	card.append('<label class="completed">Quest completed</label>')
@@ -829,6 +861,23 @@ function npcInteraction(npc) {
 	}
 	
 	zoom('in');
+}
+
+function acceptQuest(quest) {
+	player.questsAccepted.push(quest)
+	closeCard()
+	sound('quest')
+}
+
+function typeWriterEffect(element, text, i, callback) {
+	if (i < text.length) {
+		element.html(element.html() + text.charAt(i));
+		setTimeout(function() {
+			typeWriterEffect(element, text, i + 1, callback);
+		}, 28); // adjust speed here
+	} else if (callback) {
+		callback();
+	}
 }
 
 function zoom(direction) {
@@ -1103,24 +1152,6 @@ function setTooltips() {
 	}, function() {
 	    $('.card.hover').remove();
 	})
-}
-
-function monologue(text) {
-	if (text == '') { return }
-	monologueDiv = $('<div class="monologue chat-bubble"><div class="text"></div></div>');
-	$('.window').append(monologueDiv);
-	characterIndex = 0;
-	function typeWriter() {
-		if (characterIndex < text.length) {
-			monologueDiv.find('.text').append(text[characterIndex]);
-			characterIndex++;
-			setTimeout(typeWriter, 25);
-		}
-	}
-	typeWriter();
-	setTimeout(function() {
-		$('.monologue').remove()
-	}, 1000 + 600 * text.split(/\s+/).filter(Boolean).length)
 }
 
 function closeCard(element) {
