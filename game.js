@@ -176,7 +176,15 @@ function slideMap() {
 
 function placePort(port) {
 	portX = 590 + (i('.map','width') - 1270) * maps[player.location].ports[port] / 100
-	$("<div class='port'></div>").css('left', portX).attr('target',port).appendTo('.field')
+	portElement = $("<div class='port'></div>").css('left', portX).attr('target',port).appendTo('.field')
+
+	for (condition in maps[port].conditions) {
+		if ( condition == 'questAccepted' && !player.questsAccepted.includes(maps[port].conditions[condition]) ) {
+			portElement.addClass('locked');
+			$('<img src="assets/item-lock.webp" class="lock-icon" />').css('left', portX).appendTo('.field');
+		}
+	}
+
 	$("<div class='sparkles'></div>").css('left', portX).appendTo('.field')
 }
 
@@ -727,7 +735,7 @@ function calcItemPrice(item) {
 function interact() {
 	if (mode() == 'fight' || mode() == 'jump' || mode() == 'skill' || attackCooldown) return
 
-	$('.port.active').each(function() {
+	$('.port.active').not('.locked').each(function() {
 		if (player.position < i($(this),'left') ||
 			player.position > i($(this),'left') + i($(this),'width'))
 		{ return }
@@ -835,7 +843,7 @@ function npcInteraction(npc) {
 				card.find('.reward').remove();
 				card.find('.actions').remove();
 
-				if (step < 3) {
+				if (step < 3 && quests[targetQuest].reward) {
 					card.append('<div class="flex columns"><label>REWARD</label><div class="list"></div></div>')
 				}
 
@@ -871,6 +879,9 @@ function npcInteraction(npc) {
 function acceptQuest(quest) {
 	player.questsAccepted.push(quest)
 	closeCard()
+	$('.port, .lock-icon, .sparkles').remove()
+	Object.keys(maps[player.location].ports || {}).forEach(placePort);
+	$('.port').addClass('active');
 	sound('quest')
 }
 

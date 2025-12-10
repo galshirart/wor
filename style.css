@@ -111,6 +111,21 @@ body {
 	0% { background-position:0 0;  }
 	100% { background-position:0 -90px; }
 }
+.lock-icon {
+	position: absolute;
+	bottom:360px;
+	width:30px;
+	margin-left:30px;
+	animation-name: float;
+	animation-duration: 2s;
+	animation-timing-function: ease-in-out;
+	animation-iteration-count: infinite;
+}
+@keyframes float {
+	0% { transform: translateY(0px) }
+	50% { transform: translateY(-10px) }
+	100% { transform: translateY(0px) }
+}
 .overlay {
 	background:white;
 	width:100%;
