@@ -87,14 +87,17 @@ $('.step').each(function() {
 })
 
 function copyDialogJSON() {
-	dialogJSON = [];
+	let dialogJSON = [];
 	$('.step').each(function() {
 		let values = $(this).find('input').map(function() {
 			return $(this).val();
 		}).get().filter(function(val) {
 			return val.trim() !== '';
 		});
-		dialogJSON.push(values);
+		// Only push if at least one input is non-empty
+		if (values.length > 0) {
+			dialogJSON.push(values);
+		}
 	});
 	navigator.clipboard.writeText(JSON.stringify(dialogJSON));
 }
@@ -108,7 +111,10 @@ $('.step input').on('input', function() {
 		}).get().filter(function(val) {
 			return val.trim() !== '';
 		});
-		dialogJSON.push(values);
+		// Only push if at least one input is non-empty
+		if (values.length > 0) {
+			dialogJSON.push(values);
+		}
 	});
 	try {
 		localStorage.setItem('dialogJSON', JSON.stringify(dialogJSON));
@@ -125,6 +131,9 @@ $(function() {
 			let dialogJSON = JSON.parse(saved);
 			$('.step').each(function(stepIdx) {
 				let values = dialogJSON[stepIdx] || [];
+				// Don't fill the step if all of its dialog is empty (triggered on loading blank step in JSON)
+				let allEmpty = values.length === 0 || values.every(v => (v == null) || v.trim() === "");
+				if (allEmpty) return;
 				$(this).find('input').each(function(inputIdx) {
 					if (values[inputIdx] !== undefined) {
 						$(this).val(values[inputIdx]);
