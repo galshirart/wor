@@ -102,8 +102,9 @@ function enterMap(originMap) {
 			walk(keyState);
 
 			Object.keys(maps[player.location].enemies || {}).forEach(type => { Array.from({ length: maps[player.location].enemies[type] }).forEach(() => enemySpawn(type, player.location)); });
-			Object.keys(maps[player.location].ports || {}).forEach(placePort);
 			Object.keys(maps[player.location].npc || {}).forEach(placeNPC);
+
+			placePorts()
 		
 			if (!player.mapsVisited.includes(player.location)) {
 				player.mapsVisited.push(player.location);
@@ -174,22 +175,30 @@ function slideMap() {
 	$('.front').css('left', `${parallaxRatio * (frontWidth - i('.window', 'width'))}px`);
 }
 
-function placePort(port) {
-	portX = 590 + (i('.map','width') - 1270) * maps[player.location].ports[port] / 100
-	portElement = $("<div class='port'></div>").css('left', portX).attr('target',port).appendTo('.field')
+function placePorts() {
+	$('.port, .lock-icon, .sparkles').remove()
 
-	for (condition in maps[port].conditions) {
-		if ( condition == 'questAccepted' && !player.questsAccepted.includes(maps[port].conditions[condition]) ) {
-			portElement.addClass('locked');
-			$('<img src="assets/item-lock.webp" class="lock-icon" />').css('left', portX).appendTo('.field');
+	Object.keys(maps[player.location].ports || {}).forEach(function(port) {
+		portX = 590 + (i('.map','width') - 1270) * maps[player.location].ports[port] / 100
+		portElement = $("<div class='port'></div>").css('left', portX).attr('target',port).appendTo('.field')
+	
+		for (condition in maps[port].conditions) {
+			if ( condition == 'questAccepted' && !player.questsAccepted.includes(maps[port].conditions[condition]) ) {
+				portElement.addClass('locked');
+				$('<img src="assets/item-lock.webp" class="lock-icon" />').css('left', portX).appendTo('.field');
+			}
+			if ( condition == 'questCompleted' && !player.questsCompleted.includes(maps[port].conditions[condition]) ) {
+				portElement.addClass('locked');
+				$('<img src="assets/item-lock.webp" class="lock-icon" />').css('left', portX).appendTo('.field');
+			}
 		}
-		if ( condition == 'questCompleted' && !player.questsCompleted.includes(maps[port].conditions[condition]) ) {
-			portElement.addClass('locked');
-			$('<img src="assets/item-lock.webp" class="lock-icon" />').css('left', portX).appendTo('.field');
-		}
-	}
+	
+		$("<div class='sparkles'></div>").css('left', portX).appendTo('.field')
+	});
 
-	$("<div class='sparkles'></div>").css('left', portX).appendTo('.field')
+	setTimeout(() => {
+		$('.port:not(.locked)').addClass('active');
+	}, 100);
 }
 
 function placeNPC(npc) {		
@@ -883,8 +892,7 @@ function npcInteraction(npc) {
 function acceptQuest(quest) {
 	player.questsAccepted.push(quest)
 	closeCard()
-	$('.port, .lock-icon, .sparkles').remove()
-	Object.keys(maps[player.location].ports || {}).forEach(placePort);
+	placePorts()
 	$('.port').addClass('active');
 	sound('quest')
 }
