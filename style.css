@@ -266,9 +266,7 @@ label {
 	display: block;
 	position: relative;
 	top:1px;
-}
-label.light {
-	font-weight:700;
+	line-height:32px;
 }
 input {
 	border: 1px solid #400000;
@@ -279,7 +277,7 @@ input {
     padding: 5px 8px 4px;
 	border-radius: 4px;
 	font-weight:700;
-	height:32px;
+	height:30px;
 }
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -654,10 +652,10 @@ input:focus {
 	background-color:rgba(64,0,0,0.1);
 	background-position: -1 -1;
 	border:1px solid #400000;
-	margin:1px;
 	position: relative;
 	transition: transform 300ms;
 	border-radius: 4px;
+	margin:1px
 }
 .backpack .thumb:hover {
 	filter:brightness(0.9);
@@ -691,8 +689,11 @@ input:focus {
 .item-row .thumb {
 	margin-right:8px;
 }
+.flex.columns {
+	align-items: flex-start;
+}
 .flex.columns > label:first-of-type {
-	width:100px;
+	width:120px;
 	font-weight:700;
 }
 .card .amount-available {
@@ -1203,10 +1204,10 @@ input:focus {
 }
 .field .item {
 	position: absolute;
-	width:32px;
-	height:32px;
+	width:30px;
+	height:30px;
 	bottom:321px;
-	background-size:32px;
+	background-size:30px;
 	animation-name:item;
 	animation-duration: 2s;
 	animation-iteration-count: infinite;

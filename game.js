@@ -800,90 +800,80 @@ function npcInteraction(npc) {
 	}
 
 	if (npcs[npc].type == 'quest') {
-		targetQuest = npcs[npc].quests[0]
-
-		for (quest in npcs[npc].quests) {	
-			if (!player.questsCompleted.includes(npcs[npc].quests[quest]) && npcs[npc].quests.length > 1) {
-				targetQuest = npcs[npc].quests[quest]
-				break
-			}
-		}
-	
-		card.append('<div class="dialog"></div>')
-
-		step = 0
-		if (player.questsAccepted.includes(targetQuest)) { step = 1 }
-
-		requirementsMet = true
-		if (quests[targetQuest].type == 'kill') { 
-			for (enemy in quests[targetQuest].requirement) {
-				if ((player.enemiesSlained[enemy] === undefined || player.enemiesSlained[enemy] < quests[targetQuest].requirement[enemy])) {
-					requirementsMet = false
-					break
-				}
-				else {
-					step = 2
-				}
-			}
-		}
-
-		if (player.questsCompleted.includes(targetQuest)) {
-			step = 3
-		}
-
-		lines = quests[targetQuest].dialog[step]
-
-		lineIndex = 0;
-		let dialogInterval;
-		function dialogLine() {
-			if (lineIndex < lines.length) {
-				let text = $('<div class="message"><div class="text"></div></div>').appendTo(card.find('.dialog')).find('.text');
-				typeWriterEffect(text, lines[lineIndex++], 0, function() {
-					clearInterval(dialogInterval);
-					let wait = 0;
-					dialogInterval = setInterval(function() {
-						wait += 100;
-						if (wait >= 400) {
-							clearInterval(dialogInterval);
-							dialogLine();
-						}
-					}, 100);
-				});
-			} else {
-				card.find('.reward').remove();
-				card.find('.actions').remove();
-
-				if (step < 3 && quests[targetQuest].reward) {
-					card.append('<div class="flex columns"><label>REWARD</label><div class="list"></div></div>')
-				}
-
-				if (quests[targetQuest].reward) {
-					for (reward in quests[targetQuest].reward) {
-						card.find('.list').append(createItemRow(reward, quests[targetQuest].reward[reward]))
-					}
-				}
-				if (step == 0) {
-					$('<div class="actions"><div class="button yellow">Accept Quest</div></div>').appendTo(card)
-					.find('.button').attr('onclick', 'acceptQuest("' + targetQuest + '")');
-				}
-				if (step == 1) {
-					$('<div class="actions"><div class="button yellow">Close</div></div>').appendTo(card)
-					.find('.button').attr('onclick', 'closeCard()');
-				}
-				if (step == 2) {
-					$('<div class="actions"><div class="button yellow">Accept Reward</div></div>').appendTo(card)
-					.find('.button').attr('onclick', 'completeQuest("' + targetQuest + '")');
-				}
-				if (step == 3) {
-					$('<div class="actions"><div class="button yellow">Close</div></div>').appendTo(card)
-					.find('.button').attr('onclick', 'closeCard()');
-				}
-			}
-		}
-		dialogLine();
+		questDialog(npc)
 	}
 	
 	zoom('in');
+}
+
+function questDialog(npc) {
+	targetQuest = npcs[npc].quests[0]
+
+	for (quest in npcs[npc].quests) {	
+		if (!player.questsCompleted.includes(npcs[npc].quests[quest])) {
+			targetQuest = npcs[npc].quests[quest]
+			break
+		}
+	}
+
+	step = 0
+	
+	if (player.questsAccepted.includes(targetQuest)) { step = 1 }
+
+	if (quests[targetQuest].type == 'kill') { 
+		for (enemy in quests[targetQuest].requirement) {
+			if (!player.enemiesSlained[enemy] || player.enemiesSlained[enemy] < quests[targetQuest].requirement[enemy]) {
+				break;
+			}
+			step = 2;
+		}
+	}
+
+	if (player.questsCompleted.includes(targetQuest)) {
+		step = 3
+	}
+
+	card.append('<div class="dialog"></div>')
+	lines = quests[targetQuest].dialog[step]
+
+	lineIndex = 0;
+	let dialogInterval;
+	function dialogLine() {
+		if (lineIndex < lines.length) {
+			let text = $('<div class="message"><div class="text"></div></div>').appendTo(card.find('.dialog')).find('.text');
+			typeWriterEffect(text, lines[lineIndex++], 0, function() {
+				clearInterval(dialogInterval);
+				let wait = 0;
+				dialogInterval = setInterval(function() {
+					wait += 100;
+					if (wait >= 400) {
+						clearInterval(dialogInterval);
+						dialogLine();
+					}
+				}, 100);
+			});
+		} else {
+			card.find('.reward, .actions').remove();
+
+			if (step < 3 && quests[targetQuest].reward) {
+				rewards = $('<div class="flex columns"><label>REWARD</label><div class="list"></div></div>');
+				Object.entries(quests[targetQuest].reward).forEach(([reward, amount]) => {
+					rewards.find('.list').append(createItemRow(reward, amount));
+				});
+				card.append(rewards);
+			}
+
+			let button = {
+				0: { text: "Accept Quest", onclick: `acceptQuest("${targetQuest}")` },
+				1: { text: "Close", onclick: "closeCard()" },
+				2: { text: "Accept Reward", onclick: `completeQuest("${targetQuest}")` },
+				3: { text: "Close", onclick: "closeCard()" }
+			};
+			$(`<div class="actions"><div class="button yellow">${button[step].text}</div></div>`).appendTo(card)
+			.find('.button').attr('onclick', button[step].onclick);
+		}
+	}
+	dialogLine();
 }
 
 function acceptQuest(quest) {
@@ -1167,9 +1157,9 @@ function setTooltips() {
 		if ( consumables.hasOwnProperty(itemType) ) {
 			consumableIndex = $('.consumables .icon[type='+itemType+']').index() + 1;
 			card.append('<div><div class="tip">PRESS '+consumableIndex+' TO CONSUME</div></div>')
-			card.append('<div class="flex stat"><label>'+consumables[itemType].effect+'</label><label>+'+consumables[itemType].value+'</label></div>')
+			card.append('<div class="flex columns"><label>'+consumables[itemType].effect+'</label><label>+'+consumables[itemType].value+'</label></div>')
 			if (consumables[itemType].duration > 0) {
-				card.append('<div class="flex stat"><label>DURATION</label><label>'+consumables[itemType].duration+' minutes</label></div>')
+				card.append('<div class="flex columns"><label>DURATION</label><label>'+consumables[itemType].duration+' minutes</label></div>')
 			}
 		}
 
