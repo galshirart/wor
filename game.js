@@ -130,7 +130,6 @@ function enterMap(originMap) {
 			$('.overlay').css('opacity', 0);
 			$('.mapsign').remove();
 			$('.window').append(`<div class="mapsign"><span></span><span>${spcDash(player.location)}</span><span></span></div>`);
-			$('.port').addClass('active');
 		}, 200);
 	});
 }
@@ -196,9 +195,7 @@ function placePorts() {
 		$("<div class='sparkles'></div>").css('left', portX).appendTo('.field')
 	});
 
-	setTimeout(() => {
-		$('.port:not(.locked)').addClass('active');
-	}, 100);
+	setTimeout(() => { $('.port:not(.locked)').addClass('active'); }, 400);
 }
 
 function placeNPC(npc) {		
@@ -893,7 +890,6 @@ function acceptQuest(quest) {
 	player.questsAccepted.push(quest)
 	closeCard()
 	placePorts()
-	$('.port').addClass('active');
 	sound('quest')
 }
 
