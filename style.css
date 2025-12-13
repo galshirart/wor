@@ -965,8 +965,8 @@ input:focus {
 	animation-name: weapon-jump;
 }
 @keyframes weapon-rest {
-	0% { left:-11; bottom:-21; transform: rotate(65deg)}
-	50% { left:-11; bottom:-22; transform:rotate(67deg) }
+	0% { left:-10; bottom:-21; transform: rotate(65deg)}
+	50% { left:-10; bottom:-22; transform:rotate(67deg) }
 }
 @keyframes weapon-walk {
 	0% { left:-7px; bottom:-21px; transform: rotate(62deg) }
@@ -1047,8 +1047,8 @@ input:focus {
 	animation-name: weapon-range-rest;
 }
 @keyframes weapon-range-rest {
-	0% { left:-9; bottom:-22; transform:rotate(165deg)}
-	50% { left:-9; bottom:-23; transform:rotate(167deg) }
+	0% { left:-10; bottom:-21; transform:rotate(165deg)}
+	50% { left:-10; bottom:-22; transform:rotate(167deg) }
 }
 [mode=walk] .weapon[type='range'] {
 	animation-name: weapon-range-walk;
