@@ -383,13 +383,14 @@ input:focus {
 	border:1px solid #40000020;
 	margin:16px 8px 8px;
 	border-radius: 8px;
+	padding:4px 8px;
 }
 .card .dialog .message:nth-child(even) {
 	display: flex;
 	justify-content: flex-end;
 }
 .card .dialog .text {
-	margin:2px 0 0 4px;
+	margin:6px 0 6px 4px;
 	width:fit-content;
 	border-radius: 40px;
 }
