@@ -130,6 +130,7 @@ function enterMap(originMap) {
 			$('.overlay').css('opacity', 0);
 			$('.mapsign').remove();
 			$('.window').append(`<div class="mapsign"><span></span><span>${spcDash(player.location)}</span><span></span></div>`);
+			document.querySelector('title').textContent = "Duck Delivery | " + spcDash(player.location).replace(/\b\w/g, c => c.toUpperCase());
 		}, 200);
 	});
 }
