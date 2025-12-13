@@ -63,6 +63,9 @@ function hit(enemy, attack) {
 	if (isCritical) {
 		attack = Math.round(attack * player.criticalMultiplier*1)
 	}
+    enemyType = $(enemy).attr('type')
+    enemySize = enemies[enemyType].size[0] + enemies[enemyType].size[1]
+    knockbackAmount = Math.max(5, Math.min(30, (attack/enemySize) * 100)) //kconback based on enemy size and attack
 	
 	$(enemy).attr({
 		'state': 'enemy-hit',
@@ -73,7 +76,7 @@ function hit(enemy, attack) {
 	.css({
 		'transition-duration': '50ms',
 		'transition-timing-function': 'ease-out',
-		'left': i($(enemy),'left')+heroDirection*5+'px'
+		'left': i($(enemy),'left')+heroDirection*knockbackAmount+'px'
 	})
 	.find('.bar').css('width', $(enemy).attr('hp')/enemies[$(enemy).attr('type')].hp*100+'%')
 
@@ -158,7 +161,8 @@ function collide() {
 		$('body').append('<div class="hit self">'+prettyNumber(damage,'red')+'</div>')
 		hero.attr('in-damage','true')
 		
-		knockback = setInterval(() => { player.position -= heroDirection * 4 }, 10);
+        knockbackDistance = Math.min(damage, 3); //hero knockback based on damage taken
+		knockback = setInterval(() => { player.position -= heroDirection * knockbackDistance }, 10);
 		setTimeout(() => { clearInterval(knockback); }, 200);
 		
 		setTimeout(() => {
