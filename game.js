@@ -130,7 +130,7 @@ function enterMap(originMap) {
 			$('.overlay').css('opacity', 0);
 			$('.mapsign').remove();
 			$('.window').append(`<div class="mapsign"><span></span><span>${spcDash(player.location)}</span><span></span></div>`);
-			document.querySelector('title').textContent = "Duck Delivery | " + spcDash(player.location).replace(/\b\w/g, c => c.toUpperCase());
+			updateMetaTitle();
 		}, 200);
 	});
 }
@@ -882,6 +882,23 @@ function acceptQuest(quest) {
 	closeCard()
 	placePorts()
 	sound('quest')
+}
+
+function updateMetaTitle() {
+	document.querySelector('title').textContent = "Duck Delivery | " + player.location
+	.replace(/-/g, ' ')
+	.replace(/\b(\w)(\w*'?[a-z]*)/g, function(_, first, rest) {
+		if (/'[a-z]+$/.test(rest)) {
+			const parts = rest.split("'");
+			let afterApos = parts[1];
+			if (afterApos && afterApos.toLowerCase() === 's') {
+				return first.toUpperCase() + parts[0].toLowerCase() + "'" + afterApos.toLowerCase();
+			} else if (afterApos) {
+				return first.toUpperCase() + parts[0].toLowerCase() + "'" + afterApos.charAt(0).toUpperCase() + afterApos.slice(1).toLowerCase();
+			}
+		}
+		return first.toUpperCase() + (rest ? rest.toLowerCase() : '');
+	});
 }
 
 function typeWriterEffect(element, text, i, callback) {
