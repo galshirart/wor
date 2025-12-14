@@ -27,45 +27,45 @@ function questDialog(npc) {
 
 	card.append('<div class="dialog"></div>')
 	lines = quests[targetQuest].dialog[step]
-	let lineIndex = 0;
 
-	function showNextLine() {
-		clearInterval(dialogInterval);
-
+	lineIndex = 0;
+	function dialogLine() {
 		if (lineIndex < lines.length) {
-			const textDiv = $('<div class="message"><div class="text"></div></div>')
-				.appendTo(card.find('.dialog'))
-				.find('.text');
+			let text = $('<div class="message"><div class="text"></div></div>').appendTo(card.find('.dialog')).find('.text');
+			clearInterval(dialogInterval);
 
-			textDiv.text(lines[lineIndex++]);
-			dialogInterval = setTimeout(showNextLine, 1000);
+			typeWriterEffect(text, lines[lineIndex++], 0, function() {
+				let wait = 0;
+				dialogInterval = setInterval(function() {
+					wait += 100;
+					if (wait >= 400) {
+						clearInterval(dialogInterval);
+						dialogLine();
+					}
+				}, 100);
+			});
 		} else {
 			card.find('.reward, .actions').remove();
 
 			if (step < 3 && quests[targetQuest].reward) {
-				const rewards = $('<div class="flex columns reward"><label>QUEST REWARD</label><div class="list"></div></div>');
+				rewards = $('<div class="flex columns reward"><label>QUEST REWARD</label><div class="list"></div></div>');
 				Object.entries(quests[targetQuest].reward).forEach(([reward, amount]) => {
 					rewards.find('.list').append(createItemRow(reward, amount));
 				});
 				card.append(rewards);
 			}
 
-			const actions = [
-				{ text: "Accept Quest", onclick: `acceptQuest("${targetQuest}")` },
-				{ text: "Close", onclick: "closeCard()" },
-				{ text: "Accept Reward", onclick: `completeQuest("${targetQuest}")` },
-				{ text: "Close", onclick: "closeCard()" }
-			];
-
-			const { text, onclick } = actions[step];
-			$(`<div class="actions"><div class="button yellow">${text}</div></div>`)
-				.appendTo(card)
-				.find('.button')
-				.attr('onclick', onclick);
+			let button = {
+				0: { text: "Accept Quest", onclick: `acceptQuest("${targetQuest}")` },
+				1: { text: "Close", onclick: "closeCard()" },
+				2: { text: "Accept Reward", onclick: `completeQuest("${targetQuest}")` },
+				3: { text: "Close", onclick: "closeCard()" }
+			};
+			$(`<div class="actions"><div class="button yellow">${button[step].text}</div></div>`).appendTo(card)
+			.find('.button').attr('onclick', button[step].onclick);
 		}
 	}
-
-	showNextLine();
+	dialogLine();
 }
 
 function acceptQuest(quest) {
