@@ -214,6 +214,8 @@ function setTooltips() {
 
 function closeCard(element) {
 	zoom('out');
+	clearInterval(dialogInterval);
+
 	if (element == 'npc') {
 		$('.card.left').remove()
 		$('.chat-bubble').removeClass('hide')

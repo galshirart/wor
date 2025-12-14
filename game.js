@@ -20,6 +20,7 @@ fetch('https://galshir.com/php/wor.php')
 	skillCooldown = false;
 	tutorialInterval = null;
 	activeConsumables = [];
+	dialogInterval = null;
 
 	setStats()
 	setHero()
