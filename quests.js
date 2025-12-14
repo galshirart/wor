@@ -48,7 +48,7 @@ function questDialog(npc) {
 			card.find('.reward, .actions').remove();
 
 			if (step < 3 && quests[targetQuest].reward) {
-				rewards = $('<div class="flex columns reward"><label>REWARD</label><div class="list"></div></div>');
+				rewards = $('<div class="flex columns reward"><label>QUEST REWARD</label><div class="list"></div></div>');
 				Object.entries(quests[targetQuest].reward).forEach(([reward, amount]) => {
 					rewards.find('.list').append(createItemRow(reward, amount));
 				});
@@ -85,6 +85,7 @@ function completeQuest(quest) {
 		amount = quests[quest].reward[reward];
 		log('Rewarded '+(amount > 1 ? amount+' ' : '')+reward, reward)
 		acquire(reward, amount)
+		setTimeout(() => { $('.card.backpack').show() }, 500)
 	}
 
 	player.questsCompleted.push(quest)
