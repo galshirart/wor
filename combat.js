@@ -137,9 +137,6 @@ function useSkill(key) {
     }, 600)
 }
 
-
-
-
 function collide() {
 	$('.enemy[active=true]').each(function() {
 		if (player.position+10 < i($(this),'left') ||

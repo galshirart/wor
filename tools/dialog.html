@@ -55,6 +55,8 @@ button {
 }
 </style>
 
+<button onclick="importDialogJSON()">Import Dialog JSON</button>
+
 
 <div class="container flex">
 	<div class="proposed step">
@@ -88,6 +90,24 @@ $('.step').each(function() {
 	
 	}
 })
+
+function importDialogJSON() {
+	let pasted = prompt("Paste the dialog JSON here:");
+	if (!pasted) return;
+	try {
+		let dialogJSON = JSON.parse(pasted);
+		$('.step').each(function(stepIdx) {
+			let values = dialogJSON[stepIdx] || [];
+			$(this).find('input').each(function(inputIdx) {
+				$(this).val(values[inputIdx] || '');
+			});
+		});
+		// Optionally save to localStorage as well
+		localStorage.setItem('dialogJSON', JSON.stringify(dialogJSON));
+	} catch (e) {
+		alert("Invalid JSON format!");
+	}
+}
 
 function copyDialogJSON() {
 	let dialogJSON = [];
