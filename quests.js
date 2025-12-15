@@ -1,5 +1,8 @@
-function questDialog(npc) {
-	targetQuest = npcs[npc].quests[0]
+function questDialog(npc, cardId) {
+	// Clear any existing dialog interval from previous interactions
+	clearInterval(dialogInterval);
+
+	let targetQuest = npcs[npc].quests[0]
 
 	for (quest in npcs[npc].quests) {	
 		if (!player.questsCompleted.includes(npcs[npc].quests[quest])) {
@@ -8,7 +11,7 @@ function questDialog(npc) {
 		}
 	}
 
-	step = 0
+	let step = 0
 	
 	if (player.questsAccepted.includes(targetQuest)) { step = 1 }
 
@@ -25,24 +28,35 @@ function questDialog(npc) {
 		step = 3
 	}
 
-	card.append('<div class="dialog"></div>')
-	lines = quests[targetQuest].dialog[step]
+	let card = $('.card#' + cardId)
 
-	lineIndex = 0;
+	card.append('<div class="dialog"></div>')
+	let lines = quests[targetQuest].dialog[step]
+
+	let lineIndex = 0;
 	function dialogLine() {
+		// Check if card still exists in DOM (prevents old typewriter callbacks from continuing)
+		if (!card.length || !card.closest('body').length) {
+			return;
+		}
 		if (lineIndex < lines.length) {
 			let text = $('<div class="message"><div class="text"></div></div>').appendTo(card.find('.dialog')).find('.text');
 			clearInterval(dialogInterval);
 
 			typeWriterEffect(text, lines[lineIndex++], 0, function() {
+				// Don't proceed if card was removed during typing
+				if (!card.length || !card.closest('body').length) {
+					return;
+				}
 				let wait = 0;
-				dialogInterval = setInterval(function() {
+				let localInterval = setInterval(function() {
 					wait += 100;
 					if (wait >= 400) {
-						clearInterval(dialogInterval);
+						clearInterval(localInterval);
 						dialogLine();
 					}
 				}, 100);
+				dialogInterval = localInterval;
 			});
 		} else {
 			card.find('.reward, .actions').remove();
@@ -65,7 +79,9 @@ function questDialog(npc) {
 			.find('.button').attr('onclick', button[step].onclick);
 		}
 	}
+
 	dialogLine();
+
 }
 
 function acceptQuest(quest) {

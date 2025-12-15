@@ -75,6 +75,7 @@ function npcInteraction(npc) {
 	.end()
 	card.find('h3').html(spcDash(npcs[npc].name))
 	card.find('label').html(spcDash(npcs[npc].title))
+	card.attr('id', random(0, 9999999))
 
 	showCursor()
 
@@ -94,7 +95,7 @@ function npcInteraction(npc) {
 	}
 
 	if (npcs[npc].type == 'quest') {
-		questDialog(npc)
+		questDialog(npc, card.attr('id'))
 	}
 	
 	zoom('in');
