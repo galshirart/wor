@@ -54,7 +54,7 @@ function enterMap(originMap) {
 			} else {
 				$('.tutorial').remove()
 			}
-		}, 100);
+		}, 150);
 
 		setTimeout(() => {
 			gameBeat = setInterval(() => {
@@ -70,7 +70,7 @@ function enterMap(originMap) {
 			$('.mapsign').remove();
 			$('.window').append(`<div class="mapsign"><span></span><span>${spcDash(player.location)}</span><span></span></div>`);
 			updateMetaTitle();
-		}, 200);
+		}, 250);
 	});
 }
 
