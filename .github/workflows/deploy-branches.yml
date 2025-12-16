@@ -1,0 +1,28 @@
+name: Deploy Branch Preview
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - master
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Get branch name
+        id: branch
+        run: echo "name=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+      
+      - name: Deploy to branch subdirectory
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          destination_dir: ${{ steps.branch.outputs.name }}
+          keep_files: true
