@@ -56,9 +56,9 @@ function shefa(){
 	acquire('wood-bow')
 	acquire('wood-shield')
 	acquire('red-bandana')
-	acquire('coconut-water',20)
-	acquire('speed-potion',15)
-	acquire('turbo-berry',10)
-	acquire('focus-potion',10)
+	acquire('coconut-water',50)
+	acquire('speed-potion',50)
+	acquire('turbo-berry',50)
+	acquire('focus-potion',50)
 	$('.card.backpack').show()
 }
