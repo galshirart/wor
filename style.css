@@ -476,10 +476,13 @@ input:focus {
 	margin-right:10px;
 	margin-bottom:-20px;
 }
-.person-header .name {
-	flex: auto;
-	line-height: 200%;
-	margin-top:8px;
+.person-header .name h3 {
+	position: relative;
+	top:18px;
+}
+.person-header .name label {
+	position: relative;
+	top:14px;
 }
 .speech div {
 	font-family: 'Roboto Slab';
