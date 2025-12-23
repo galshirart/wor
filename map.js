@@ -214,16 +214,13 @@ function interact() {
 		sound('port')
 	});
 
-	if ($('.card.left.npc').is(':visible')) {
-		closeCard();
-		return;
+	if (!$('.card.left.npc').is(':visible')) {
+		$('.npc.near-player').find('.chat-bubble').addClass('hide')
+		npcInteraction($('.npc.near-player').attr('npc-name'))
+		sound('click')
 	}
 
-	$('.npc.near-player').each(function() {
-		$(this).find('.chat-bubble').addClass('hide')
-		npcInteraction($(this).attr('npc-name'))
-		sound('click')
-	})
+
 	mode('rest');
 }
 
