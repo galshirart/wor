@@ -73,8 +73,8 @@ function npcInteraction(npc) {
 	.append($('.person-header').clone())
 	.find('.avatar').css('background-image', 'url(assets/avatar-' + npcs[npc].name + '.webp)')
 	.end()
-	card.find('h3').html(spcDash(npcs[npc].name))
-	card.find('label').html(spcDash(npcs[npc].title))
+	card.find('h3').html(npcs[npc].name)
+	card.find('label').html(npcs[npc].title)
 	card.attr('id', random(0, 9999999))
 
 	showCursor()
