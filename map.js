@@ -221,8 +221,7 @@ function interact() {
 	}
 
 	if ($('.card.left.npc').is(':visible') && $('.card .actions').length == 1) {
-		console.log('click')
-		$('.card .actions').find('.button').trigger('click')
+		closeCard()
 	}
 
 
