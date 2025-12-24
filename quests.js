@@ -1,15 +1,7 @@
-function questDialog(npc, cardId) {
+function questDialog(targetQuest, cardId) {
 	// Clear any existing dialog interval from previous interactions
 	clearInterval(dialogInterval);
 
-	let targetQuest = npcs[npc].quests[0]
-
-	for (quest in npcs[npc].quests) {	
-		if (!player.questsCompleted.includes(npcs[npc].quests[quest])) {
-			targetQuest = npcs[npc].quests[quest]
-			break
-		}
-	}
 
 	let step = 0
 	
@@ -43,7 +35,10 @@ function questDialog(npc, cardId) {
 				.appendTo(card.find('.dialog'))
 				.find('.text').text(lines[i]);
 		}
-		showRewardAndActions();
+		// Only show reward and actions if they aren't shown already
+		if (card.find('.reward, .actions').length === 0) {
+			showRewardAndActions();
+		}
 	}
 
 	function showRewardAndActions() {
@@ -64,11 +59,10 @@ function questDialog(npc, cardId) {
 			3: { text: "Close", onclick: "closeCard()" }
 		};
 		$(`<div class="actions"><div class="button yellow">${button[step].text}</div></div>`).appendTo(card)
-			.find('.button').attr('onclick', button[step].onclick);
+		.find('.button').attr('onclick', button[step].onclick);
 	}
 
 	function dialogLine() {
-		// Check if card still exists in DOM (prevents old typewriter callbacks from continuing)
 		if (!card.length || !card.closest('body').length) {
 			return;
 		}
@@ -125,7 +119,6 @@ function questDialog(npc, cardId) {
 		}
 	});
 	observer.observe(document.body, { childList: true, subtree: true });
-
 
 	dialogLine();
 }

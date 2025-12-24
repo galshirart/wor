@@ -95,7 +95,23 @@ function npcInteraction(npc) {
 	}
 
 	if (npcs[npc].type == 'quest') {
-		questDialog(npc, card.attr('id'))
+		for (quest in npcs[npc].quests) {	
+			if (!player.questsCompleted.includes(npcs[npc].quests[quest])) {
+				targetQuest = npcs[npc].quests[quest]
+				questDialog(targetQuest, card.attr('id'))
+				break
+			}
+		}
+
+		if (typeof targetQuest === "undefined") {
+			let text = $('<div class="dialog"><div class="message"><div class="text"></div></div></div>').appendTo(card).find('.text');
+			speech = npcs[npc].speech[random(0, npcs[npc].speech.length - 1)]
+			typeWriterEffect(text, speech, 0)
+			setTimeout(function() {
+				$(`<div class="actions"><div class="button yellow">CLOSE</div></div>`).appendTo(card)
+				.find('.button').attr('onclick', 'closeCard()');
+			}, 100);
+		}
 	}
 	
 	zoom('in');
