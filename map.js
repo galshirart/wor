@@ -214,7 +214,7 @@ function interact() {
 		sound('port')
 	});
 
-	if (!$('.card.left.npc').is(':visible')) {
+	if (!$('.card.left.npc').is(':visible') && $('.npc.near-player').length > 0) {
 		$('.npc.near-player').find('.chat-bubble').addClass('hide')
 		npcInteraction($('.npc.near-player').attr('npc-name'))
 		sound('click')
