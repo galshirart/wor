@@ -95,8 +95,8 @@ function npcInteraction(npc) {
 	}
 
 	if (npcs[npc].type == 'quest') {
-		let targetQuest
-		
+		targetQuest = ''
+
 		for (quest in npcs[npc].quests) {	
 			if (!player.questsCompleted.includes(npcs[npc].quests[quest])) {
 				targetQuest = npcs[npc].quests[quest]
@@ -105,7 +105,7 @@ function npcInteraction(npc) {
 			}
 		}
 
-		if (typeof targetQuest === "undefined") {
+		if (targetQuest == '') {
 			let text = $('<div class="dialog"><div class="message"><div class="text"></div></div></div>').appendTo(card).find('.text');
 			speech = npcs[npc].speech[random(0, npcs[npc].speech.length - 1)]
 			typeWriterEffect(text, speech, 0)
