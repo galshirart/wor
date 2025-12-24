@@ -3,9 +3,20 @@ function questDialog(targetQuest, cardId) {
 	clearInterval(dialogInterval);
 
 
-	let step = 0
+	step = 0
+	buttonText = 'Accept Quest'
+	buttonAction = `acceptQuest("${targetQuest}")`
+
+	if (quests[targetQuest].type == 'no-task') {
+		buttonText = 'Close'
+		buttonAction = 'closeCard()'
+	}
 	
-	if (player.questsAccepted.includes(targetQuest)) { step = 1 }
+	if (player.questsAccepted.includes(targetQuest)) { 
+		step = 1 
+		buttonText = 'Close'
+		buttonAction = 'closeCard()'
+	}
 
 	if (quests[targetQuest].type == 'kill') { 
 		for (enemy in quests[targetQuest].requirement) {
@@ -13,11 +24,9 @@ function questDialog(targetQuest, cardId) {
 				break;
 			}
 			step = 2;
+			buttonText = 'Complete Quest'
+			buttonAction = `completeQuest("${targetQuest}")`
 		}
-	}
-
-	if (player.questsCompleted.includes(targetQuest)) {
-		step = 3
 	}
 
 	let card = $('.card#' + cardId)
@@ -51,15 +60,9 @@ function questDialog(targetQuest, cardId) {
 			});
 			card.append(rewards);
 		}
-
-		let button = {
-			0: { text: "Accept Quest", onclick: `acceptQuest("${targetQuest}")` },
-			1: { text: "Close", onclick: "closeCard()" },
-			2: { text: "Accept Reward", onclick: `completeQuest("${targetQuest}")` },
-			3: { text: "Close", onclick: "closeCard()" }
-		};
-		$(`<div class="actions"><div class="button yellow">${button[step].text}</div></div>`).appendTo(card)
-		.find('.button').attr('onclick', button[step].onclick);
+		
+		$(`<div class="actions"><div class="button yellow">${buttonText}</div></div>`).appendTo(card)
+		.find('.button').attr('onclick', buttonAction);
 	}
 
 	function dialogLine() {

@@ -95,6 +95,8 @@ function npcInteraction(npc) {
 	}
 
 	if (npcs[npc].type == 'quest') {
+		let targetQuest
+		
 		for (quest in npcs[npc].quests) {	
 			if (!player.questsCompleted.includes(npcs[npc].quests[quest])) {
 				targetQuest = npcs[npc].quests[quest]
