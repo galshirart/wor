@@ -305,7 +305,6 @@ input:focus {
     position: absolute;
 	z-index:13;
     width: 386px;
-    min-height: 240px;
     top: 10px;
     background: rgb(255 246 193);
     border: 1px solid #400000;
@@ -393,6 +392,7 @@ input:focus {
 	margin:6px 0 6px 4px;
 	width:fit-content;
 	border-radius: 14px;
+	line-height:140%;
 }
 .card .dialog .message:nth-child(even) .text {
 	background:rgba(64,0,0,0.1);
@@ -652,6 +652,7 @@ input:focus {
 }
 .card.backpack {
 	max-height:300px;
+	min-height:240px;
 }
 .card.hover {
 	min-height: 0;
@@ -724,6 +725,18 @@ input:focus {
 }
 .actions {
 	text-align: right;
+	animation-name: grow;
+	animation-duration: 200ms;
+	animation-timing-function: ease-out;
+	animation-iteration-count: 1;
+	animation-fill-mode: both;
+	height:0;
+	opacity:0;
+	overflow: hidden;
+}
+@keyframes grow {
+	0% { height:0; opacity:0; }
+	100% { height:54px; opacity:1; }
 }
 .actions .button {
 	margin-left:4px
