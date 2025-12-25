@@ -468,13 +468,14 @@ input:focus {
 	margin-bottom:6px;
 }
 .avatar {
-	background-size: 64px;
+	background-size: 64px 64px;
 	width:64px;
 	height:64px;
 	border-radius: 100%;
 	border:1px solid #400000;
 	margin-right:10px;
 	margin-bottom:-20px;
+	box-sizing: content-box;
 }
 .person-header .name h3 {
 	position: relative;
