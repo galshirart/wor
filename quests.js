@@ -2,15 +2,9 @@ function questDialog(targetQuest, cardId) {
 	// Clear any existing dialog interval from previous interactions
 	clearInterval(dialogInterval);
 
-
 	step = 0
 	buttonText = 'Accept Quest'
 	buttonAction = `acceptQuest("${targetQuest}")`
-
-	if (quests[targetQuest].type == 'no-task') {
-		buttonText = 'Close'
-		buttonAction = 'closeCard()'
-	}
 	
 	if (player.questsAccepted.includes(targetQuest)) { 
 		step = 1 
@@ -23,6 +17,14 @@ function questDialog(targetQuest, cardId) {
 			if (!player.enemiesSlained[enemy] || player.enemiesSlained[enemy] < quests[targetQuest].requirement[enemy]) {
 				break;
 			}
+			step = 2;
+			buttonText = 'Complete Quest'
+			buttonAction = `completeQuest("${targetQuest}")`
+		}
+	}
+
+	if (quests[targetQuest].type == 'visit') { 
+		if (player.mapsVisited.includes(quests[targetQuest].requirement)) {
 			step = 2;
 			buttonText = 'Complete Quest'
 			buttonAction = `completeQuest("${targetQuest}")`
