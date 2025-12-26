@@ -1,248 +1,408 @@
-function updateMetaTitle() {
-	document.querySelector('title').textContent = "Duck Delivery | " + player.location
-	.replace(/-/g, ' ')
-	.replace(/\b(\w)(\w*'?[a-z]*)/g, function(_, first, rest) {
-		if (/'[a-z]+$/.test(rest)) {
-			const parts = rest.split("'");
-			let afterApos = parts[1];
-			if (afterApos && afterApos.toLowerCase() === 's') {
-				return first.toUpperCase() + parts[0].toLowerCase() + "'" + afterApos.toLowerCase();
-			} else if (afterApos) {
-				return first.toUpperCase() + parts[0].toLowerCase() + "'" + afterApos.charAt(0).toUpperCase() + afterApos.slice(1).toLowerCase();
-			}
-		}
-		return first.toUpperCase() + (rest ? rest.toLowerCase() : '');
-	});
-}
+/**
+ * UI Module
+ * 
+ * Handles all user interface: cards, backpack, tooltips, logging, effects.
+ */
 
-function typeWriterEffect(element, text, i, callback) {
-	if (i < text.length) {
-		element.html(element.html() + text.charAt(i));
-		setTimeout(function() {
-			typeWriterEffect(element, text, i + 1, callback);
-		}, 28); // adjust speed here
-	} else if (callback) {
-		callback();
-	}
-}
-
-function zoom(direction) {
-	percentage = (600-player.position)/(i('.map', 'width')-1200)
-	$('.front').css('transform-origin', Math.abs(percentage)*100+'% 482px')
-
-	if (direction == 'in') {
-	$('body').addClass('zoom')
-	} else {
-		$('body').removeClass('zoom')
-	}
-}
-
-function openBuyMenu(item) {
-	$('.card.middle').remove()
-	card = $('<div class="card middle buy"></div>').appendTo('.window')
-	.append(createItemRow(item).css('font-size','16px'))
-	.append(itemStats(item))
-
-	card.append('<div class="flex stat price"><label>PRICE</label><div class="list"></div></div>')
-
-	actions = $('<div class="actions"><div class="button yellow">buy</div></div>')
-	actions.find('.button').attr('onclick','buy("'+item+'"); $(".card.middle").remove()')
-
-	for (requiredItem in equipments[item].price) {
-		amountRequired = equipments[item].price[requiredItem]
-		amountAvailable = player.backpack[requiredItem]
-		if (amountAvailable == undefined) {
-			amountAvailable = 0
-		}
-
-		itemRow = createItemRow(requiredItem,amountRequired).appendTo(card.find('.price .list'))
-
-		if (amountAvailable < amountRequired ) {
-			itemRow.css('opacity','0.4')
-			actions.find('.button').addClass('disabled').attr('onclick','')
-		}
-	}
-
-	card.append(actions)
-}
-
-function itemStats(item) {
-	stats = ''
-	for (stat in equipments[item]) {
-		if (stat == 'description' && equipments[item][stat] != '') {
-			stats+='<div class="flex"><div class="tip">'+equipments[item][stat]+'</tip></div>'
-		}
-		if (stat == 'attack' && equipments[item][stat] != 0) {
-			stats+='<div class="flex columns"><label>ATTACK</label><label>'+equipments[item][stat]+'</label></div>'
-		}
-		if (stat == 'defense' && equipments[item][stat] != 0) {
-			stats+='<div class="flex columns"><label>DEFENSE</label><label>'+equipments[item][stat]+'</label></div>'
-		}
-		if (stat == 'critical' && equipments[item][stat] != 0) {
-			stats+='<div class="flex columns"><label>CRITICAL</label><label>+'+equipments[item][stat]+'%</label></div>'
-		}
-	}
-	return stats
-}
-
-function buy(item) {
-	for (requiredItem in equipments[item].price) {
-		amountRequired = equipments[item].price[requiredItem]
-		player.backpack[requiredItem] = player.backpack[requiredItem]-amountRequired
-		log('Paid '+amountRequired+' '+requiredItem, requiredItem)
-	}
-
-	acquire(item)
-	pop($('.card.backpack').find('[type='+item+']'))
-	sound('heavy-item')
-	log('Bought '+item, item)
-}
-
-function createItemRow(item, amount) {
-	itemRow = $('<div class="item-row flex"></div>')
-	itemThumb = $('<div class="thumb"></div>')
-	.css('background-image','url(assets/item-'+item+'.webp')
-	.appendTo(itemRow)
-    itemLabel = (amount != undefined && !equipments.hasOwnProperty(item)) ? amount+' '+spcDash(item) : spcDash(item);
-	itemRow.append('<label>'+itemLabel+'</label>')
-    return itemRow
-}
-
-function setBackpack() {
-	$('.bar.gold .value').html(player.backpack.gold.toLocaleString());
-
-	if (player.backpack.gold == 0) {
-		$('.bar.gold').hide()
-	} else {
-		$('.bar.gold').show()
-	}
-
-    $('.backpack .thumb').remove();
-    for (item in player.backpack) {
-        if (player.backpack[item] >= 1 && item != 'gold') {
-            let thumb = $('<div class="thumb tooltip"></div>').appendTo('.backpack .grid')
-                .attr('type', item)
-                .attr('ondblclick', 'equip("' + item + '")')
-                .attr('onclick', 'sell("' + item + '")')
-                .css('background-image', 'url(assets/item-' + item + '.webp)');
-            if (player.backpack[item] > 1) {
-                thumb.html('<span class="amount">' + player.backpack[item] + '</span>');
+const UI = {
+    /**
+     * Update browser tab title
+     */
+    updateMetaTitle() {
+        const location = GameState.player.location
+            .replace(/-/g, ' ')
+            .replace(/\b(\w)(\w*'?[a-z]*)/g, (_, first, rest) => {
+                if (/'[a-z]+$/.test(rest)) {
+                    const parts = rest.split("'");
+                    const afterApos = parts[1];
+                    if (afterApos && afterApos.toLowerCase() === 's') {
+                        return first.toUpperCase() + parts[0].toLowerCase() + "'" + afterApos.toLowerCase();
+                    } else if (afterApos) {
+                        return first.toUpperCase() + parts[0].toLowerCase() + "'" + afterApos.charAt(0).toUpperCase() + afterApos.slice(1).toLowerCase();
+                    }
+                }
+                return first.toUpperCase() + (rest ? rest.toLowerCase() : '');
+            });
+        
+        document.querySelector('title').textContent = "Duck Delivery | " + location;
+    },
+    
+    /**
+     * Typewriter text effect
+     * @param {jQuery} element - Element to type into
+     * @param {string} text - Text to type
+     * @param {number} index - Current character index
+     * @param {Function} callback - Called when complete
+     */
+    typeWriterEffect(element, text, index, callback) {
+        if (index < text.length) {
+            element.html(element.html() + text.charAt(index));
+            setTimeout(() => {
+                this.typeWriterEffect(element, text, index + 1, callback);
+            }, Constants.DIALOG_CHAR_DELAY_MS);
+        } else if (callback) {
+            callback();
+        }
+    },
+    
+    /**
+     * Zoom camera in or out
+     * @param {string} direction - 'in' or 'out'
+     */
+    zoom(direction) {
+        const state = GameState;
+        const percentage = (600 - state.player.position) / (i('.map', 'width') - 1200);
+        
+        $('.front').css('transform-origin', Math.abs(percentage) * 100 + '% 482px');
+        
+        if (direction === 'in') {
+            $('body').addClass('zoom');
+        } else {
+            $('body').removeClass('zoom');
+        }
+    },
+    
+    /**
+     * Open buy menu for an item
+     * @param {string} item - Item to buy
+     */
+    openBuyMenu(item) {
+        const state = GameState;
+        
+        $('.card.middle').remove();
+        
+        const card = $('<div class="card middle buy"></div>')
+            .appendTo('.window')
+            .append(this.createItemRow(item).css('font-size', '16px'))
+            .append(this._getItemStats(item));
+        
+        card.append('<div class="flex stat price"><label>PRICE</label><div class="list"></div></div>');
+        
+        const actions = $('<div class="actions"><div class="button yellow">buy</div></div>');
+        actions.find('.button').attr('onclick', `UI.buy("${item}"); $(".card.middle").remove()`);
+        
+        const itemData = state.equipments[item];
+        
+        for (const requiredItem in itemData.price) {
+            const amountRequired = itemData.price[requiredItem];
+            const amountAvailable = state.player.backpack[requiredItem] || 0;
+            
+            const itemRow = this.createItemRow(requiredItem, amountRequired)
+                .appendTo(card.find('.price .list'));
+            
+            if (amountAvailable < amountRequired) {
+                itemRow.css('opacity', '0.4');
+                actions.find('.button').addClass('disabled').attr('onclick', '');
             }
-        } else if (item != 'gold') {
-            delete player.backpack[item];
         }
-    }
-
-    for (item in player.equipments) {
-        if (player.equipments[item]) {
-            $('.backpack').find('[type=' + player.equipments[item] + ']').addClass('equiped');
+        
+        card.append(actions);
+    },
+    
+    /**
+     * Complete a purchase
+     * @param {string} item - Item to buy
+     */
+    buy(item) {
+        const state = GameState;
+        const itemData = state.equipments[item];
+        
+        for (const requiredItem in itemData.price) {
+            const amountRequired = itemData.price[requiredItem];
+            state.player.backpack[requiredItem] -= amountRequired;
+            this.log('Paid ' + amountRequired + ' ' + requiredItem, requiredItem);
         }
+        
+        Player.acquire(item);
+        this.pop($('.card.backpack').find('[type=' + item + ']'));
+        sound('heavy-item');
+        this.log('Bought ' + item, item);
+    },
+    
+    /**
+     * Create an item row element
+     * @param {string} item - Item type
+     * @param {number} amount - Optional amount
+     * @returns {jQuery}
+     */
+    createItemRow(item, amount) {
+        const state = GameState;
+        const itemRow = $('<div class="item-row flex"></div>');
+        
+        $('<div class="thumb"></div>')
+            .css('background-image', 'url(assets/item-' + item + '.webp)')
+            .appendTo(itemRow);
+        
+        const isEquipment = state.equipments && state.equipments.hasOwnProperty(item);
+        const labelText = (amount !== undefined && !isEquipment) 
+            ? amount + ' ' + spcDash(item) 
+            : spcDash(item);
+        
+        itemRow.append('<label>' + labelText + '</label>');
+        
+        return itemRow;
+    },
+    
+    /**
+     * Update backpack display
+     */
+    setBackpack() {
+        const state = GameState;
+        
+        $('.bar.gold .value').html(state.player.backpack.gold.toLocaleString());
+        
+        if (state.player.backpack.gold === 0) {
+            $('.bar.gold').hide();
+        } else {
+            $('.bar.gold').show();
+        }
+        
+        $('.backpack .thumb').remove();
+        
+        for (const item in state.player.backpack) {
+            if (state.player.backpack[item] >= 1 && item !== 'gold') {
+                const thumb = $('<div class="thumb tooltip"></div>')
+                    .appendTo('.backpack .grid')
+                    .attr('type', item)
+                    .attr('ondblclick', 'Player.equip("' + item + '")')
+                    .attr('onclick', 'NPCManager.sell("' + item + '")')
+                    .css('background-image', 'url(assets/item-' + item + '.webp)');
+                
+                if (state.player.backpack[item] > 1) {
+                    thumb.html('<span class="amount">' + state.player.backpack[item] + '</span>');
+                }
+            } else if (item !== 'gold') {
+                delete state.player.backpack[item];
+            }
+        }
+        
+        // Mark equipped items
+        for (const slot in state.player.equipments) {
+            if (state.player.equipments[slot]) {
+                $('.backpack').find('[type=' + state.player.equipments[slot] + ']').addClass('equiped');
+            }
+        }
+        
+        // Make backpack sortable
+        $('.backpack .grid').sortable({
+            stop: () => this._handleBackpackSort()
+        });
+        
+        this.setTooltips();
+    },
+    
+    /**
+     * Update consumables bar
+     */
+    setConsumables() {
+        const state = GameState;
+        
+        $('.consumables').html('');
+        
+        for (const item in state.player.backpack) {
+            if (state.consumables && state.consumables.hasOwnProperty(item)) {
+                $('<div class="icon" type="' + item + '"></div>')
+                    .appendTo('.consumables')
+                    .css('background-image', 'url(assets/item-' + item + '.webp)');
+            }
+        }
+        
+        state.activeConsumables.forEach(item => {
+            if ($('.consumables [type="' + item + '"]').length === 0) {
+                $('<div class="icon" type="' + item + '"></div>')
+                    .appendTo('.consumables')
+                    .css('background-image', 'url(assets/item-' + item + '.webp)');
+            }
+            
+            $('.consumables [type="' + item + '"]').addClass('active');
+        });
+    },
+    
+    /**
+     * Set up item tooltips
+     */
+    setTooltips() {
+        const state = GameState;
+        
+        $('.card.hover').remove();
+        
+        $('.tooltip').hover(function() {
+            const itemType = $(this).attr('type');
+            
+            const card = $('<div class="card hover middle bottom"></div>')
+                .appendTo('.window')
+                .append(UI.createItemRow(itemType));
+            
+            if (state.equipments && state.equipments.hasOwnProperty(itemType)) {
+                card.append('<div><div class="tip">DOUBLE CLICK TO EQUIP</div></div>')
+                    .append(UI._getItemStats(itemType));
+            }
+            
+            if (state.consumables && state.consumables.hasOwnProperty(itemType)) {
+                const consumableIndex = $('.consumables .icon[type=' + itemType + ']').index() + 1;
+                const consumable = state.consumables[itemType];
+                
+                card.append('<div><div class="tip">PRESS ' + consumableIndex + ' TO CONSUME</div></div>');
+                card.append('<div class="flex columns"><label>' + consumable.effect + '</label><label>+' + consumable.value + '</label></div>');
+                
+                if (consumable.duration > 0) {
+                    card.append('<div class="flex columns"><label>DURATION</label><label>' + consumable.duration + ' minutes</label></div>');
+                }
+            }
+        }, function() {
+            $('.card.hover').remove();
+        });
+    },
+    
+    /**
+     * Close a card
+     * @param {string} element - Optional specific element to close
+     */
+    closeCard(element) {
+        this.zoom('out');
+        clearInterval(GameState.dialogInterval);
+        
+        if (element === 'npc') {
+            $('.card.left').remove();
+            $('.chat-bubble').removeClass('hide');
+        } else {
+            $('.card.left').remove();
+            $('.card.middle').remove();
+            $('.card.backpack').hide();
+        }
+    },
+    
+    /**
+     * Add a log message
+     * @param {string} text - Message text
+     * @param {string} icon - Icon name
+     */
+    log(text, icon) {
+        const logItem = $('<div>' + spcDash(text) + '</div>');
+        
+        if (icon) {
+            logItem.prepend('<img src="assets/item-' + icon + '.webp" />');
+        }
+        
+        $('.log').append(logItem);
+        
+        setTimeout(() => logItem.remove(), Constants.LOG_DISPLAY_MS);
+    },
+    
+    /**
+     * Shake an element
+     * @param {jQuery} element - Element to shake
+     */
+    shake(element) {
+        $(element).css('transform', 'scaleY(1.01) translateY(4px)');
+        
+        setTimeout(() => {
+            $(element).css('transform', 'scaleY(1.005) translateY(-2px)');
+        }, 100);
+        
+        setTimeout(() => {
+            $(element).css('transform', 'none');
+        }, 200);
+    },
+    
+    /**
+     * Pop animation for an element
+     * @param {jQuery} element - Element to animate
+     */
+    pop(element) {
+        setTimeout(() => {
+            $(element).css({
+                'transition': 'all 400ms',
+                'transform': 'scale(1.5)',
+                'z-index': '1000'
+            });
+        }, 300);
+        
+        setTimeout(() => {
+            $(element).css({
+                'transform': 'scale(1)',
+                'filter': 'brightness(150%)'
+            });
+        }, 700);
+        
+        setTimeout(() => {
+            $(element).css('filter', 'none');
+        }, 1000);
+    },
+    
+    // ========== PRIVATE HELPERS ==========
+    
+    _getItemStats(item) {
+        const state = GameState;
+        const itemData = state.equipments[item];
+        let stats = '';
+        
+        if (itemData.description && itemData.description !== '') {
+            stats += '<div class="flex"><div class="tip">' + itemData.description + '</div></div>';
+        }
+        if (itemData.attack && itemData.attack !== 0) {
+            stats += '<div class="flex columns"><label>ATTACK</label><label>' + itemData.attack + '</label></div>';
+        }
+        if (itemData.defense && itemData.defense !== 0) {
+            stats += '<div class="flex columns"><label>DEFENSE</label><label>' + itemData.defense + '</label></div>';
+        }
+        if (itemData.critical && itemData.critical !== 0) {
+            stats += '<div class="flex columns"><label>CRITICAL</label><label>+' + itemData.critical + '%</label></div>';
+        }
+        
+        return stats;
+    },
+    
+    _handleBackpackSort() {
+        const state = GameState;
+        const sortedItems = [];
+        
+        $('.backpack .grid .thumb').each(function() {
+            const type = $(this).attr('type');
+            if (type && type !== 'gold' && state.player.backpack[type] >= 1) {
+                sortedItems.push(type);
+            }
+        });
+        
+        if ('gold' in state.player.backpack) {
+            sortedItems.unshift('gold');
+        }
+        
+        const sortedBackpack = {};
+        for (const key of sortedItems) {
+            if (key in state.player.backpack) {
+                sortedBackpack[key] = state.player.backpack[key];
+            }
+        }
+        
+        state.player.backpack = sortedBackpack;
+        this.setConsumables();
+        GameState.save();
+        sound('heavy-item');
     }
+};
 
-	$('.backpack .grid').sortable({
-		stop: function(event, ui) {
-			sortedItems = [];
-			$('.backpack .grid .thumb').each(function() {
-				type = $(this).attr('type');
-				if (type && type !== "gold" && player.backpack[type] >= 1) {
-					sortedItems.push(type);
-				}
-			});
-			if ("gold" in player.backpack) {
-				sortedItems.unshift("gold");
-			}
-			let sortedBackpack = {};
-			for (let i = 0; i < sortedItems.length; i++) {
-				k = sortedItems[i];
-				if (k in player.backpack) {
-					sortedBackpack[k] = player.backpack[k];
-				}
-			}
-			player.backpack = sortedBackpack;
-			setConsumables()
-			save()
-			sound('heavy-item')
-		}
-	});
-
-	setTooltips();
-}
-
-function setConsumables() {
-	$('.consumables').html('')
-	for (item in player.backpack) {
-		if (consumables.hasOwnProperty(item)) {
-			$('<div class="icon" type="' + item + '"></div>').appendTo('.consumables')
-			.css('background-image', 'url(assets/item-' + item + '.webp)')
-		}
-	}
-	activeConsumables.forEach(item => {
-		if ($('.consumables [type="' + item + '"]').length == 0) {
-			$('<div class="icon" type="' + item + '"></div>').appendTo('.consumables')
-			.css('background-image', 'url(assets/item-' + item + '.webp)')
-		}
-
-		$('.consumables [type="' + item + '"]').addClass('active');
-	});
-}
-
-function setTooltips() {
-	$('.card.hover').remove();
-	$('.tooltip').hover(function(e) {
-		card = $('<div class="card hover middle bottom"></div>').appendTo('.window')
-		itemType = $(this).attr('type')
-		card.append(createItemRow(itemType))
-
-		if ( equipments.hasOwnProperty(itemType) ) {
-			card.append('<div><div class="tip">DOUBLE CLICK TO EQUIP</div></div>')
-			.append(itemStats(itemType))
-		}
-
-		if ( consumables.hasOwnProperty(itemType) ) {
-			consumableIndex = $('.consumables .icon[type='+itemType+']').index() + 1;
-			card.append('<div><div class="tip">PRESS '+consumableIndex+' TO CONSUME</div></div>')
-			card.append('<div class="flex columns"><label>'+consumables[itemType].effect+'</label><label>+'+consumables[itemType].value+'</label></div>')
-			if (consumables[itemType].duration > 0) {
-				card.append('<div class="flex columns"><label>DURATION</label><label>'+consumables[itemType].duration+' minutes</label></div>')
-			}
-		}
-
-	}, function() {
-	    $('.card.hover').remove();
-	})
-}
-
-function closeCard(element) {
-	zoom('out');
-	clearInterval(dialogInterval);
-
-	if (element == 'npc') {
-		$('.card.left').remove()
-		$('.chat-bubble').removeClass('hide')
-	} else {
-		$('.card.left').remove()
-		$('.card.middle').remove()
-		$('.card.backpack').hide()
-	}
-}
-
+// Set up global click handler
 $(document).on('click', function(e) {
-	if (!$(e.target).closest('.card').length 
-	&& !$(e.target).closest('.button.sell').length
-	&& !$(e.target).closest('.backpack').length) {
-		closeCard()
-	}
-	sound('click')
-})
+    if (!$(e.target).closest('.card').length &&
+        !$(e.target).closest('.button.sell').length &&
+        !$(e.target).closest('.backpack').length) {
+        UI.closeCard();
+    }
+    sound('click');
+});
 
-
-function log(text, icon) {
-	logItem = $('<div>'+spcDash(text)+'</div>')
-	if (icon) {
-		logItem.prepend('<img src="assets/item-'+icon+'.webp" />')
-	}
-	$('.log').append(logItem)
-	setTimeout(function(logItem) {
-		$(logItem).remove()
-	}, 6000, logItem)
-}
+// Legacy aliases
+const updateMetaTitle = () => UI.updateMetaTitle();
+const typeWriterEffect = (el, text, i, cb) => UI.typeWriterEffect(el, text, i, cb);
+const zoom = (dir) => UI.zoom(dir);
+const openBuyMenu = (item) => UI.openBuyMenu(item);
+const buy = (item) => UI.buy(item);
+const createItemRow = (item, amount) => UI.createItemRow(item, amount);
+const setBackpack = () => UI.setBackpack();
+const setConsumables = () => UI.setConsumables();
+const setTooltips = () => UI.setTooltips();
+const closeCard = (el) => UI.closeCard(el);
+const log = (text, icon) => UI.log(text, icon);
+const shake = (el) => UI.shake(el);
+const pop = (el) => UI.pop(el);

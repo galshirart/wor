@@ -1,120 +1,194 @@
-function sell(item) {
-	$('.npc.sell .speech ~ *').remove()
-	$('.npc.sell').append(createItemRow(item))
+/**
+ * NPC Manager Module
+ * 
+ * Handles NPC interactions, shops, and selling.
+ */
 
-	amount = player.backpack[item]
-	if (amount > 1) {
-		$('.npc.sell').append('<div class="flex"><label>AMOUNT:</label><input type="number" value="'+amount+'"/></div>')
-	}
-	
-	$('.npc.sell').append('<label>SELL FOR:</label>')
-	.append(createItemRow('gold',amount*calcItemPrice(item)).addClass('sell-price'))
-	.append('<div class="actions"><div class="button" onclick="closeCard()">CANCEL</div><div class="button yellow sell">SELL</div></div>')
+const NPCManager = {
+    /**
+     * Start interaction with an NPC
+     * @param {string} npcName - NPC identifier
+     */
+    interact(npcName) {
+        const state = GameState;
+        const npcData = state.npcs[npcName];
+        
+        $('.card.left, .card.middle').remove();
+        
+        const card = $('<div class="card left npc"></div>')
+            .appendTo('.window')
+            .addClass(npcData.type)
+            .append($('.person-header').clone());
+        
+        card.find('.avatar').css('background-image', 'url(assets/avatar-' + npcData.name + '.webp)');
+        card.find('h3').html(npcData.name);
+        card.find('label').html(npcData.title);
+        card.attr('id', random(0, 9999999));
+        
+        Input.showCursor();
+        
+        if (npcData.type === 'shop') {
+            this._setupShop(card, npcData);
+        }
+        
+        if (npcData.type === 'sell') {
+            this._setupSellShop(card, npcData);
+        }
+        
+        if (npcData.type === 'quest') {
+            this._setupQuestGiver(card, npcData);
+        }
+        
+        UI.zoom('in');
+    },
+    
+    /**
+     * Open sell menu for an item
+     * @param {string} item - Item type to sell
+     */
+    sell(item) {
+        const state = GameState;
+        
+        $('.npc.sell .speech ~ *').remove();
+        $('.npc.sell').append(UI.createItemRow(item));
+        
+        let amount = state.player.backpack[item];
+        
+        if (amount > 1) {
+            $('.npc.sell').append('<div class="flex"><label>AMOUNT:</label><input type="number" value="' + amount + '"/></div>');
+        }
+        
+        const price = this.calcItemPrice(item);
+        
+        $('.npc.sell')
+            .append('<label>SELL FOR:</label>')
+            .append(UI.createItemRow('gold', amount * price).addClass('sell-price'))
+            .append('<div class="actions"><div class="button" onclick="UI.closeCard()">CANCEL</div><div class="button yellow sell">SELL</div></div>');
+        
+        // Amount input handler
+        $('.npc.sell input').on('input', function() {
+            const maxAmount = state.player.backpack[item];
+            if ($(this).val() > maxAmount) {
+                $(this).val(maxAmount);
+            }
+            amount = $(this).val();
+            $('.npc.sell .sell-price label').html(amount * price);
+        });
+        
+        // Sell button handler
+        $('.npc.sell .actions .button.sell').click(() => {
+            this._completeSale(item, amount, price);
+        });
+    },
+    
+    /**
+     * Calculate sell price for an item
+     * @param {string} item - Item type
+     * @returns {number} Price in gold
+     */
+    calcItemPrice(item) {
+        const state = GameState;
+        
+        if (state.equipments.hasOwnProperty(item)) {
+            let value = 0;
+            for (const requiredItem in state.equipments[item].price) {
+                if (requiredItem !== 'gold') {
+                    value += this.calcItemPrice(requiredItem) * state.equipments[item].price[requiredItem];
+                } else {
+                    value += state.equipments[item].price.gold;
+                }
+            }
+            return Math.round(value / 4);
+        } else {
+            for (const enemy in state.enemies) {
+                if (state.enemies[enemy].item === item) {
+                    if (Number(state.enemies[enemy].attack) === 0) {
+                        return 0;
+                    } else {
+                        return 1 + Math.round(Number(state.enemies[enemy].attack) / 4);
+                    }
+                }
+            }
+        }
+        return 0;
+    },
+    
+    // ========== PRIVATE HELPERS ==========
+    
+    _setupShop(card, npcData) {
+        card.append('<div class="speech"><div>' + npcData.speech + '</div></div>');
+        $('.backpack').show();
+        
+        for (const item in npcData.items) {
+            UI.createItemRow(npcData.items[item])
+                .appendTo(card)
+                .attr('onclick', 'UI.openBuyMenu("' + npcData.items[item] + '")');
+        }
+    },
+    
+    _setupSellShop(card, npcData) {
+        card.append('<div class="speech"><div>' + npcData.speech + '</div></div>');
+        $('.backpack').show();
+        card.append('<div><div class="tip">Click on an item from your backpack</div></div>');
+    },
+    
+    _setupQuestGiver(card, npcData) {
+        const state = GameState;
+        let targetQuest = '';
+        
+        for (const quest in npcData.quests) {
+            if (!state.player.questsCompleted.includes(npcData.quests[quest])) {
+                targetQuest = npcData.quests[quest];
+                QuestManager.showDialog(targetQuest, card.attr('id'));
+                break;
+            }
+        }
+        
+        if (targetQuest === '') {
+            const speech = npcData.speech[random(0, npcData.speech.length - 1)];
+            const text = $('<div class="dialog"><div class="message"><div class="text"></div></div></div>')
+                .appendTo(card)
+                .find('.text');
+            
+            UI.typeWriterEffect(text, speech, 0);
+            
+            setTimeout(() => {
+                $('<div class="actions"><div class="button yellow">CLOSE</div></div>')
+                    .appendTo(card)
+                    .find('.button')
+                    .attr('onclick', 'UI.closeCard()');
+            }, 100);
+        }
+    },
+    
+    _completeSale(item, amount, price) {
+        const state = GameState;
+        
+        state.player.backpack[item] -= amount;
+        
+        // Unequip if selling equipped item
+        for (const category in state.player.equipments) {
+            if (state.player.equipments[category] === item && state.player.backpack[item] < 1) {
+                state.player.equipments[category] = '';
+            }
+        }
+        
+        state.player.backpack.gold += amount * price;
+        sound('pickup-gold');
+        
+        Player.setHero();
+        UI.setBackpack();
+        UI.setConsumables();
+        
+        UI.log('Sold ' + amount + ' ' + item, item);
+        UI.log('Received ' + amount * price + ' gold', 'gold');
+        
+        $('.npc.sell .speech ~ *').remove();
+        $('.npc.sell .speech div').html("Deal done. Great doing business with you! Anything else you'd like to sell?");
+    }
+};
 
-	$('.npc.sell input').on('input',function() {
-		if ($(this).val() > player.backpack[item]) {
-			$(this).val(player.backpack[item])
-		}
-		amount = $(this).val()
-		$('.npc.sell .sell-price label').html(amount*calcItemPrice(item))
-	})
-
-	$('.npc.sell .actions .button.sell').click(function() {
-		player.backpack[item] = player.backpack[item]-amount
-
-		for (category in player.equipments) {
-			if (player.equipments[category] == item && player.backpack[item] < 1) {
-				player.equipments[category] = ''
-			}
-		}
-
-		player.backpack.gold += amount*calcItemPrice(item)
-		sound('pickup-gold')
-		setHero()
-		setBackpack()
-		setConsumables()
-
-		log('Sold '+amount+' '+item, item)
-		log('Received '+amount*calcItemPrice(item)+' gold', 'gold')
-
-		$('.npc.sell .speech ~ *').remove()
-		$('.npc.sell .speech div').html("Deal done. Great doing business with you! Anything else you'd like to sell?")
-	})
-}
-
-function calcItemPrice(item) {
-	if (equipments.hasOwnProperty(item)) {
-		value=0
-		for ( requiredItem in equipments[item].price ) {
-			if ( requiredItem != 'gold' ) {
-				value += calcItemPrice(requiredItem)*equipments[item].price[requiredItem]
-			} else {
-				value+=equipments[item].price.gold
-			}
-		}
-		return Math.round(value/4)
-	} else {
-		for (enemy in enemies) {
-			if (enemies[enemy].item == item) {
-				if (enemies[enemy].attack == 0 ){
-					return '0'
-				} else {
-					return 1+Math.round(enemies[enemy].attack/4)
-				}
-			}
-		}
-	}
-}
-
-function npcInteraction(npc) {
-	$('.card.left, .card.middle').remove()
-	card = $('<div class="card left npc"></div>').appendTo('.window')
-	.addClass(npcs[npc].type)
-	.append($('.person-header').clone())
-	.find('.avatar').css('background-image', 'url(assets/avatar-' + npcs[npc].name + '.webp)')
-	.end()
-	card.find('h3').html(npcs[npc].name)
-	card.find('label').html(npcs[npc].title)
-	card.attr('id', random(0, 9999999))
-
-	showCursor()
-
-	if (npcs[npc].type == 'shop') {
-		card.append('<div class="speech"><div>'+npcs[npc].speech+'</div></div>')
-		$('.backpack').show()
-		for (item in npcs[npc].items) { 
-			createItemRow(npcs[npc].items[item]).appendTo(card)
-			.attr('onclick','openBuyMenu("'+npcs[npc].items[item]+'")')
-		}
-	}
-
-	if (npcs[npc].type == 'sell') {
-		card.append('<div class="speech"><div>'+npcs[npc].speech+'</div></div>')
-		$('.backpack').show()
-		card.append('<div><div class="tip">Click on an item from your backpack</div></div>')
-	}
-
-	if (npcs[npc].type == 'quest') {
-		targetQuest = ''
-
-		for (quest in npcs[npc].quests) {	
-			if (!player.questsCompleted.includes(npcs[npc].quests[quest])) {
-				targetQuest = npcs[npc].quests[quest]
-				questDialog(targetQuest, card.attr('id'))
-				break
-			}
-		}
-
-		if (targetQuest == '') {
-			let text = $('<div class="dialog"><div class="message"><div class="text"></div></div></div>').appendTo(card).find('.text');
-			speech = npcs[npc].speech[random(0, npcs[npc].speech.length - 1)]
-			typeWriterEffect(text, speech, 0)
-			setTimeout(function() {
-				$(`<div class="actions"><div class="button yellow">CLOSE</div></div>`).appendTo(card)
-				.find('.button').attr('onclick', 'closeCard()');
-			}, 100);
-		}
-	}
-	
-	zoom('in');
-}
+// Legacy alias
+const npcInteraction = (npc) => NPCManager.interact(npc);
+const sell = (item) => NPCManager.sell(item);
+const calcItemPrice = (item) => NPCManager.calcItemPrice(item);
