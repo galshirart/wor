@@ -19,6 +19,9 @@ const Constants = {
     // NPC positioning
     NPC_GROUND_Y: 330,
     NPC_INTERACTION_RANGE: 60,
+
+    // TELEPORT
+    PLAYER_POSITION_X: 630,
     
     // ========== COMBAT ==========
     PROJECTILE_SPEED: 10,
