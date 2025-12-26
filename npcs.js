@@ -102,10 +102,10 @@ const NPCManager = {
         } else {
             for (const enemy in state.enemies) {
                 if (state.enemies[enemy].item === item) {
-                    if (state.enemies[enemy].attack === 0) {
+                    if (Number(state.enemies[enemy].attack) === 0) {
                         return 0;
                     } else {
-                        return 1 + Math.round(state.enemies[enemy].attack / 4);
+                        return 1 + Math.round(Number(state.enemies[enemy].attack) / 4);
                     }
                 }
             }

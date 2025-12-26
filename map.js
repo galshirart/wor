@@ -287,6 +287,7 @@ const MapManager = {
         const currentMap = state.maps[state.player.location];
         
         $('.back, .front').remove();
+        $('.enemy').remove();
         $('.field').html(`<img class="map" src="assets/map-${state.player.location}.webp" />`);
         
         (currentMap.layers || []).forEach(layer => {
@@ -312,6 +313,7 @@ const MapManager = {
                 EnemyManager.spawn(type, state.player.location);
             }
         });
+        console.log(currentMap.enemies || {});
         
         Object.keys(currentMap.npc || {}).forEach(npc => {
             this.placeNPC(npc);
