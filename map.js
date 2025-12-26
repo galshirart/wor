@@ -309,12 +309,13 @@ const MapManager = {
         
         Object.keys(currentMap.enemies || {}).forEach(type => {
             const count = currentMap.enemies[type];
-            for (let i = 0; i < count; i++) {
-                EnemyManager.spawn(type, state.player.location);
+            if (count && count > 0)
+            {
+                for (let i = 0; i < count; i++) {
+                    EnemyManager.spawn(type, state.player.location);
+                }
             }
-        });
-        console.log(currentMap.enemies || {});
-        
+        });        
         Object.keys(currentMap.npc || {}).forEach(npc => {
             this.placeNPC(npc);
         });
