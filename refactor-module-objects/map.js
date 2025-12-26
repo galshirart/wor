@@ -237,7 +237,7 @@ const MapManager = {
     teleport(location) {
         const state = GameState;
         state.player.location = location;
-        state.player.position = 630;
+        state.player.position = Constants.PLAYER_POSITION_X;
         clearInterval(state.gameBeat);
         this.enter();
     },
