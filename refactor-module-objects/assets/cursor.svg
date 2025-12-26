@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>cursor</title>
+    <defs>
+        <path d="M8,16 C12.418278,16 16,12.418278 16,8 C16,3.581722 12.418278,4.26325641e-14 8,4.26325641e-14 C6.62770858,4.26325641e-14 3.96104191,4.26325641e-14 5.68434189e-14,4.26325641e-14 C5.68434189e-14,3.76010609 5.68434189e-14,6.42677275 5.68434189e-14,8 C5.68434189e-14,12.418278 3.581722,16 8,16 Z" id="path-1"></path>
+        <filter x="-12.5%" y="-12.5%" width="125.0%" height="125.0%" filterUnits="objectBoundingBox" id="filter-2">
+            <feOffset dx="0" dy="-4" in="SourceAlpha" result="shadowOffsetInner1"></feOffset>
+            <feComposite in="shadowOffsetInner1" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="shadowInnerInner1"></feComposite>
+            <feColorMatrix values="0 0 0 0 0.250980392   0 0 0 0 0   0 0 0 0 0  0 0 0 0.2 0" type="matrix" in="shadowInnerInner1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="cursor" stroke="none" fill="none" fill-rule="nonzero">
+        <g id="Oval">
+            <use fill="#FFE233" xlink:href="#path-1"></use>
+            <use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use>
+            <path stroke="#400000" stroke-width="1" d="M8,0.5 C10.0710678,0.5 11.9460678,1.33946609 13.3033009,2.69669914 C14.6605339,4.05393219 15.5,5.92893219 15.5,8 C15.5,10.0710678 14.6605339,11.9460678 13.3033009,13.3033009 C11.9460678,14.6605339 10.0710678,15.5 8,15.5 C5.92893219,15.5 4.05393219,14.6605339 2.69669914,13.3033009 C1.33946609,11.9460678 0.5,10.0710678 0.5,8 L0.5,0.5 Z" stroke-linejoin="square"></path>
+        </g>
+    </g>
+</svg>
