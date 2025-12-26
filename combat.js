@@ -1,170 +1,353 @@
-function fight(atkType = random(1,5), rangeStart = 0, rangeEnd = 0, atkMultiplier=1, maxTargets=1) {
-    if (mode() == 'fight' || mode() == 'jump' || attackCooldown) return
-    attackCooldown = true;
-    mode('fight')
+/**
+ * Combat Module
+ * 
+ * Handles all combat-related functionality: attacks, skills, hits, collisions.
+ */
 
-	if (equipments[player.equipments.weapon].type == 'melee') {
-		x1 = player.position+rangeStart
-		x2 = player.position+rangeEnd+i('.weapon','height')
-	
-		if (heroDirection == -1) { 
-			x1 = player.position-i('.weapon','height')-rangeEnd
-			x2 = player.position-rangeStart
-		}
-
-		setTimeout(() => { sound('attack') }, totalAtkSpeed/4)
-
-		setTimeout(() => {
-			$('.enemy[active=true][hitable=TRUE]').each(function() {
-				if ( x1 > i($(this),'left')+i($(this),'width') || x2 < i($(this),'left') ) return
-				hit($(this), equipments[player.equipments.weapon].attack*atkMultiplier)
-				return false
-			})
-		}, totalAtkSpeed/2)
-	}
-
-	if (equipments[player.equipments.weapon].type == 'range') {
-		atkType = 6
-
-		setTimeout(() => { sound('bow') }, totalAtkSpeed/4)
-
-		setTimeout(() => {
-			$('<div class="projectile"></div>').appendTo('.field')
-			.css({
-				'transform': 'scaleX('+heroDirection+')',
-				'left': player.position+heroDirection*40-40,
-				'width': 80
-			})
-			.attr({
-				'direction': heroDirection,
-				'range': 500,
-				'originX': player.position,
-				'speed': 10,
-				'attack': equipments[player.equipments.weapon].attack * atkMultiplier,
-				'maxTargets': maxTargets
-			})
-		}, totalAtkSpeed/2)
-	}
-
-	// showRange(x1,x2)
-	hero.attr('atkType',atkType)
-    $('.weapon').css('animation-name','weapon-'+atkType)
+const Combat = {
+    // ========== STATE ==========
+    attackCooldown: false,
+    skillCooldown: false,
     
-    setTimeout(() => { 
-        mode('rest')
-        $('.weapon').css('animation-name','')
-		setTimeout(() => { attackCooldown = false; }, totalAtkSpeed/4)
-    },totalAtkSpeed)
-}
-
-function hit(enemy, attack) {
-	attack = spread(attack,20)
-	isCritical = random(1, 100) <= totalCritical
-	if (isCritical) {
-		attack = Math.round(attack * player.criticalMultiplier*1)
-	}
-    enemyType = $(enemy).attr('type')
-    enemySize = enemies[enemyType].size[0] + enemies[enemyType].size[1]
-    knockbackAmount = Math.max(5, Math.min(30, (attack/enemySize) * 100)) //kconback based on enemy size and attack
-	
-	$(enemy).attr({
-		'state': 'enemy-hit',
-		'angry': 'true', 
-		'hp': $(enemy).attr('hp')-attack,
-		'hit-count': $(enemy).attr('hit-count')*1+1
-	})
-	.css({
-		'transition-duration': '50ms',
-		'transition-timing-function': 'ease-out',
-		'left': i($(enemy),'left')+heroDirection*knockbackAmount+'px'
-	})
-	.find('.bar').css('width', $(enemy).attr('hp')/enemies[$(enemy).attr('type')].hp*100+'%')
-
-	damageColor = isCritical ? 'orange' : 'yellow'
-	hitDigits = $('<div class="hit'+(isCritical ? ' critical' : '')+'">'+prettyNumber(attack, damageColor)+'</div>')
-	.css('left', i($(enemy),'left')+i($(enemy),'width')/2-(String(attack).length*13))
-	.appendTo('.field')
-	setTimeout((hitDigits)=> { hitDigits.remove() },800, hitDigits)
-	if ($(enemy).attr('hp') <= 0) { enemyDeath($(enemy)) } 
-	else { setTimeout(() => {
-		$(enemy).css('transition-timing-function', 'linear')
-		enemyMove($(enemy), $(enemy).attr('hit-count'))
-	}, 200) }
-
-	sound('hit-1') 
-}
-
-function useSkill(key) {
-    if (mode() == 'fight' || mode() == 'jump' || skillCooldown) { return }
-
-    //based on the weapon data:
-    if (key == 's') { skill = 'surge'  }
-    if (key == 'd') { skill = 'impact' }
-
-    mpCost = (equipments[player.equipments.weapon].attack*skills[skill].atkMultiplier)/2
-    if (player.mp < mpCost) { shake($('.bar.mp').parent('.bar-container')); return }
-    player.mp = player.mp-mpCost
+    // ========== MAIN FUNCTIONS ==========
     
-    skillCooldown = true;
-
-    skillSprite = $('<div class="skill"></div>').css({
-        'transform' :'scaleX('+heroDirection+')',
-        'background-image': 'url(assets/skill-'+skill+'.webp)'
-    })
-
-    if (skill == 'surge' && equipments[player.equipments.weapon].type == 'melee') {
-		player.position = player.position+heroDirection*100
-        fight(atkType=1, rangeStart=0,rangeEnd=120, skills[skill].atkMultiplier, maxTargets=2)
-        sound('swoosh')
-        hero.after(skillSprite)
+    /**
+     * Execute a basic attack
+     * @param {number} atkType - Animation type (1-6)
+     * @param {number} rangeStart - Attack range start offset
+     * @param {number} rangeEnd - Attack range end offset  
+     * @param {number} atkMultiplier - Damage multiplier
+     * @param {number} maxTargets - Max enemies to hit
+     */
+    fight(atkType = random(1, 5), rangeStart = 0, rangeEnd = 0, atkMultiplier = 1, maxTargets = 1) {
+        const state = GameState;
+        const hero = state.hero;
+        
+        if (Player.getMode() === 'fight' || Player.getMode() === 'jump' || this.attackCooldown) {
+            return;
+        }
+        
+        this.attackCooldown = true;
+        Player.setMode('fight');
+        
+        const weapon = state.equipments[state.player.equipments.weapon];
+        
+        if (weapon.type === 'melee') {
+            this._executeMeleeAttack(rangeStart, rangeEnd, atkMultiplier);
+        } else if (weapon.type === 'range') {
+            this._executeRangedAttack(atkMultiplier, maxTargets);
+            atkType = 6;
+        }
+        
+        this._playAttackAnimation(atkType);
+    },
+    
+    /**
+     * Use a skill ability
+     * @param {string} key - Skill key ('s' or 'd')
+     */
+    useSkill(key) {
+        const state = GameState;
+        
+        if (Player.getMode() === 'fight' || Player.getMode() === 'jump' || this.skillCooldown) {
+            return;
+        }
+        
+        const skillName = this._getSkillFromKey(key);
+        if (!skillName) return;
+        
+        const skill = state.skills[skillName];
+        const weapon = state.equipments[state.player.equipments.weapon];
+        const mpCost = (weapon.attack * skill.atkMultiplier) / 2;
+        
+        if (state.player.mp < mpCost) {
+            UI.shake($('.bar.mp').parent('.bar-container'));
+            return;
+        }
+        
+        state.player.mp -= mpCost;
+        this.skillCooldown = true;
+        
+        this._executeSkill(skillName, skill, weapon);
+    },
+    
+    /**
+     * Apply a hit to an enemy
+     * @param {jQuery} enemyElement - The enemy DOM element
+     * @param {number} baseAttack - Base attack damage
+     */
+    hit(enemyElement, baseAttack) {
+        const state = GameState;
+        const { finalDamage, isCritical } = this._calculateDamage(baseAttack);
+        const enemyType = enemyElement.attr('type');
+        const knockback = this._calculateKnockback(finalDamage, enemyType);
+        
+        this._applyHitToEnemy(enemyElement, finalDamage, knockback);
+        this._showDamageNumber(enemyElement, finalDamage, isCritical);
+        this._handleEnemyPostHit(enemyElement);
+        
+        sound('hit-1');
+    },
+    
+    /**
+     * Check and handle player collision with enemies
+     */
+    checkCollisions() {
+        const self = this;
+        const state = GameState;
+        
+        $('.enemy[active=true]').each(function() {
+            const enemyElement = $(this);
+            
+            if (self._isCollisionIgnored(enemyElement)) {
+                return;
+            }
+            
+            const damage = self._calculateDamageTaken(enemyElement);
+            self._applyDamageToPlayer(damage);
+        });
+    },
+    
+    // ========== PRIVATE HELPERS ==========
+    
+    _executeMeleeAttack(rangeStart, rangeEnd, atkMultiplier) {
+        const state = GameState;
+        const weaponHeight = i('.weapon', 'height');
+        let x1, x2;
+        
+        if (state.heroDirection === 1) {
+            x1 = state.player.position + rangeStart;
+            x2 = state.player.position + rangeEnd + weaponHeight;
+        } else {
+            x1 = state.player.position - weaponHeight - rangeEnd;
+            x2 = state.player.position - rangeStart;
+        }
+        
+        setTimeout(() => sound('attack'), state.totalAtkSpeed / 4);
+        
+        setTimeout(() => {
+            this._hitEnemiesInRange(x1, x2, atkMultiplier);
+        }, state.totalAtkSpeed / 2);
+    },
+    
+    _executeRangedAttack(atkMultiplier, maxTargets) {
+        const state = GameState;
+        
+        setTimeout(() => sound('bow'), state.totalAtkSpeed / 4);
+        
+        setTimeout(() => {
+            this._spawnProjectile(atkMultiplier, maxTargets);
+        }, state.totalAtkSpeed / 2);
+    },
+    
+    _hitEnemiesInRange(x1, x2, atkMultiplier) {
+        const state = GameState;
+        const weapon = state.equipments[state.player.equipments.weapon];
+        const self = this;
+        
+        $('.enemy[active=true][hitable=TRUE]').each(function() {
+            const enemyElement = $(this);
+            const enemyLeft = i(enemyElement, 'left');
+            const enemyRight = enemyLeft + i(enemyElement, 'width');
+            
+            if (x1 > enemyRight || x2 < enemyLeft) {
+                return;
+            }
+            
+            self.hit(enemyElement, weapon.attack * atkMultiplier);
+            return false;
+        });
+    },
+    
+    _spawnProjectile(atkMultiplier, maxTargets) {
+        const state = GameState;
+        const weapon = state.equipments[state.player.equipments.weapon];
+        
+        $('<div class="projectile"></div>')
+            .appendTo('.field')
+            .css({
+                'transform': 'scaleX(' + state.heroDirection + ')',
+                'left': state.player.position + state.heroDirection * 40 - 40,
+                'width': Constants.PROJECTILE_WIDTH
+            })
+            .attr({
+                'direction': state.heroDirection,
+                'range': Constants.PROJECTILE_RANGE,
+                'originX': state.player.position,
+                'speed': Constants.PROJECTILE_SPEED,
+                'attack': weapon.attack * atkMultiplier,
+                'maxTargets': maxTargets
+            });
+    },
+    
+    _playAttackAnimation(atkType) {
+        const state = GameState;
+        
+        state.hero.attr('atkType', atkType);
+        $('.weapon').css('animation-name', 'weapon-' + atkType);
+        
+        setTimeout(() => {
+            Player.setMode('rest');
+            $('.weapon').css('animation-name', '');
+            
+            setTimeout(() => {
+                this.attackCooldown = false;
+            }, state.totalAtkSpeed / 4);
+        }, state.totalAtkSpeed);
+    },
+    
+    _getSkillFromKey(key) {
+        const skillMap = { 's': 'surge', 'd': 'impact' };
+        return skillMap[key] || null;
+    },
+    
+    _executeSkill(skillName, skill, weapon) {
+        const state = GameState;
+        
+        const skillSprite = $('<div class="skill"></div>').css({
+            'transform': 'scaleX(' + state.heroDirection + ')',
+            'background-image': 'url(assets/skill-' + skillName + '.webp)'
+        });
+        
+        if (skillName === 'surge' && weapon.type === 'melee') {
+            state.player.position += state.heroDirection * 100;
+            this.fight(1, 0, 120, skill.atkMultiplier, 2);
+            sound('swoosh');
+            state.hero.after(skillSprite);
+        }
+        
+        if (skillName === 'impact' && weapon.type === 'melee') {
+            this.fight(6, -100, 80, skill.atkMultiplier, 6);
+            sound('spell-1');
+            setTimeout(() => {
+                state.hero.after(skillSprite);
+                UI.shake($('.field'));
+                sound('rumble');
+            }, 200);
+        }
+        
+        setTimeout(() => {
+            Player.setMode('rest');
+            state.hero.css('transform', 'scaleX(' + state.heroDirection + ') translateX(0)');
+            $('.skill').remove();
+            this.skillCooldown = false;
+        }, Constants.SKILL_DURATION_MS);
+    },
+    
+    _calculateDamage(baseAttack) {
+        const state = GameState;
+        let finalDamage = spread(baseAttack, Constants.DAMAGE_SPREAD);
+        const isCritical = random(1, 100) <= state.totalCritical;
+        
+        if (isCritical) {
+            finalDamage = Math.round(finalDamage * state.player.criticalMultiplier);
+        }
+        
+        return { finalDamage, isCritical };
+    },
+    
+    _calculateKnockback(damage, enemyType) {
+        const enemy = GameState.enemies[enemyType];
+        const enemySize = enemy.size[0] + enemy.size[1];
+        const knockbackRaw = (damage / enemySize) * 100;
+        
+        return Math.max(Constants.KNOCKBACK_MIN, Math.min(Constants.KNOCKBACK_MAX, knockbackRaw));
+    },
+    
+    _applyHitToEnemy(enemyElement, damage, knockback) {
+        const state = GameState;
+        const currentHp = Number(enemyElement.attr('hp'));
+        const hitCount = Number(enemyElement.attr('hit-count'));
+        const enemyType = enemyElement.attr('type');
+        
+        enemyElement.attr({
+            'state': 'enemy-hit',
+            'angry': 'true',
+            'hp': currentHp - damage,
+            'hit-count': hitCount + 1
+        }).css({
+            'transition-duration': '50ms',
+            'transition-timing-function': 'ease-out',
+            'left': i(enemyElement, 'left') + state.heroDirection * knockback + 'px'
+        });
+        
+        const hpPercent = (currentHp - damage) / state.enemies[enemyType].hp * 100;
+        enemyElement.find('.bar').css('width', hpPercent + '%');
+    },
+    
+    _showDamageNumber(enemyElement, damage, isCritical) {
+        const color = isCritical ? 'orange' : 'yellow';
+        const cssClass = 'hit' + (isCritical ? ' critical' : '');
+        const leftPos = i(enemyElement, 'left') + i(enemyElement, 'width') / 2 - (String(damage).length * 13);
+        
+        const hitDigits = $('<div class="' + cssClass + '">' + prettyNumber(damage, color) + '</div>')
+            .css('left', leftPos)
+            .appendTo('.field');
+        
+        setTimeout(() => hitDigits.remove(), Constants.HIT_DISPLAY_MS);
+    },
+    
+    _handleEnemyPostHit(enemyElement) {
+        const currentHp = Number(enemyElement.attr('hp'));
+        
+        if (currentHp <= 0) {
+            EnemyManager.death(enemyElement);
+        } else {
+            setTimeout(() => {
+                enemyElement.css('transition-timing-function', 'linear');
+                EnemyManager.move(enemyElement, enemyElement.attr('hit-count'));
+            }, 200);
+        }
+    },
+    
+    _isCollisionIgnored(enemyElement) {
+        const state = GameState;
+        const enemyLeft = i(enemyElement, 'left');
+        const enemyWidth = i(enemyElement, 'width');
+        const enemyHeight = i(enemyElement, 'height');
+        const enemyType = enemyElement.attr('type');
+        
+        return (
+            state.player.position + 10 < enemyLeft ||
+            state.player.position - 10 > enemyLeft + enemyWidth ||
+            state.hero.attr('in-damage') === 'true' ||
+            i(state.hero, 'margin-bottom') > enemyHeight - 20 ||
+            Number(state.enemies[enemyType].attack) === 0
+        );
+    },
+    
+    _calculateDamageTaken(enemyElement) {
+        const state = GameState;
+        const enemyType = enemyElement.attr('type');
+        let damage = spread(state.enemies[enemyType].attack, Constants.DAMAGE_SPREAD);
+        
+        for (const slot in state.player.equipments) {
+            const item = state.player.equipments[slot];
+            if (item && state.equipments[item]) {
+                damage -= state.equipments[item].defense || 0;
+            }
+        }
+        
+        return Math.max(1, damage);
+    },
+    
+    _applyDamageToPlayer(damage) {
+        const state = GameState;
+        state.player.hp -= damage;
+        
+        $('body').append('<div class="hit self">' + prettyNumber(damage, 'red') + '</div>');
+        state.hero.attr('in-damage', 'true');
+        
+        const knockbackDistance = Math.min(damage, Constants.HERO_KNOCKBACK_MAX);
+        const knockback = setInterval(() => {
+            state.player.position -= state.heroDirection * knockbackDistance;
+        }, 10);
+        
+        setTimeout(() => clearInterval(knockback), 200);
+        
+        setTimeout(() => {
+            state.hero.attr('in-damage', 'false');
+            $('.hit.self').remove();
+        }, Constants.DAMAGE_IMMUNITY_MS);
     }
-
-    if (skill == 'impact' && equipments[player.equipments.weapon].type == 'melee') {
-        fight(atkType=6, rangeStart=-100,rangeEnd=80, skills[skill].atkMultiplier, maxTargets=6)
-        sound('spell-1')
-        setTimeout(function() {
-            hero.after(skillSprite)
-            shake($('.field'))
-            sound('rumble')
-        },200)
-    }
-
-    setTimeout(function() { 
-        mode('rest')
-        hero.css('transform','scaleX('+heroDirection+') translateX(0)')
-        $('.skill').remove()
-        skillCooldown = false;
-    }, 600)
-}
-
-function collide() {
-	$('.enemy[active=true]').each(function() {
-		if (player.position+10 < i($(this),'left') ||
-			player.position-10 > i($(this),'left') + i($(this),'width') ||
-			hero.attr('in-damage') == 'true' ||
-			i(hero, 'margin-bottom') > i($(this),'height')-20 ||
-			enemies[$(this).attr('type')].attack == 0)
-		{ return }
-
-		damage = spread(enemies[$(this).attr('type')].attack,20)
-
-		for (equipment in player.equipments) {
-			damage -= equipments[player.equipments[equipment]].defense
-		}
-
-		if (damage <= 0) { damage = 1 }
-		player.hp -= damage
-
-		$('body').append('<div class="hit self">'+prettyNumber(damage,'red')+'</div>')
-		hero.attr('in-damage','true')
-		
-        knockbackDistance = Math.min(damage, 3); //hero knockback based on damage taken
-		knockback = setInterval(() => { player.position -= heroDirection * knockbackDistance }, 10);
-		setTimeout(() => { clearInterval(knockback); }, 200);
-		
-		setTimeout(() => {
-			hero.attr('in-damage','false')
-			$('.hit.self').remove()
-		}, 1000)
-	})
-}
+};

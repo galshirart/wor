@@ -1,95 +1,161 @@
-latestVersion = 6
-player = {}
-fetch('https://galshir.com/php/wor.php')
-.then(res => res.json())
-.then(data => {
-	maps = data['maps']
-	enemies = data['enemies']
-	equipments = data['equipments']
-	skills = data['skills']
-	npcs = data['npcs']
-	quests = data['quests']
-	consumables = data['consumables']
+/**
+ * Game Module
+ * 
+ * Main entry point and initialization.
+ */
 
-	player = JSON.parse(localStorage.getItem('player'))
-	if (!player || player.version != latestVersion) { resetPlayer() }
+const Game = {
+    /**
+     * Initialize the game
+     */
+    async init() {
+        try {
+            // Load game data from server
+            await GameState.loadGameData();
+            
+            // Load or create player
+            GameState.loadPlayer();
+            
+            // Initialize DOM references
+            GameState.initDOMReferences();
+            
+            // Calculate initial stats
+            GameState.recalculateStats();
+            
+            // Set up player visuals
+            Player.setHero();
+            
+            // Set up UI
+            UI.setBackpack();
+            UI.setConsumables();
+            
+            // Set up input handlers
+            Input.init();
+            
+            // Enter the current map
+            MapManager.enter();
+            
+        } catch (error) {
+            console.error('Failed to initialize game:', error);
+        }
+    },
+    
+    /**
+     * Save game state
+     */
+    save() {
+        GameState.save();
+    },
+    
+    /**
+     * Debug: Show attack range
+     * @param {number} x1 - Start X
+     * @param {number} x2 - End X
+     */
+    showRange(x1, x2) {
+        const range = $('<div class="range" style="position:absolute; bottom:330px; z-index:100; background:red; opacity:0.3; height:40px"></div>');
+        range.css('width', Math.abs(x2 - x1));
+        range.css('left', x1);
+        $('.field').append(range);
+        setTimeout(() => range.remove(), 1000);
+    },
+    
+    /**
+     * Debug: Set attack pose
+     * @param {number} atkType - Attack type
+     */
+    pose(atkType) {
+        Player.setMode('fight');
+        GameState.hero.attr('atkType', atkType);
+        $('.hero, .weapon').css('animation-duration', '4000ms');
+        $('.weapon').css('animation-name', 'weapon-' + atkType);
+    },
+    
+    /**
+     * Debug: Give player items
+     */
+    shefa() {
+        Player.acquire('wood-sword');
+        Player.acquire('wood-bow');
+        Player.acquire('wood-shield');
+        Player.acquire('red-bandana');
+        Player.acquire('coconut-water', 20);
+        Player.acquire('speed-potion', 20);
+        Player.acquire('turbo-berry', 20);
+        Player.acquire('focus-potion', 20);
+        $('.card.backpack').show();
+    }
+};
 
-	keyState = {left: false, right: false};
-	heroDirection = 1
-	attackCooldown = false;
-	skillCooldown = false;
-	tutorialInterval = null;
-	activeConsumables = [];
-	dialogInterval = null;
+// Start the game when the script loads
+Game.init();
 
-	setStats()
-	setHero()
-	setBackpack()
-	setConsumables()
-	enterMap()
+// Legacy aliases
+const save = () => Game.save();
+const showRange = (x1, x2) => Game.showRange(x1, x2);
+const pose = (atkType) => Game.pose(atkType);
+const shefa = () => Game.shefa();
+const resetPlayer = () => GameState.resetPlayer();
+const setStats = () => GameState.recalculateStats();
 
-	document.onkeydown = (e) => {
-		switch(e.keyCode) {
-			case 39: keyState.right = true; break;
-			case 37: keyState.left = true; break;
-			case 38: jump(); break;
-			case 65: if (!attackCooldown) fight(); break;
-			// case 83: if (!skillCooldown) useSkill('s'); break;
-			// case 68: if (!skillCooldown) useSkill('d'); break;
-			case 90: pickUp(); break;
-			case 32: interact(); break;
-			case 66: $('.card.backpack').toggle(); break;
-			case 27: closeCard(); break;
-			case 49: consume(1); break;
-			case 50: consume(2); break;
-			case 51: consume(3); break;
-			case 52: consume(4); break;
-			case 53: consume(5); break;
-			case 54: consume(6); break;
-			case 55: consume(7); break;
-			case 56: consume(8); break;
-			case 57: consume(9); break;
-		}
-	}
-		
-	document.onkeyup = (e) => {
-		switch(e.keyCode) { 
-			case 39: keyState.right = false; break;
-			case 37: keyState.left = false; break;
-		}
-	}
-})
+// Expose commonly needed state as legacy globals for gradual migration
+// These will be removed once all code uses GameState directly
+Object.defineProperty(window, 'player', {
+    get: () => GameState.player,
+    set: (val) => { GameState.player = val; }
+});
 
+Object.defineProperty(window, 'hero', {
+    get: () => GameState.hero,
+    set: (val) => { GameState.hero = val; }
+});
 
-function save() {
-	localStorage.setItem('player', JSON.stringify(player))
-}
+Object.defineProperty(window, 'heroDirection', {
+    get: () => GameState.heroDirection,
+    set: (val) => { GameState.heroDirection = val; }
+});
 
-function showRange(x1,x2) {
-	range = $('<div class="range" style="position:absolute; bottom:330px; z-index:100; background:red; opacity:0.3; height:40px"></div>')
-	range.css('width', Math.abs(x2-x1))
-	range.css('left', x1)
-	$('.field').append(range)
-	setTimeout(function(range) { $(range).remove() }, 1000, range)
-}
+Object.defineProperty(window, 'maps', {
+    get: () => GameState.maps
+});
 
-function pose(atkType) {
-	mode('fight')
-	hero.attr('atkType',atkType)
-	$('.hero, .weapon').css('animation-duration','4000ms')
-	$('.weapon').css('animation-name','weapon-'+atkType)
-}
+Object.defineProperty(window, 'enemies', {
+    get: () => GameState.enemies
+});
 
+Object.defineProperty(window, 'equipments', {
+    get: () => GameState.equipments
+});
 
+Object.defineProperty(window, 'skills', {
+    get: () => GameState.skills
+});
 
-function shefa(){
-	acquire('wood-sword')
-	acquire('wood-bow')
-	acquire('wood-shield')
-	acquire('red-bandana')
-	acquire('coconut-water',20)
-	acquire('speed-potion',20)
-	acquire('turbo-berry',20)
-	acquire('focus-potion',20)
-	$('.card.backpack').show()
-}
+Object.defineProperty(window, 'npcs', {
+    get: () => GameState.npcs
+});
+
+Object.defineProperty(window, 'quests', {
+    get: () => GameState.quests
+});
+
+Object.defineProperty(window, 'consumables', {
+    get: () => GameState.consumables
+});
+
+Object.defineProperty(window, 'totalAtkSpeed', {
+    get: () => GameState.totalAtkSpeed
+});
+
+Object.defineProperty(window, 'totalCritical', {
+    get: () => GameState.totalCritical
+});
+
+Object.defineProperty(window, 'totalWalkSpeed', {
+    get: () => GameState.totalWalkSpeed
+});
+
+Object.defineProperty(window, 'mapWidth', {
+    get: () => GameState.mapWidth,
+    set: (val) => { GameState.mapWidth = val; }
+});

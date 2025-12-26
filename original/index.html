@@ -8,31 +8,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/jquery-ui.min.js" integrity="sha512-MSOo1aY+3pXCOCdGAYoBZ6YGI0aragoQsg1mKKBHXCYPIWxamwOE7Drh+N5CPgGI5SA9IEKJiPjdfqWFWmZtRA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 
-<!-- 
-    SCRIPT LOAD ORDER - Dependencies must load first!
-    
-    1. constants.js  - No dependencies (pure data)
-    2. utils.js      - No dependencies (pure functions)
-    3. audio.js      - No dependencies
-    4. game-state.js - Depends on: nothing
-    5. input.js      - Depends on: Constants, GameState, Player, Combat, MapManager
-    6. ui.js         - Depends on: Constants, GameState, Utils, Player
-    7. combat.js     - Depends on: Constants, GameState, Utils, Player, EnemyManager, UI
-    8. player.js     - Depends on: Constants, GameState, Utils, Combat, UI
-    9. enemies.js    - Depends on: Constants, GameState, Utils
-    10. npcs.js      - Depends on: Constants, GameState, Utils, Player, UI, QuestManager
-    11. quests.js    - Depends on: Constants, GameState, Utils, Player, UI, MapManager
-    12. map.js       - Depends on: Constants, GameState, Utils, Player, Combat, EnemyManager, NPCManager, UI
-    13. game.js      - Entry point, depends on everything
--->
-<script src="constants.js" defer></script>
 <script src="utils.js" defer></script>
 <script src="audio.js" defer></script>
-<script src="game-state.js" defer></script>
 <script src="ui.js" defer></script>
-<script src="combat.js" defer></script>
 <script src="player.js" defer></script>
 <script src="enemies.js" defer></script>
+<script src="combat.js" defer></script>
 <script src="npcs.js" defer></script>
 <script src="quests.js" defer></script>
 <script src="map.js" defer></script>
@@ -105,3 +86,4 @@
 		</div>
 	</div>
 </div>
+

@@ -1,247 +1,321 @@
-function jump() {
-	if (mode() == 'fight' || mode() == 'jump' || skillCooldown) return
-	mode('jump')
-	hero.addClass('jumping')
-	setTimeout(() => hero.removeClass('jumping'), 400);
-	setTimeout(() => { mode('rest'); sound('land') }, 790);
-	sound('jump')
-}
+/**
+ * Player Module
+ * 
+ * Handles player character: movement, jumping, items, equipment, stats display.
+ */
 
-function projectileMove() {
-	$('.projectile').each(function() {
-		projectleElement = $(this)
-		x1 = i(projectleElement, 'left')
-		x2 = x1 + i(projectleElement, 'width')
-		projectileSpeed = projectleElement.attr('speed');
+const Player = {
+    // ========== MODE MANAGEMENT ==========
+    
+    /**
+     * Get current player mode
+     * @returns {string} Current mode (rest, walk, jump, fight)
+     */
+    getMode() {
+        return GameState.hero.attr('mode');
+    },
+    
+    /**
+     * Set player mode and update animations
+     * @param {string} newMode 
+     */
+    setMode(newMode) {
+        const state = GameState;
+        const hero = state.hero;
+        
+        if (newMode) {
+            hero.attr('mode', newMode);
+            hero.find('.equipment').attr('mode', newMode);
+        }
+        
+        const durations = {
+            walk: 400 / state.totalWalkSpeed + 'ms',
+            rest: '2000ms',
+            jump: '800ms',
+            fight: state.totalAtkSpeed + 'ms'
+        };
+        
+        if (durations[newMode]) {
+            $(`[mode=${newMode}]`).css('animation-duration', durations[newMode]);
+            $(`[mode=${newMode}] *`).css('animation-duration', durations[newMode]);
+            
+            if (newMode === 'rest') {
+                hero.find('.weapon').css('animation-duration', '400ms');
+            }
+        }
+    },
+    
+    // ========== MOVEMENT ==========
+    
+    /**
+     * Execute a jump
+     */
+    jump() {
+        if (this.getMode() === 'fight' || this.getMode() === 'jump' || Combat.skillCooldown) {
+            return;
+        }
+        
+        this.setMode('jump');
+        GameState.hero.addClass('jumping');
+        
+        setTimeout(() => GameState.hero.removeClass('jumping'), Constants.JUMP_APEX_MS);
+        setTimeout(() => {
+            this.setMode('rest');
+            sound('land');
+        }, Constants.JUMP_DURATION_MS);
+        
+        sound('jump');
+    },
+    
+    /**
+     * Handle projectile movement (called in game loop)
+     */
+    updateProjectiles() {
+        $('.projectile').each(function() {
+            const projectile = $(this);
+            const x1 = i(projectile, 'left');
+            const x2 = x1 + i(projectile, 'width');
+            const projectileSpeed = Number(projectile.attr('speed'));
+            const direction = Number(projectile.attr('direction'));
+            
+            projectile.css('left', x1 + direction * projectileSpeed + 'px');
+            
+            if (Math.abs(x1 - Number(projectile.attr('originX'))) > Number(projectile.attr('range'))) {
+                projectile.remove();
+                return;
+            }
+            
+            $('.enemy[active=true][hitable=TRUE]').each(function() {
+                const enemy = $(this);
+                if (x1 > i(enemy, 'left') + i(enemy, 'width') || x2 < i(enemy, 'left')) {
+                    return;
+                }
+                Combat.hit(enemy, Number(projectile.attr('attack')));
+                projectile.remove();
+                return false;
+            });
+        });
+    },
+    
+    // ========== ITEMS ==========
+    
+    /**
+     * Pick up nearby items
+     */
+    pickUp() {
+        if (this.getMode() === 'fight' || this.getMode() === 'jump' || Combat.attackCooldown) {
+            return;
+        }
+        
+        const state = GameState;
+        
+        $('.field .item').not('.picked').each(function() {
+            const item = $(this);
+            const itemLeft = i(item, 'left');
+            const itemWidth = i(item, 'width');
+            
+            if (state.player.position + Constants.ITEM_PICKUP_RANGE < itemLeft ||
+                state.player.position - Constants.ITEM_PICKUP_RANGE > itemLeft + itemWidth) {
+                return;
+            }
+            
+            item.addClass('picked');
+            
+            const itemType = item.attr('type');
+            const amount = Number(item.attr('amount'));
+            
+            if (itemType === 'gold') {
+                UI.log('Picked ' + amount + ' gold', 'gold');
+            } else {
+                UI.log('Picked ' + itemType, itemType);
+            }
+            
+            Player.acquire(itemType, amount);
+            
+            setTimeout(() => item.remove(), Constants.ITEM_PICKUP_ANIMATION_MS);
+            return false;
+        });
+    },
+    
+    /**
+     * Add item to inventory
+     * @param {string} item - Item type
+     * @param {number} amount - Amount to add
+     */
+    acquire(item, amount = 1) {
+        const state = GameState;
+        
+        if (item === 'gold') {
+            sound('pickup-gold');
+        } else {
+            sound('pickup-item');
+        }
+        
+        state.player.backpack[item] = (state.player.backpack[item] || 0) + amount;
+        UI.setBackpack();
+        UI.setConsumables();
+    },
+    
+    /**
+     * Equip or unequip an item
+     * @param {string} item - Item to equip
+     */
+    equip(item) {
+        const state = GameState;
+        
+        if (!state.equipments.hasOwnProperty(item)) {
+            return;
+        }
+        
+        const category = state.equipments[item].category;
+        const isEquipped = state.player.equipments[category] === item;
+        
+        state.player.equipments[category] = isEquipped ? '' : item;
+        sound('heavy-item');
+        UI.log((isEquipped ? 'unequipped ' : 'equipped ') + item, item);
+        
+        this.setHero();
+        
+        // Clean up empty equipment slots
+        for (const slot in state.player.equipments) {
+            if (state.player.equipments[slot] === '') {
+                delete state.player.equipments[slot];
+            }
+        }
+        
+        UI.setBackpack();
+        GameState.recalculateStats();
+    },
+    
+    /**
+     * Use a consumable item
+     * @param {number} slot - Consumable slot (1-9)
+     */
+    consume(slot) {
+        const state = GameState;
+        const itemType = $('.consumables .icon:nth-child(' + slot + ')').attr('type');
+        
+        if (!itemType) return;
+        
+        // Check if already active
+        if (state.activeConsumables.includes(itemType)) {
+            UI.shake($('.consumables'));
+            return;
+        }
+        
+        const consumable = state.consumables[itemType];
+        
+        // Check if same effect already active
+        for (let i = state.activeConsumables.length - 1; i >= 0; i--) {
+            const active = state.activeConsumables[i];
+            if (state.consumables[active].effect === consumable.effect) {
+                state.activeConsumables.splice(i, 1);
+            }
+        }
+        
+        // Apply effect
+        if (consumable.effect === 'hp recover') {
+            if (state.player.hp >= state.player.maxHp) {
+                UI.shake($('.bar.hp').parent('.bar-container'));
+                return;
+            }
+            state.player.hp = Math.min(state.player.hp + Number(consumable.value), state.player.maxHp);
+        }
+        
+        if (consumable.effect === 'mp recover') {
+            if (state.player.mp >= state.player.maxMp) {
+                UI.shake($('.bar.mp').parent('.bar-container'));
+                return;
+            }
+            state.player.mp = Math.min(state.player.mp + Number(consumable.value), state.player.maxMp);
+        }
+        
+        // Handle duration-based consumables
+        if (consumable.duration > 0) {
+            state.activeConsumables.push(itemType);
+            GameState.recalculateStats();
+            
+            setTimeout(() => {
+                const index = state.activeConsumables.indexOf(itemType);
+                if (index > -1) {
+                    state.activeConsumables.splice(index, 1);
+                }
+                $('.consumables .icon[type=' + itemType + ']').removeClass('active');
+                GameState.recalculateStats();
+                UI.setConsumables();
+            }, consumable.duration * 60000);
+        }
+        
+        UI.log(consumable.effect + ' +' + consumable.value, itemType);
+        
+        state.player.backpack[itemType]--;
+        UI.setBackpack();
+        UI.setConsumables();
+        sound('bless');
+    },
+    
+    // ========== HERO SETUP ==========
+    
+    /**
+     * Set up hero visual elements based on equipment
+     */
+    setHero() {
+        const state = GameState;
+        const hero = state.hero.html('');
+        
+        if (state.player.equipments.shield) {
+            hero.append('<div style="background-image:url(assets/shield-' + state.player.equipments.shield + '.webp)" class="equipment"/>');
+        }
+        
+        if (state.player.equipments.hat) {
+            hero.append('<div style="background-image:url(assets/hat-' + state.player.equipments.hat + '.webp)" class="equipment"/>');
+        }
+        
+        if (!state.player.equipments.weapon) {
+            state.player.equipments.weapon = 'none';
+        }
+        
+        const weapon = state.equipments[state.player.equipments.weapon];
+        
+        if (weapon.type === 'melee') {
+            hero.append('<div class="weapon" name="' + state.player.equipments.weapon + '"><img src="assets/weapon-' + state.player.equipments.weapon + '.webp" /></div>');
+        }
+        
+        if (weapon.type === 'range') {
+            hero.append('<div class="weapon range"></div>');
+            hero.find('.weapon')
+                .css('background-image', 'url(assets/weapon-' + state.player.equipments.weapon + '.webp)')
+                .attr('type', 'range');
+        }
+        
+        this.setMode('walk');
+        setTimeout(() => this.setMode('rest'));
+    },
+    
+    /**
+     * Recover HP and MP over time (called in game loop)
+     */
+    recover() {
+        const state = GameState;
+        
+        state.player.hp = Math.min(
+            state.player.hp + state.player.maxHp * Constants.HP_RECOVERY_RATE,
+            state.player.maxHp
+        );
+        state.player.mp = Math.min(
+            state.player.mp + state.player.maxMp * Constants.MP_RECOVERY_RATE,
+            state.player.maxMp
+        );
+        
+        if (state.player.hp < 0) state.player.hp = 0;
+        
+        // Update UI
+        $('.bar.hp').find('.value').html(Math.floor(state.player.hp));
+        $('.bar.hp').find('.fill').css('width', state.player.hp / state.player.maxHp * 100 + '%');
+        $('.bar.mp').find('.value').html(Math.floor(state.player.mp));
+        $('.bar.mp').find('.fill').css('width', state.player.mp / state.player.maxMp * 100 + '%');
+    }
+};
 
-		projectleElement.css('left', x1 + projectleElement.attr('direction')*projectileSpeed+'px')
-		if (Math.abs(x1 - projectleElement.attr('originX')) > projectleElement.attr('range')) {
-			projectleElement.remove()
-		}
-
-		$('.enemy[active=true][hitable=TRUE]').each(function() {
-			if ( x1 > i($(this),'left')+i($(this),'width') || x2 < i($(this),'left') ) return
-			hit($(this), projectleElement.attr('attack'))
-			projectleElement.remove()
-			return false
-		})
-	})
-}
-
-
-function pickUp() {
-	if (mode() == 'fight' || mode() == 'jump' || mode() == 'skill' || attackCooldown) return
-	$('.field .item').not('.picked').each(function() {
-		if (player.position+20 < i($(this),'left') ||
-			player.position-20 > i($(this),'left') + i($(this),'width') )
-		{ return }
-
-		$(this).addClass('picked')
-
-		if ($(this).attr('type') == 'gold') {
-			log('Picked '+$(this).attr('amount')+' gold', 'gold')
-		}
-		else {
-			log('Picked '+$(this).attr('type'), $(this).attr('type'))
-		}
-
-		acquire($(this).attr('type'), $(this).attr('amount')*1)
-
-		setTimeout(function(item) {
-			$(item).remove()
-		},400, $(this))
-		return false
-	});
-}
-
-function acquire(item, amount = 1) {
-	if ( item == 'gold' ) {
-		sound('pickup-gold')
-	} else {
-		sound('pickup-item')
-	}
-
-	player.backpack[item] = (player.backpack[item] || 0) + amount;
-	setBackpack()
-	setConsumables()
-}
-
-function equip(item) {
-	if (equipments.hasOwnProperty(item)) { 
-		itemCategory = equipments[item].category
-		isEquipped = player.equipments[itemCategory] == item
-		player.equipments[itemCategory] = isEquipped ? '' : item;
-		sound('heavy-item')
-		log((isEquipped ? 'unequipped ' : 'equipped ') + item, item)
-		setHero()
-	}
-	for (equipment in player.equipments) {
-		if (player.equipments[equipment] == "") {
-			delete player.equipments[equipment];
-		}
-	}
-	setBackpack()
-	setStats()
-}
-
-function consume(item) {
-	item = $('.consumables .icon:nth-child(' + item + ')').attr('type');
-	if (!item) { return }
-
-	// check if the item is already active
-	if (activeConsumables.includes(item)) { 
-		shake($('.consumables'));
-		return 
-	}
-
-	// check if the same effect is already active
-	for (activeItem in activeConsumables) {
-		if (consumables[activeConsumables[activeItem]].effect == consumables[item].effect) {
-			activeConsumables.splice(activeConsumables.indexOf(activeItem), 1);
-		}
-	}
-
-	if (consumables[item].effect == 'hp recover') {
-		if (player.hp == player.maxHp) {
-			shake($('.bar.hp').parent('.bar-container'));
-			return 
-		}
-		player.hp += Number(consumables[item].value)
-	}
-	if (consumables[item].effect == 'mp recover') {
-		if (player.mp == player.maxMp) {
-			shake($('.bar.mp').parent('.bar-container'));
-			return 
-		}
-		player.mp = Math.min(player.mp + consumables[item].value, player.maxMp);
-	}
-
-	if (consumables[item].duration > 0) {
-		activeConsumables.push(item);
-		setStats()
-		setTimeout(() => {
-			activeConsumables.splice(activeConsumables.indexOf(item), 1);
-			$('.consumables .icon[type='+item+']').removeClass('active');
-			setStats()
-			setConsumables()
-		}, consumables[item].duration*60000);
-	}
-	
-	log(consumables[item].effect+' +'+consumables[item].value, item)
-
-	player.backpack[item] = player.backpack[item] - 1;
-	setBackpack()
-	setConsumables()
-	sound('bless')
-}
-
-function setHero() {
-    hero = $('.hero').html('');
-
-	if (player.equipments.shield) {
-		hero.append('<div style="background-image:url(assets/shield-' + player.equipments.shield + '.webp)" class="equipment"/>')
-	}
-
-	if (player.equipments.hat) {
-		hero.append('<div style="background-image:url(assets/hat-' + player.equipments.hat + '.webp)" class="equipment"/>')
-	}
-
-	if (player.equipments.weapon == '') { player.equipments.weapon = 'none' }
-
-	if (equipments[player.equipments.weapon].type == 'melee') {
-    	hero.append('<div class="weapon" name="'+player.equipments.weapon+'"><img src="assets/weapon-'+player.equipments.weapon+'.webp" /></div>')
-	}
-
-	if (equipments[player.equipments.weapon].type == 'range') {
-    	hero.append('<div class="weapon range""></div>')
-		hero.find('.weapon').css('background-image','url(assets/weapon-'+player.equipments.weapon+'.webp)')
-		.attr('type','range')
-	}
-
-	mode('walk') //reset animation
-	setTimeout(() => { mode('rest') });
-}
-
-function recover() {
-	player.hp = Math.min(player.hp + player.maxHp * 0.0001, player.maxHp);
-	player.mp = Math.min(player.mp + player.maxMp * 0.0003, player.maxMp);
-
-	if (player.hp < 0) { player.hp = 0 }
-
-	$('.bar.hp').find('.value').html(Math.floor(player.hp))
-	$('.bar.hp').find('.fill').css('width', player.hp/player.maxHp*100+'%')
-	$('.bar.mp').find('.value').html(Math.floor(player.mp))
-	$('.bar.mp').find('.fill').css('width', player.mp/player.maxMp*100+'%')
-}
-
-function resetPlayer() {
-	player = {}
-	player.version = latestVersion
-	player.backpack = { gold: 0 }
-	player.equipments = { weapon: 'none' }
-	player.location = 'a-box'
-	player.position = 905
-	player.hp = 10
-	player.mp = 10
-	player.maxHp = 10
-	player.maxMp = 10
-	player.questsCompleted = []
-	player.questsAccepted = []
-	player.enemiesSlained = {}
-	player.mapsVisited = []
-	player.criticalMultiplier = 1.5 // 150% damage
-	save()
-	location.reload()
-}
-
-function setStats() {
-	// base stats
-	totalWalkSpeed = 1.5;
-	totalCritical = 10;
-	totalAtkSpeed = 800 - equipments[player.equipments.weapon].attackSpeed*50;
-
-	// equipment bonuses
-	for (slot in player.equipments) {
-		item = player.equipments[slot]
-		if (item && equipments[item]) {
-			totalCritical += Number(equipments[item].critical || 0)
-		}
-	}
-
-	// consumable bonuses
-	activeConsumables.forEach(item => {
-		if (consumables[item].effect == 'walk speed') {
-			totalWalkSpeed += totalWalkSpeed * Number(consumables[item].value.replace('%', '')/100);
-		}
-		if (consumables[item].effect == 'attack speed') {
-			totalAtkSpeed = totalAtkSpeed * (1 - Number(consumables[item].value.replace('%', ''))/100);
-		}
-		if (consumables[item].effect == 'critical') {
-			totalCritical += Number(consumables[item].value.replace('%', ''))
-		}
-	})
-
-	// minimums
-	if (totalAtkSpeed < 200) { totalAtkSpeed = 200 }
-}
-
-function mode(mode) {
-	if ( mode != null ) { 
-		hero.attr('mode',mode)
-		hero.find('.equipment').attr('mode',mode) 
-	}
-	modeDurations = {
-		walk: 400/totalWalkSpeed + 'ms',
-		rest: '2000ms',
-		jump: '800ms',
-		fight: totalAtkSpeed+'ms'
-	};
-	if (modeDurations[mode]) {
-		$(`[mode=${mode}]`).css('animation-duration', modeDurations[mode]);
-		$(`[mode=${mode}] *`).css('animation-duration', modeDurations[mode]);
-		if (mode === 'rest') {
-			hero.find('.weapon').css('animation-duration', '400ms');
-		}
-	}
-	return hero.attr('mode')
-}
+// Legacy alias
+const mode = (m) => m ? Player.setMode(m) : Player.getMode();
