@@ -324,12 +324,16 @@ const MapManager = {
     _setupTutorial() {
         const state = GameState;
         
-        if (['a-box', 'box-shore'].includes(state.player.location)) {
-            if (state.tutorialInterval) return;
-            
+        const tutorialMaps = ['a-box', 'box-shore', 'laozi\'s-dojo', 'sunny-beach'];
+        if (state.tutorialInterval) {
+            clearInterval(state.tutorialInterval);
+            state.tutorialInterval = null;
+        }
+        if (tutorialMaps.includes(state.player.location)) {
             state.tutorialInterval = setInterval(() => {
                 $('.tutorial').removeClass('show');
                 
+                // A-BOX: Movement and travel
                 if (state.player.location === 'a-box') {
                     if (state.player.position < 1000) {
                         $('[tutorial=move]').addClass('show');
@@ -338,7 +342,7 @@ const MapManager = {
                         $('[tutorial=travel]').addClass('show');
                     }
                 }
-                
+                // BOX-SHORE: Jump and interact
                 if (state.player.location === 'box-shore') {
                     if (state.player.position > 1100 && state.player.position < 1400) {
                         $('[tutorial=jump]').addClass('show');
@@ -347,6 +351,19 @@ const MapManager = {
                         $('[tutorial=interact]').addClass('show');
                     }
                 }
+                // LAOZI'S DOJO: Attack (show when near Laozi or enemies)
+                if (state.player.location === 'laozi\'s-dojo') {
+                    if (state.player.position > 1200 && state.player.position < 1300) {
+                        $('[tutorial=attack]').addClass('show');
+                    }
+                }
+                // SUNNY-BEACH: Pickup
+                if (state.player.location === 'sunny-beach') {
+                    if (state.player.position > 500 && state.player.position < 800) {
+                        $('[tutorial=pickup]').addClass('show');
+                    }
+                }
+        
                 
                 if ($('.card.left.npc').is(':visible')) {
                     $('[tutorial=interact]').remove();
