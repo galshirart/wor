@@ -30,7 +30,7 @@ const Constants = {
     
     KNOCKBACK_MIN: 5,
     KNOCKBACK_MAX: 30,
-    HERO_KNOCKBACK_MAX: 3,
+    HERO_KNOCKBACK_MAX: 10,
     
     DAMAGE_SPREAD: 20,          // Percent variance in damage
     DAMAGE_IMMUNITY_MS: 1000,   // Invulnerability after hit

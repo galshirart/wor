@@ -164,8 +164,9 @@ const EnemyManager = {
         
         // Respawn after delay
         const respawnDelay = random(Constants.ENEMY_RESPAWN_MIN_MS, Constants.ENEMY_RESPAWN_MAX_MS);
+        const deathMap = state.player.location;
         setTimeout(() => {
-            this.spawn(enemyType, state.player.location);
+            this.spawn(enemyType, deathMap);
         }, respawnDelay);
         
         // Track kill
