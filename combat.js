@@ -248,8 +248,8 @@ const Combat = {
     
     _calculateKnockback(damage, enemyType) {
         const enemy = GameState.enemies[enemyType];
-        const enemySize = enemy.size[0] + enemy.size[1];
-        const knockbackRaw = (damage / enemySize) * 100;
+        const enemyHealth = enemy.hp;
+        const knockbackRaw = (damage / enemyHealth) * 100;
         
         return Math.max(Constants.KNOCKBACK_MIN, Math.min(Constants.KNOCKBACK_MAX, knockbackRaw));
     },
