@@ -359,12 +359,11 @@ const MapManager = {
                 }
                 // SUNNY-BEACH: Pickup
                 if (state.player.location === 'sunny-beach') {
-                    if (state.player.position > 500 && state.player.position < 800) {
+                    if (player.backpack.gold < 1 && $('.field .item').length > 0) {
                         $('[tutorial=pickup]').addClass('show');
                     }
                 }
         
-                
                 if ($('.card.left.npc').is(':visible')) {
                     $('[tutorial=interact]').remove();
                 }
