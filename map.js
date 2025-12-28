@@ -324,7 +324,7 @@ const MapManager = {
     _setupTutorial() {
         const state = GameState;
         
-        const tutorialMaps = ['a-box', 'box-shore', 'laozi\'s-dojo', 'sunny-beach'];
+        const tutorialMaps = ['a-box', 'box-shore', 'laozi\'s-dojo', 'sunny-beach', 'coconut-village'];
         if (state.tutorialInterval) {
             clearInterval(state.tutorialInterval);
             state.tutorialInterval = null;
@@ -351,9 +351,9 @@ const MapManager = {
                         $('[tutorial=interact]').addClass('show');
                     }
                 }
-                // LAOZI'S DOJO: Attack (show when near Laozi or enemies)
+                // LAOZI'S DOJO: Attack (show after accepting Laozi's quest)
                 if (state.player.location === 'laozi\'s-dojo') {
-                    if (state.player.position > 1200 && state.player.position < 1300) {
+                    if (player.questsAccepted.includes('q11112')) {
                         $('[tutorial=attack]').addClass('show');
                     }
                 }
