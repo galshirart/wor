@@ -357,13 +357,12 @@ const MapManager = {
                         $('[tutorial=attack]').addClass('show');
                     }
                 }
-                // SUNNY-BEACH: Pickup
+                // SUNNY-BEACH: Pickup (show only if no gold obtained yet, and items are available to pick)
                 if (state.player.location === 'sunny-beach') {
                     if (player.backpack.gold < 1 && $('.field .item').length > 0) {
                         $('[tutorial=pickup]').addClass('show');
                     }
                 }
-        
                 if ($('.card.left.npc').is(':visible')) {
                     $('[tutorial=interact]').remove();
                 }
