@@ -53,6 +53,15 @@ const QuestManager = {
                 buttonAction = `QuestManager.complete("${targetQuest}")`;
             }
         }
+
+		if (quest.type === 'collect') {
+            const requirementKey = Object.keys(quest.requirement)[0];
+            if (state.player.backpack[requirementKey] >= quest.requirement[requirementKey]) {
+                step = 2;
+                buttonText = 'Complete Quest';
+                buttonAction = `QuestManager.complete("${targetQuest}")`;
+            }
+        }
         
         const card = $('.card#' + cardId);
         card.append('<div class="dialog"></div>');
