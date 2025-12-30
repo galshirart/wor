@@ -28,9 +28,7 @@ const Constants = {
     PROJECTILE_RANGE: 500,
     PROJECTILE_WIDTH: 80,
     
-    KNOCKBACK_MIN: 5,
-    KNOCKBACK_MAX: 30,
-    HERO_KNOCKBACK_MAX: 10,
+    HERO_KNOCKBACK: 2,
     
     DAMAGE_SPREAD: 20,          // Percent variance in damage
     DAMAGE_IMMUNITY_MS: 1000,   // Invulnerability after hit
@@ -66,7 +64,7 @@ const Constants = {
     OVERLAY_FADE_MS: 100,
     
     // ========== ENEMY BEHAVIOR ==========
-    ENEMY_WANDER_RANGE: 200,
+    ENEMY_WANDER_RANGE: 300,
     ENEMY_STAND_MIN_MS: 1000,
     ENEMY_STAND_MAX_MS: 4000,
     ENEMY_SPEED_VARIANCE: 30,

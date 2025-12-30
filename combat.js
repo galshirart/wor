@@ -77,12 +77,9 @@ const Combat = {
      * @param {number} baseAttack - Base attack damage
      */
     hit(enemyElement, baseAttack) {
-        const state = GameState;
         const { finalDamage, isCritical } = this._calculateDamage(baseAttack);
-        const enemyType = enemyElement.attr('type');
-        const knockback = this._calculateKnockback(finalDamage, enemyType);
         
-        this._applyHitToEnemy(enemyElement, finalDamage, knockback);
+        this._applyHitToEnemy(enemyElement, finalDamage,);
         this._showDamageNumber(enemyElement, finalDamage, isCritical);
         this._handleEnemyPostHit(enemyElement);
         
@@ -246,15 +243,7 @@ const Combat = {
         return { finalDamage, isCritical };
     },
     
-    _calculateKnockback(damage, enemyType) {
-        const enemy = GameState.enemies[enemyType];
-        const enemyHealth = enemy.hp;
-        const knockbackRaw = (damage / enemyHealth) * 100;
-        
-        return Math.max(Constants.KNOCKBACK_MIN, Math.min(Constants.KNOCKBACK_MAX, knockbackRaw));
-    },
-    
-    _applyHitToEnemy(enemyElement, damage, knockback) {
+    _applyHitToEnemy(enemyElement, damage) {
         const state = GameState;
         const currentHp = Number(enemyElement.attr('hp'));
         const hitCount = Number(enemyElement.attr('hit-count'));
@@ -268,7 +257,7 @@ const Combat = {
         }).css({
             'transition-duration': '50ms',
             'transition-timing-function': 'ease-out',
-            'left': i(enemyElement, 'left') + state.heroDirection * knockback + 'px'
+            'left': i(enemyElement, 'left') + state.heroDirection * 10 + 'px'
         });
         
         const hpPercent = (currentHp - damage) / state.enemies[enemyType].hp * 100;
@@ -338,9 +327,8 @@ const Combat = {
         $('body').append('<div class="hit self">' + prettyNumber(damage, 'red') + '</div>');
         state.hero.attr('in-damage', 'true');
         
-        const knockbackDistance = Math.min(damage, Constants.HERO_KNOCKBACK_MAX);
         const knockback = setInterval(() => {
-            state.player.position -= state.heroDirection * knockbackDistance;
+            state.player.position -= state.heroDirection * Constants.HERO_KNOCKBACK
         }, 10);
         
         setTimeout(() => clearInterval(knockback), 200);
