@@ -60,7 +60,7 @@ const Input = {
                     MapManager.interact();
                     break;
                 case K.BACKPACK:
-                    $('.card.backpack').toggle();
+                    UI.toggleBackpackCard();
                     break;
                 case K.ESCAPE:
                     UI.closeCard();
