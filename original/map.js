@@ -224,7 +224,6 @@ function interact() {
 		closeCard()
 	}
 
-
 	mode('rest');
 }
 
