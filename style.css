@@ -655,15 +655,14 @@ input:focus {
 	background-image:url('assets/button-backpack.webp');
 }
 .button.quests {
-	background-image:url('assets/icon-sign.webp');
-	background-size:20px;
+	background-image:url('assets/button-quests.webp');
 }
 .card.backpack {
 	max-height:300px;
 	min-height:240px;
 }
 .card.quests {
-	width:800px;
+	width:780px;
 	min-height:300px;
 	max-height:500px;
 	display:flex;

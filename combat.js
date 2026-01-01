@@ -327,8 +327,8 @@ const Combat = {
         $('body').append('<div class="hit self">' + prettyNumber(damage, 'red') + '</div>');
         state.hero.attr('in-damage', 'true');
         
-        const knockback = setInterval(() => {
-            state.player.position -= state.heroDirection * Constants.HERO_KNOCKBACK
+        knockback = setInterval(() => {
+            state.player.position -= state.heroDirection * Constants.HERO_KNOCKBACK;
         }, 10);
         
         setTimeout(() => clearInterval(knockback), 200);

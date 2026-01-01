@@ -223,9 +223,10 @@ const MapManager = {
         }
         
         // Close dialog if open with single action
-        if ($('.card.left.npc').is(':visible') && $('.card .actions').length === 1) {
+        if ($('.card.left.npc').is(':visible') && $('.card.left.npc .actions').length === 1) {
             UI.closeCard();
         }
+
         
         Player.setMode('rest');
     },

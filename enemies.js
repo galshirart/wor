@@ -16,6 +16,10 @@ const EnemyManager = {
         if (map !== state.player.location) {
             return;
         }
+
+        if ($('.enemy[type="' + type + '"]').length >= state.maps[map].enemies[type]) {
+            return;
+        }
         
         const destination = random(Constants.ENEMY_SPAWN_MIN_X, i('.map', 'width') - Constants.ENEMY_SPAWN_MIN_X);
         const yOffset = random(-5, 5);
