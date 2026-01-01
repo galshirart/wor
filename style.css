@@ -663,7 +663,7 @@ input:focus {
 	min-height:240px;
 }
 .card.quests {
-	width:500px;
+	width:800px;
 	min-height:300px;
 	max-height:500px;
 	display:flex;
