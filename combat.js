@@ -248,6 +248,11 @@ const Combat = {
         const currentHp = Number(enemyElement.attr('hp'));
         const hitCount = Number(enemyElement.attr('hit-count'));
         const enemyType = enemyElement.attr('type');
+
+        enemyKnockback = 0;
+        if (damage > state.enemies[enemyType].hp/10) {
+            enemyKnockback = 10
+        }
         
         enemyElement.attr({
             'state': 'enemy-hit',
@@ -257,7 +262,7 @@ const Combat = {
         }).css({
             'transition-duration': '50ms',
             'transition-timing-function': 'ease-out',
-            'left': i(enemyElement, 'left') + state.heroDirection * 10 + 'px'
+            'left': i(enemyElement, 'left') + state.heroDirection * enemyKnockback + 'px'
         });
         
         const hpPercent = (currentHp - damage) / state.enemies[enemyType].hp * 100;

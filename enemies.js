@@ -141,10 +141,15 @@ const EnemyManager = {
                 amount = Math.max(1, Math.round(average([enemyData.hp, enemyData.attack]) / 30));
             }
             
+            itemPosition = Math.min(
+                Math.max(number($enemy.css('left')), 610),
+                i('.map', 'width') - 610
+            );
+
             $('<div class="item"></div>')
                 .appendTo('.field')
                 .css({
-                    'left': number($enemy.css('left')),
+                    'left': itemPosition,
                     'background-image': 'url(assets/item-' + itemType + '.webp)',
                     'margin-bottom': i($enemy, 'margin-bottom') + 'px',
                     'z-index': i($enemy, 'z-index')
