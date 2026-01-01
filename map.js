@@ -38,6 +38,11 @@ const MapManager = {
                     if (!state.player.mapsVisited.includes(state.player.location)) {
                         state.player.mapsVisited.push(state.player.location);
                     }
+                    console.log(state.maps[state.player.location].isReviveMap);
+
+                    if (state.maps[state.player.location].isReviveMap === "TRUE") {
+                        state.player.reviveMap = state.player.location;
+                    }
                     
                     this._setupTutorial();
                 }, 150);

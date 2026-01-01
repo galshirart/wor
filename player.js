@@ -307,13 +307,24 @@ const Player = {
             state.player.maxMp
         );
         
-        if (state.player.hp < 0) state.player.hp = 0;
+        if (state.player.hp <= 0) { 
+		this.heroDeath();
+	    }
         
         // Update UI
         $('.bar.hp').find('.value').html(Math.floor(state.player.hp));
         $('.bar.hp').find('.fill').css('width', state.player.hp / state.player.maxHp * 100 + '%');
         $('.bar.mp').find('.value').html(Math.floor(state.player.mp));
         $('.bar.mp').find('.fill').css('width', state.player.mp / state.player.maxMp * 100 + '%');
+    },
+    /**
+     * Handle hero death
+     */
+    heroDeath() {
+	sound('squeak-3');
+    MapManager.teleport(player.reviveMap);
+    player.hp = player.maxHp;
+    player.mp = player.maxMp;
     }
 };
 
