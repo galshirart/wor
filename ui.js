@@ -274,6 +274,19 @@ const UI = {
     },
 
     /**
+     * Toggle backpack card visibility
+     */
+    toggleBackpackCard() {
+        const card = $('.card.backpack');
+        if (card.is(':visible')) {
+            card.hide();
+        } else {
+            this.closeCard();
+            card.show();
+        }
+    },
+
+    /**
      * Toggle quests card visibility
      */
     toggleQuestsCard() {
@@ -281,17 +294,10 @@ const UI = {
         if (card.is(':visible')) {
             card.hide();
         } else {
-            this.openQuestsCard();
+            this.closeCard();
+            card.show();
+            this.renderQuestList();
         }
-    },
-
-    /**
-     * Open quests card and populate it
-     */
-    openQuestsCard() {
-        const card = $('.card.quests');
-        card.show();
-        this.renderQuestList();
     },
 
     /**
