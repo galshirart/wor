@@ -28,7 +28,9 @@ const Constants = {
     PROJECTILE_RANGE: 500,
     PROJECTILE_WIDTH: 80,
     
-    HERO_KNOCKBACK: 2,
+    KNOCKBACK_MIN: 5,
+    KNOCKBACK_MAX: 30,
+    HERO_KNOCKBACK_MAX: 10,
     
     DAMAGE_SPREAD: 20,          // Percent variance in damage
     DAMAGE_IMMUNITY_MS: 1000,   // Invulnerability after hit
@@ -88,6 +90,7 @@ const Constants = {
         PICKUP: 90,       // Z
         INTERACT: 32,     // Space
         BACKPACK: 66,     // B
+        QUESTS: 81,       // Q
         ESCAPE: 27,
         NUM_1: 49,
         NUM_2: 50,

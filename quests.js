@@ -4,6 +4,12 @@
  * Handles quest dialog, acceptance, and completion.
  */
 
+const QuestStatus = {
+    NOT_STARTED: 'NOT_STARTED',
+    ACCEPTED: 'ACCEPTED',
+    COMPLETED: 'COMPLETED'
+};
+
 const QuestManager = {
     /**
      * Show quest dialog
@@ -215,8 +221,89 @@ const QuestManager = {
         state.player.questsCompleted = [];
         state.player.questsAccepted = [];
         state.player.enemiesSlained = {};
+    },
+    /**
+     * Withdraw a quest
+     * @param {string} questId - Quest identifier
+     */
+    withdraw(questId)
+    {
+        const state = GameState;
+        const questIndex = state.player.questsAccepted.indexOf(questId);
+        if (questIndex > -1) {
+            state.player.questsAccepted.splice(questIndex, 1);
+        }
+    },
+    /**
+     * Get the status of a quest
+     * @param {string} questId - Quest identifier
+     */
+    getStatus(questId)
+    {
+        const state = GameState;
+        if (state.player.questsCompleted.includes(questId)) {
+            return QuestStatus.COMPLETED;
+        }
+        if (state.player.questsAccepted.includes(questId)) {
+            return QuestStatus.ACCEPTED;
+        }
+        return QuestStatus.NOT_STARTED;
+    },
+    /**
+     * Get the objective progress of a quest
+     * @param {string} questId - Quest identifier
+     * @returns {Object|null} - Progress object or null if quest not found
+     */
+    getObjectiveProgress(questId)
+    {
+        const state = GameState;
+        const quest = state.quests[questId];
+        if (!quest) return null;
+
+        if (quest.type === 'collect') {
+            // requirement can be an object like {"stolen-gear": 1} or a string
+                const items = [];
+                for (const item in quest.requirement) {
+                    items.push({
+                        name: item,
+                        collected: state.player.backpack[item] || 0,
+                        total: quest.requirement[item]
+                    });
+                }
+                return {
+                    type: 'collect',
+                    items: items
+                };
+        }
+        
+        if (quest.type === 'kill') {
+            const enemies = [];
+            for (const enemy in quest.requirement) {
+                enemies.push({
+                    name: enemy,
+                    killed: state.player.enemiesSlained[enemy] || 0,
+                    total: quest.requirement[enemy]
+                });
+            }
+            return {
+                type: 'kill',
+                enemies: enemies
+            };
+        }
+        
+        if (quest.type === 'visit') {
+            return {
+                type: 'visit',
+                location: quest.requirement,
+                visited: state.player.mapsVisited.includes(quest.requirement)
+            };
+        }
+
+        return null;
     }
+
 };
+
 
 // Legacy aliases
 const questDialog = (quest, cardId) => QuestManager.showDialog(quest, cardId);
