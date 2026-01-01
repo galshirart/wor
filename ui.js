@@ -269,7 +269,249 @@ const UI = {
             $('.card.left').remove();
             $('.card.middle').remove();
             $('.card.backpack').hide();
+            $('.card.quests').hide();
         }
+    },
+
+    /**
+     * Toggle quests card visibility
+     */
+    toggleQuestsCard() {
+        const card = $('.card.quests');
+        if (card.is(':visible')) {
+            card.hide();
+        } else {
+            this.openQuestsCard();
+        }
+    },
+
+    /**
+     * Open quests card and populate it
+     */
+    openQuestsCard() {
+        const card = $('.card.quests');
+        card.show();
+        this.renderQuestList();
+    },
+
+    /**
+     * Render the quest list in the left pane
+     */
+    renderQuestList() {
+        const state = GameState;
+        const listEl = $('.card.quests .quest-list');
+        listEl.empty();
+
+        // Get active quests (accepted but not completed)
+        const activeQuests = state.player.questsAccepted.filter(
+            q => !state.player.questsCompleted.includes(q)
+        );
+
+        // Render active quests (grouped by title if they have stages)
+        this._renderQuestGroup(listEl, activeQuests, false);
+
+        // Add separator if we have both active and completed
+        if (activeQuests.length > 0 && state.player.questsCompleted.length > 0) {
+            listEl.append('<div class="separator"></div>');
+        }
+
+        // Render completed quests (grouped by title if they have stages)
+        this._renderQuestGroup(listEl, state.player.questsCompleted, true);
+
+        // Show empty state if no quests
+        if (activeQuests.length === 0 && state.player.questsCompleted.length === 0) {
+            listEl.append('<div class="quest-item" style="opacity:0.5">NO QUESTS</div>');
+        }
+
+        // Reset details pane
+        $('.card.quests .quest-details').html('<div class="empty-state">SELECT A QUEST</div>');
+    },
+
+    /**
+     * Render a group of quests, grouping by title if they have stages
+     * @param {jQuery} listEl - The list element to append to
+     * @param {Array} questIds - Array of quest IDs to render
+     * @param {boolean} isCompleted - Whether these are completed quests
+     */
+    _renderQuestGroup(listEl, questIds, isCompleted) {
+        const state = GameState;
+        
+        // Group quests by title
+        const groupedByTitle = {};
+        const standaloneQuests = [];
+        
+        questIds.forEach(questId => {
+            const quest = state.quests[questId];
+            if (!quest) return;
+            
+            const title = quest["Quest Title"];
+            const stage = quest["stage"];
+            
+            // If quest has a stage value, group it
+            if (stage !== undefined && stage !== null && stage !== '' && stage !== 0) {
+                if (!groupedByTitle[title]) {
+                    groupedByTitle[title] = [];
+                }
+                groupedByTitle[title].push({ questId, quest, stage: parseInt(stage) || 0 });
+            } else {
+                // Standalone quest (no stage)
+                standaloneQuests.push({ questId, quest, title });
+            }
+        });
+        
+        // Render standalone quests first
+        standaloneQuests.forEach(({ questId, quest, title }) => {
+            const item = $('<div class="quest-item"></div>')
+                .addClass(isCompleted ? 'completed' : '')
+                .attr('data-quest-id', questId)
+                .text(title || spcDash(questId))
+                .on('click', () => {
+                    document.activeElement?.blur();
+                    this.showQuestDetails(questId);
+                });
+            listEl.append(item);
+        });
+        
+        // Render grouped quests (quests with stages)
+        for (const title in groupedByTitle) {
+            const stages = groupedByTitle[title];
+            // Sort by stage number
+            stages.sort((a, b) => a.stage - b.stage);
+            
+            // If only one quest with this title, render as standalone
+            if (stages.length === 1) {
+                const { questId } = stages[0];
+                const item = $('<div class="quest-item"></div>')
+                    .addClass(isCompleted ? 'completed' : '')
+                    .attr('data-quest-id', questId)
+                    .text(title || spcDash(questId))
+                    .on('click', () => {
+                        document.activeElement?.blur();
+                        this.showQuestDetails(questId);
+                    });
+                listEl.append(item);
+            } else {
+                // Multiple stages - render title as header, stages indented
+                const header = $('<div class="quest-item quest-header"></div>')
+                    .addClass(isCompleted ? 'completed' : '')
+                    .text(title);
+                listEl.append(header);
+                
+                stages.forEach(({ questId, stage }) => {
+                    const stageItem = $('<div class="quest-item quest-stage"></div>')
+                        .addClass(isCompleted ? 'completed' : '')
+                        .attr('data-quest-id', questId)
+                        .text(`Stage ${stage}`)
+                        .on('click', () => {
+                            document.activeElement?.blur();
+                            this.showQuestDetails(questId);
+                        });
+                    listEl.append(stageItem);
+                });
+            }
+        }
+    },
+
+    /**
+     * Show quest details in the right pane
+     * @param {string} questId - Quest identifier
+     */
+    showQuestDetails(questId) {
+        const state = GameState;
+        const quest = state.quests[questId];
+        if (!quest) return;
+
+        const status = QuestManager.getStatus(questId);
+        const detailsEl = $('.card.quests .quest-details');
+        
+        // Update selected state in list
+        $('.card.quests .quest-list .quest-item').removeClass('selected');
+        $(`.card.quests .quest-list .quest-item[data-quest-id="${questId}"]`).addClass('selected');
+
+        // Build details HTML
+        let html = '';
+        const title = quest["Quest Title"];
+        // Title
+        html += `<h3>${title || spcDash(questId)}</h3>`;
+
+        // Description
+        const description = quest.description;
+        if (description) {
+            html += `<div class="description">${description}</div>`;
+        }
+
+        // Objectives
+        html += '<div class="section-label">OBJECTIVES</div>';
+        const progress = QuestManager.getObjectiveProgress(questId);
+        
+        if (progress) {
+            if (progress.type === 'kill') {
+                progress.enemies.forEach(enemy => {
+                    const completed = enemy.killed >= enemy.total;
+                    const checkClass = completed ? 'checkbox completed' : 'checkbox';
+                    html += `<div class="objective">
+                        <div class="${checkClass}"></div>
+                        <span>Kill ${spcDash(enemy.name)}</span>
+                        <span class="progress">${enemy.killed}/${enemy.total}</span>
+                    </div>`;
+                });
+            } else if (progress.type === 'visit') {
+                const completed = progress.visited;
+                const checkClass = completed ? 'checkbox completed' : 'checkbox';
+                html += `<div class="objective">
+                    <div class="${checkClass}"></div>
+                    <span>Visit ${spcDash(progress.location)}</span>
+                </div>`;
+            } else if (progress.type === 'collect') {
+                progress.items.forEach(item => {
+                    const completed = item.collected >= item.total;
+                    const checkClass = completed ? 'checkbox completed' : 'checkbox';
+                    html += `<div class="objective">
+                        <div class="${checkClass}"></div>
+                        <span>Collect ${spcDash(item.name)}</span>
+                        <span class="progress">${item.collected}/${item.total}</span>
+                    </div>`;
+                });
+            }
+        }
+
+        // Rewards
+        if (quest.reward) {
+            html += '<div class="section-label">REWARDS</div>';
+            html += '<div class="rewards-list"></div>';
+        }
+
+        // Actions (only for active quests)
+        // if (status === QuestStatus.ACCEPTED) {
+        //     html += `<div class="actions">
+        //         <div class="button yellow" onclick="UI.withdrawQuest('${questId}')">Withdraw</div>
+        //     </div>`;
+        // } else if (status === QuestStatus.COMPLETED) {
+        //     html += `<div class="actions">
+        //         <div class="button disabled">Completed</div>
+        //     </div>`;
+        // }
+
+        detailsEl.html(html);
+
+        // Add reward item rows (needs to be done after HTML is set)
+        if (quest.reward) {
+            const rewardsList = detailsEl.find('.rewards-list');
+            Object.entries(quest.reward).forEach(([reward, amount]) => {
+                rewardsList.append(this.createItemRow(reward, amount));
+            });
+        }
+    },
+
+    /**
+     * Withdraw a quest
+     * @param {string} questId - Quest identifier
+     */
+    withdrawQuest(questId) {
+        QuestManager.withdraw(questId);
+        this.renderQuestList();
+        this.log('Quest withdrawn', 'crown');
+        sound('click');
     },
     
     /**

@@ -65,6 +65,9 @@ const Input = {
                 case K.ESCAPE:
                     UI.closeCard();
                     break;
+                case K.QUESTS:
+                    UI.toggleQuestsCard();
+                    break;
                 case K.NUM_1:
                 case K.NUM_2:
                 case K.NUM_3:

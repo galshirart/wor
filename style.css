@@ -654,9 +654,127 @@ input:focus {
 .button.backpack {
 	background-image:url('assets/button-backpack.webp');
 }
+.button.quests {
+	background-image:url('assets/icon-sign.webp');
+	background-size:20px;
+}
 .card.backpack {
 	max-height:300px;
 	min-height:240px;
+}
+.card.quests {
+	width:500px;
+	min-height:300px;
+	max-height:500px;
+	display:flex;
+	flex-direction:row;
+	padding:0;
+}
+.card.quests:before {
+	width: calc(100% - 4px);
+	height: calc(100% - 4px);
+	margin:2px;
+}
+.card.quests .quest-list {
+	width: max-content;
+	min-width: 160px;
+	max-width: 100vw;
+	border-right:1px solid rgba(64,0,0,0.2);
+	overflow-y:auto;
+	overflow-x:auto;
+	padding:4px;
+}
+.card.quests .quest-list .quest-item {
+	padding:8px 10px;
+	border-radius:6px;
+	cursor:pointer;
+	font-size:11px;
+	line-height:130%;
+	border:1px solid transparent;
+}
+.card.quests .quest-list .quest-item:hover {
+	background:rgba(64,0,0,0.05);
+}
+.card.quests .quest-list .quest-item.selected {
+	background:rgba(64,0,0,0.1);
+	border:1px solid rgba(64,0,0,0.2);
+}
+.card.quests .quest-list .quest-item.completed {
+	opacity:0.5;
+}
+.card.quests .quest-list .quest-item.quest-header {
+	font-weight:800;
+	cursor:default;
+	opacity:0.7;
+	padding-bottom:4px;
+}
+.card.quests .quest-list .quest-item.quest-header:hover {
+	background:transparent;
+}
+.card.quests .quest-list .quest-item.quest-stage {
+	padding-left:20px;
+	font-size:10px;
+}
+.card.quests .quest-list .separator {
+	border-top:1px solid rgba(64,0,0,0.2);
+	margin:6px 8px;
+}
+.card.quests .quest-details {
+	flex:1;
+	padding:12px;
+	display:flex;
+	flex-direction:column;
+}
+.card.quests .quest-details h3 {
+	margin:0 0 8px 0;
+	font-size:14px;
+}
+.card.quests .quest-details .description {
+	font-family:'Roboto Slab';
+	font-weight:400;
+	text-transform:none;
+	font-size:13px;
+	line-height:150%;
+	margin-bottom:12px;
+	color:#400000;
+}
+.card.quests .quest-details .section-label {
+	font-size:10px;
+	font-weight:700;
+	margin:8px 0 4px 0;
+	opacity:0.6;
+}
+.card.quests .quest-details .objective {
+	display:flex;
+	align-items:center;
+	margin:4px 0;
+	font-size:11px;
+}
+.card.quests .quest-details .objective .checkbox {
+	margin-right:8px;
+}
+.card.quests .quest-details .objective .progress {
+	margin-left:auto;
+	opacity:0.6;
+}
+.card.quests .quest-details .rewards-list {
+	margin-top:4px;
+}
+.card.quests .quest-details .rewards-list .item-row {
+	margin:4px 0;
+}
+.card.quests .quest-details .actions {
+	margin-top:auto;
+	padding-top:12px;
+	border-top:0;
+}
+.card.quests .quest-details .empty-state {
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	height:100%;
+	opacity:0.5;
+	font-size:11px;
 }
 .card.hover {
 	min-height: 0;
