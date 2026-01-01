@@ -102,6 +102,7 @@ const GameState = {
             questsAccepted: [],
             enemiesSlained: {},
             mapsVisited: [],
+            reviveMap: 'a-box',
             criticalMultiplier: 1.5
         };
         this.save();
