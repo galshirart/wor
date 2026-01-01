@@ -479,6 +479,7 @@ input:focus {
 	margin-right:10px;
 	margin-bottom:-20px;
 	box-sizing: content-box;
+	background-color:#FFF6C1
 }
 .person-header .name h3 {
 	position: relative;
