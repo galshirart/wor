@@ -74,29 +74,25 @@ const UI = {
         const card = $('<div class="card middle buy"></div>')
             .appendTo('.window')
             .append(this.createItemRow(item).css('font-size', '16px'))
-            .append(this._getItemStats(item));
         
-        card.append('<div class="flex stat price"><label>PRICE</label><div class="list"></div></div>');
+        card.append('<div class="flex columns"><label>PRICE</label><label class="price-value"></label></div>');
         
-        const actions = $('<div class="actions"><div class="button yellow">buy</div></div>');
+        const actions = $('<div class="actions"><div class="button yellow">buy</div></div>').appendTo(card);
         actions.find('.button').attr('onclick', `UI.buy("${item}"); $(".card.middle").remove()`);
         
-        const itemData = state.equipments[item];
-        
-        for (const requiredItem in itemData.price) {
-            const amountRequired = itemData.price[requiredItem];
-            const amountAvailable = state.player.backpack[requiredItem] || 0;
-            
-            const itemRow = this.createItemRow(requiredItem, amountRequired)
-                .appendTo(card.find('.price .list'));
-            
-            if (amountAvailable < amountRequired) {
-                itemRow.css('opacity', '0.4');
-                actions.find('.button').addClass('disabled').attr('onclick', '');
-            }
+        if (state.equipments.hasOwnProperty(item)) {
+            itemData = state.equipments[item];
+        } 
+
+        if (state.consumables.hasOwnProperty(item)) {
+            itemData = state.consumables[item];
         }
         
-        card.append(actions);
+        $(card).find('.price-value').html(itemData.price);
+        
+        if (state.player.backpack['gold'] < itemData.price) {
+            actions.find('.button').addClass('disabled').attr('onclick', '');
+        }
     },
     
     /**
@@ -105,14 +101,18 @@ const UI = {
      */
     buy(item) {
         const state = GameState;
-        const itemData = state.equipments[item];
-        
-        for (const requiredItem in itemData.price) {
-            const amountRequired = itemData.price[requiredItem];
-            state.player.backpack[requiredItem] -= amountRequired;
-            this.log('Paid ' + amountRequired + ' ' + requiredItem, requiredItem);
+
+        if (state.equipments.hasOwnProperty(item)) {
+            itemData = state.equipments[item];
+        } 
+
+        if (state.consumables.hasOwnProperty(item)) {
+            itemData = state.consumables[item];
         }
-        
+
+        state.player.backpack['gold'] -= itemData.price;
+        this.log('Paid ' + itemData.price + ' gold', 'gold');
+
         Player.acquire(item);
         this.pop($('.card.backpack').find('[type=' + item + ']'));
         sound('heavy-item');
@@ -529,7 +529,14 @@ const UI = {
     
     _getItemStats(item) {
         const state = GameState;
-        const itemData = state.equipments[item];
+
+        if (state.equipments.hasOwnProperty(item)) {
+         itemData = state.equipments[item];
+        }
+        if (state.consumables.hasOwnProperty(item)) {
+            itemData = state.consumables[item];
+        }
+
         let stats = '';
         
         if (itemData.description && itemData.description !== '') {
@@ -542,6 +549,9 @@ const UI = {
             stats += '<div class="flex columns"><label>DEFENSE</label><label>' + itemData.defense + '</label></div>';
         }
         if (itemData.critical && itemData.critical !== 0) {
+            stats += '<div class="flex columns"><label>CRITICAL</label><label>+' + itemData.critical + '%</label></div>';
+        }
+        if (itemData.effect && itemData.effect !== '') {
             stats += '<div class="flex columns"><label>CRITICAL</label><label>+' + itemData.critical + '%</label></div>';
         }
         
