@@ -309,7 +309,6 @@ const Player = {
         
         if (state.player.hp <= 0) { 
 		this.heroDeath();
-		console.log("0 hp"); 
 	    }
         
         // Update UI
