@@ -51,11 +51,19 @@ button {
 	margin:0 auto;
 	width:200px;
 	height:30px;
-	margin-top:16px;
+}
+.clear {
+	font-size:14px;
+	cursor:pointer;
+	text-decoration: underline;
 }
 </style>
 
+<div class="flex" style="max-width:300px; margin:0 auto;">
 <button onclick="importDialogJSON()">Import Dialog JSON</button>
+<span class="clear" onclick="clearDialog()">Clear All</span>
+</div>
+
 
 <div style="margin-top:30px;"></div>
 
@@ -70,6 +78,8 @@ button {
 		<p>Requirements Met</p>
 	</div>
 </div>
+
+<div style="margin-top:16px;"></div>
 
 <button onclick="copyDialogJSON()">Copy Dialog JSON</button>
 
@@ -167,5 +177,12 @@ $(function() {
 		}
 	}
 });
+
+function clearDialog() {
+	localStorage.removeItem('dialogJSON');
+	$('.step').each(function() {
+		$(this).find('input').val('');
+	});
+}
 
 </script>
