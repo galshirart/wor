@@ -386,6 +386,7 @@ const MapManager = {
             this.slideMap();
             Combat.checkCollisions();
             Player.updateProjectiles();
+            EnemyCombat.updateProjectiles();
             Player.recover();
             GameState.save();
         }, 10);
