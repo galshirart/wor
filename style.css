@@ -1289,8 +1289,8 @@ input:focus {
 }
 @keyframes enemy-shoot {
 	0% { background-position:-700% 0 }
-	30% { background-position:-800% 0 }
-	60% { background-position:-900% 0 }
+	25% { background-position:-800% 0 }
+	50% { background-position:-900% 0 }
 	100% { background-position:-900% 0 }
 }
 .enemy.dead .image {
