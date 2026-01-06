@@ -230,8 +230,7 @@ const EnemyCombat = {
         const projectileBottom = i($projectile, 'margin-bottom');
         const heroBottom = i(state.hero, 'margin-bottom');
         const projectileHeight = i($projectile, 'height');
-        const flightPath = i($projectile, 'flight-path');
-        
+        const flightPath = $projectile.attr('flight-path');
         if(flightPath === 'ballistic'){
             const projectileTop = projectileBottom + projectileHeight;
             const heroHeight = i(state.hero, 'height');
