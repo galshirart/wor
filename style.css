@@ -57,14 +57,8 @@ body {
 .back {
 	z-index: -10;
 }
-.zoom .back {
-	transform: translateY(1%)
-}
 .front {
 	z-index: 12;
-}
-.zoom .front {
-	transform: scale(1.05)
 }
 .port {
 	position: absolute;
