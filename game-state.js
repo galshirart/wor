@@ -20,6 +20,7 @@ const GameState = {
     npcs: null,
     quests: null,
     consumables: null,
+    rangedAttacks: null,
     
     // ========== RUNTIME STATE ==========
     heroDirection: 1,
@@ -61,6 +62,7 @@ const GameState = {
         this.npcs = data.npcs;
         this.quests = data.quests;
         this.consumables = data.consumables;
+        this.rangedAttacks = data.rangedAttacks;
         
         return data;
     },

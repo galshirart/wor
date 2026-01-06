@@ -63,6 +63,11 @@ const EnemyManager = {
         if ($enemy.attr('active') === 'false' || hitCount < Number($enemy.attr('hit-count'))) {
             return;
         }
+
+        // Check for ranged attack opportunity
+        if (EnemyCombat.canAttack($enemy)) {
+            EnemyCombat.attack($enemy);
+        }
         
         const enemyType = $enemy.attr('type');
         const enemyData = state.enemies[enemyType];
