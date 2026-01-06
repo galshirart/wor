@@ -249,48 +249,8 @@ const EnemyCombat = {
         }
         
         const damage = Number($projectile.attr('damage'));
-        this._hitPlayer(damage);  
+        Combat._applyDamageToPlayer(damage);  
         $projectile.remove();
     },
 
-    /**
-     * Apply damage to player
-     * @param {number} damage - Damage amount
-     */
-    _hitPlayer(damage) {
-        const state = GameState;
-        
-        // Apply defense reduction
-        let finalDamage = damage;
-        for (const slot in state.player.equipments) {
-            const item = state.player.equipments[slot];
-            if (item && state.equipments[item]) {
-                finalDamage -= state.equipments[item].defense || 0;
-            }
-        }
-        finalDamage = Math.max(1, finalDamage);
-        
-        // Apply damage
-        state.player.hp -= finalDamage;
-        
-        // Visual feedback
-        $('body').append('<div class="hit self">' + prettyNumber(finalDamage, 'red') + '</div>');
-        state.hero.attr('in-damage', 'true');
-        
-        // Knockback
-        const knockbackDirection = -GameState.heroDirection;
-        const knockback = setInterval(() => {
-            state.player.position += knockbackDirection * Constants.HERO_KNOCKBACK;
-        }, 10);
-        
-        setTimeout(() => clearInterval(knockback), 200);
-        
-        // Clear damage immunity
-        setTimeout(() => {
-            state.hero.attr('in-damage', 'false');
-            $('.hit.self').remove();
-        }, Constants.DAMAGE_IMMUNITY_MS);
-        
-        sound('hit-1');
-    }
 };
