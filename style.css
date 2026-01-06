@@ -1284,6 +1284,15 @@ input:focus {
 	0% { background-position:-600% 0 }
 	100% { background-position:-600% 0 }
 }
+.enemy[state=shoot] .image {
+	animation-name: enemy-shoot;
+}
+@keyframes enemy-shoot {
+	0% { background-position:-700% 0 }
+	30% { background-position:-800% 0 }
+	60% { background-position:-900% 0 }
+	100% { background-position:-900% 0 }
+}
 .enemy.dead .image {
 	animation-name: enemy-hit;
 	background-position:-600% 0;
