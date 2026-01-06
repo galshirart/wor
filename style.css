@@ -1399,6 +1399,18 @@ input:focus {
 	100% { transform: translateY(-13px); opacity:0 }
 }
 
+
+.enemy-projectile {
+	position: absolute;
+	width: 10px;
+	height: 10px;
+	background: linear-gradient(-90deg, #149cf7, rgb(0, 34, 255));
+	bottom:349px;
+	z-index: 6;
+	transition: 0;
+}
+
+
 /************** NPC **************/
 
 .field .npc {

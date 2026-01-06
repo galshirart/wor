@@ -1,0 +1,296 @@
+/**
+ * Enemy Combat Module
+ * 
+ * Handles enemy attack logic: ranged attacks, melee attacks, projectiles.
+ */
+
+const EnemyCombat = {
+    // ========== MAIN FUNCTIONS ==========
+
+    /**
+     * Check if an enemy can attack
+     * @param {jQuery} enemyElement - The enemy DOM element
+     * @returns {boolean}
+     */
+    canAttack(enemyElement) {
+        const state = GameState;
+        const $enemy = $(enemyElement);
+        
+        if (!$.contains(document, $enemy[0])) {
+            return false;
+        }
+
+        // Check if enemy is active
+        if ($enemy.attr('active') !== 'true') {
+            return false;
+        }
+        
+        // Check if enemy is angry
+        if ($enemy.attr('angry') !== 'true') {
+            return false;
+        }
+
+        // Check if enemy is on cooldown
+        if ($enemy.attr('attack-cooldown') === 'true') {
+            return false;
+        }
+        
+        // Check if enemy has a ranged attack
+        const enemyType = $enemy.attr('type');
+        const enemyData = state.enemies[enemyType];
+        
+        if (!enemyData.rangedAttack) {
+            return false;
+        }
+        
+        // Check if player is in range
+        const attackData = state.rangedAttacks[enemyData.rangedAttack];
+        if (!attackData) {
+            return false;
+        }
+        
+        const enemyX = i($enemy, 'left') + i($enemy, 'width') / 2;
+        const distanceToPlayer = Math.abs(state.player.position - enemyX);
+        
+        if (distanceToPlayer > attackData.flightRange) {
+            return false;
+        }
+        
+        return true;
+    },
+
+    /**
+     * Execute an enemy attack
+     * @param {jQuery} enemyElement - The enemy DOM element
+     */
+    attack(enemyElement) {
+        const state = GameState;
+        const $enemy = $(enemyElement);
+        const enemyType = $enemy.attr('type');
+        const enemyData = state.enemies[enemyType];
+        
+        if (!enemyData.rangedAttack) {
+            return;
+        }
+        
+        this._rangedAttack($enemy, enemyData);
+    },
+
+    /**
+     * Update all enemy projectiles (called in game loop)
+     */
+    updateProjectiles() {
+        const self = this;
+        
+        $('.enemy-projectile').each(function() {
+            const $projectile = $(this);
+            self._moveProjectile($projectile);
+            self._checkProjectileCollision($projectile);
+        });
+    },
+
+    // ========== PRIVATE HELPERS ==========
+
+    /**
+     * Execute a ranged attack
+     * @param {jQuery} enemyElement - The enemy DOM element
+     * @param {Object} enemyData - Enemy data from GameState
+     */
+    _rangedAttack(enemyElement, enemyData) {
+        const state = GameState;
+        const $enemy = $(enemyElement);
+        const attackData = state.rangedAttacks[enemyData.rangedAttack];
+        
+        // Set cooldown (telegraph phase)
+        $enemy.attr('attack-cooldown', 'true');
+        
+        // Determine direction toward player
+        const enemyX = i($enemy, 'left') + i($enemy, 'width') / 2;
+        const direction = state.player.position > enemyX ? 1 : -1;
+        
+        // Telegraph/charge the attack, then spawn projectile after cooldown
+        setTimeout(() => {
+            // Check if enemy is still active, in DOM, and on current map before firing
+            if ($enemy.attr('active') === 'true' && $.contains(document, $enemy[0])) {
+                this._spawnEnemyProjectile($enemy, attackData, direction);
+            }
+            
+            // Clear cooldown after another delay (total time = coolDown * 2)
+            setTimeout(() => {
+                if ($.contains(document, $enemy[0])) {
+                    $enemy.attr('attack-cooldown', 'false');
+                }
+            }, attackData.coolDown);
+        }, attackData.charge);
+    },
+
+    /**
+     * Spawn an enemy projectile
+     * @param {jQuery} enemyElement - The enemy DOM element
+     * @param {Object} attackData - Attack data from rangedAttacks table
+     * @param {number} direction - 1 for right, -1 for left
+     */
+    _spawnEnemyProjectile(enemyElement, attackData, direction) {
+        const state = GameState;
+        const $enemy = $(enemyElement);
+        const enemyX = i($enemy, 'left') + i($enemy, 'width') / 2;
+        const enemyBottom = i($enemy, 'margin-bottom') + i($enemy, 'height') / 2;
+        
+        // For ballistic projectiles, target the player's current position
+        const targetX = state.player.position;
+        const distanceToTarget = Math.abs(targetX - enemyX);
+
+        $('<div class="enemy-projectile"></div>')
+        .appendTo('.field')
+        .css({
+            'left': enemyX,
+            'margin-bottom': enemyBottom + 'px',
+            'transform': 'scaleX(' + direction + ')'
+            //'background-image': 'url(assets/projectile-' + attackData.name + '.webp)'
+        })
+        .attr({
+            'direction': direction,
+            'damage': attackData.damage,
+            'speed': attackData.flightSpeed,
+            'range': attackData.flightRange,
+            'origin-x': enemyX,
+            'origin-y': enemyBottom,
+            'target-x': targetX,
+            'target-distance': distanceToTarget,
+            'flight-path': attackData.flightPath || 'straight'
+        });
+        
+        sound('rumble');
+    },
+    
+    /**
+     * Move a projectile based on its properties
+     * @param {jQuery} projectile - The projectile element
+    */
+   _moveProjectile(projectile) {
+        const $projectile = $(projectile);
+        const direction = Number($projectile.attr('direction'));
+        const speed = Number($projectile.attr('speed'));
+        const range = Number($projectile.attr('range'));
+        const originX = Number($projectile.attr('origin-x'));
+        const originY = Number($projectile.attr('origin-y'));
+        const targetDistance = Number($projectile.attr('target-distance'));
+        const flightPath = $projectile.attr('flight-path') || 'straight';
+        const currentX = i($projectile, 'left');
+        
+        // Move projectile horizontally
+        const newX = currentX + direction * speed;
+        $projectile.css('left', newX + 'px');
+        
+        // Calculate vertical position based on flight path
+        if (flightPath === 'ballistic') {
+            // Ballistic trajectory arcing toward player's position
+            // Using parabolic motion that lands at the target distance
+            const distanceTraveled = Math.abs(newX - originX);
+            const normalizedX = distanceTraveled / targetDistance; // 0 to 1 (reaches 1 at player)
+            // Parabolic arc: peaks at 0.5, returns to 0 at 1.0
+            const arcHeight = targetDistance * 0.5; // Maximum height of the arc
+            const verticalOffset = arcHeight * 4 * normalizedX * (1 - normalizedX);
+            const newY = originY + verticalOffset;
+            
+            // Check if projectile hit the ground (floor)
+            if (newY <= 0) {
+                $projectile.remove();
+                return;
+            }
+            
+            $projectile.css('margin-bottom', newY + 'px');
+        }
+        
+        // Check if exceeded range
+        const distanceTraveled = Math.abs(newX - originX);
+        if (distanceTraveled > range) {
+            $projectile.remove();
+        }
+    },
+
+    /**
+     * Check if projectile collides with player
+     * @param {jQuery} projectile - The projectile element
+     */
+    _checkProjectileCollision(projectile) {
+        const state = GameState;
+        const $projectile = $(projectile);
+        const projectileX = i($projectile, 'left');
+        const projectileWidth = i($projectile, 'width') || 20;
+        
+        // Check horizontal overlap with player
+        const playerLeft = state.player.position - 20;
+        const playerRight = state.player.position + 20;
+        
+        if (projectileX + projectileWidth < playerLeft || projectileX > playerRight) {
+            return;
+        }
+
+        const projectileBottom = i($projectile, 'margin-bottom');
+        const heroBottom = i(state.hero, 'margin-bottom');
+        const projectileHeight = i($projectile, 'height');
+        const flightPath = $projectile.attr('flight-path');
+        if(flightPath === 'ballistic'){
+            const projectileTop = projectileBottom + projectileHeight;
+            const heroHeight = i(state.hero, 'height');
+            const heroTop = heroBottom + heroHeight;
+            if(projectileTop < heroBottom || projectileBottom > heroTop){
+                return;
+            }
+        }
+        else {
+            if (heroBottom > projectileBottom + projectileHeight) {
+                return;
+            }
+        }
+        if (state.hero.attr('in-damage') === 'true') {
+            return;
+        }
+        
+        const damage = Number($projectile.attr('damage'));
+        this._hitPlayer(damage);  
+        $projectile.remove();
+    },
+
+    /**
+     * Apply damage to player
+     * @param {number} damage - Damage amount
+     */
+    _hitPlayer(damage) {
+        const state = GameState;
+        
+        // Apply defense reduction
+        let finalDamage = damage;
+        for (const slot in state.player.equipments) {
+            const item = state.player.equipments[slot];
+            if (item && state.equipments[item]) {
+                finalDamage -= state.equipments[item].defense || 0;
+            }
+        }
+        finalDamage = Math.max(1, finalDamage);
+        
+        // Apply damage
+        state.player.hp -= finalDamage;
+        
+        // Visual feedback
+        $('body').append('<div class="hit self">' + prettyNumber(finalDamage, 'red') + '</div>');
+        state.hero.attr('in-damage', 'true');
+        
+        // Knockback
+        const knockbackDirection = -GameState.heroDirection;
+        const knockback = setInterval(() => {
+            state.player.position += knockbackDirection * Constants.HERO_KNOCKBACK;
+        }, 10);
+        
+        setTimeout(() => clearInterval(knockback), 200);
+        
+        // Clear damage immunity
+        setTimeout(() => {
+            state.hero.attr('in-damage', 'false');
+            $('.hit.self').remove();
+        }, Constants.DAMAGE_IMMUNITY_MS);
+        
+        sound('hit-1');
+    }
+};
