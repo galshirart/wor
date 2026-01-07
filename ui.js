@@ -415,16 +415,9 @@ const UI = {
             html += '<div class="rewards-list"></div>';
         }
 
-        // Actions (only for active quests)
-        if (status === QuestStatus.ACCEPTED) {
-            html += `<div class="actions">
-                <div class="button yellow" onclick="UI.withdrawQuest('${questId}')">Withdraw</div>
-            </div>`;
-        } else if (status === QuestStatus.COMPLETED) {
-            html += `<div class="actions">
-                <div class="button disabled">Completed</div>
-            </div>`;
-        }
+        html += `<div class="actions">
+            <div class="button" onclick="UI.withdrawQuest('${questId}')">Withdraw</div>
+        </div>`;
 
         detailsEl.html(html);
 
