@@ -52,7 +52,7 @@ const EnemyCombat = {
         const enemyX = i($enemy, 'left') + i($enemy, 'width') / 2;
         const distanceToPlayer = Math.abs(state.player.position - enemyX);
         
-        if (distanceToPlayer > attackData.flightRange) {
+        if (distanceToPlayer > attackData.flightRange || distanceToPlayer < 100) {
             return false;
         }
         
