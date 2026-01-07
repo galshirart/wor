@@ -409,40 +409,13 @@ input:focus {
 .card .reward {
 	padding:10px 8px;
 }
-.card .quest {
-	background:rgba(64,0,0,0.1);
-	padding:6px 10px 10px 10px;
-	border-radius: 8px;
-	border:1px solid #40000060;
-	position: relative;
-}
-.card .quest:before {
-	content: " ";
-	display: block;
-	width:100%;
-	height:100%;
-	background-image:url('assets/ui-crown-quest.webp');
-	background-size: 64px 18px;
-	width:64px;
-	height:18px;
-	position: absolute;
-	left: calc(50% - 32px);
-    top: -9px;
-}
-.card .quest .progress {
-	position: absolute;
-    right: 10px;
-    bottom: 9px;
-	opacity: 0.5;
-}
 .checkbox {
-	width: 16px;
-    height: 16px;
+	width: 17px;
+    height: 17px;
     display: inline-block;
     border: 1px solid #400000;
     border-radius: 4px;
     position: relative;
-    top: 3;
     margin-right: 6px;
     background: #40000010;
 }
@@ -657,95 +630,68 @@ input:focus {
 	min-height:240px;
 }
 .card.quests {
-	width:780px;
 	min-height:300px;
 	max-height:500px;
-	display:flex;
-	flex-direction:row;
-	padding:0;
+	width:auto;
 }
-.card.quests:before {
-	width: calc(100% - 4px);
-	height: calc(100% - 4px);
-	margin:2px;
+.card.quests .flex {
+	align-items: flex-start;
 }
 .card.quests .quest-list {
-	width: max-content;
-	min-width: 160px;
-	max-width: 100vw;
-	border-right:1px solid rgba(64,0,0,0.2);
+	width: 300px;
 	overflow-y:auto;
-	overflow-x:auto;
-	padding:4px;
 }
 .card.quests .quest-list .quest-item {
-	padding:8px 10px;
 	border-radius:6px;
 	cursor:pointer;
-	font-size:11px;
-	line-height:130%;
-	border:1px solid transparent;
+	padding:8px 0;
+	color:rgba(64,0,0,0.5);
+	transition: all 100ms;
 }
 .card.quests .quest-list .quest-item:hover {
-	background:rgba(64,0,0,0.05);
+	color:#400000;
 }
 .card.quests .quest-list .quest-item.selected {
+	padding:8px 10px;
+	color:#400000;
 	background:rgba(64,0,0,0.1);
-	border:1px solid rgba(64,0,0,0.2);
-}
-.card.quests .quest-list .quest-item.completed {
-	opacity:0.5;
-}
-.card.quests .quest-list .quest-item.quest-header {
-	font-weight:800;
-	cursor:default;
-	opacity:0.7;
-	padding-bottom:4px;
-}
-.card.quests .quest-list .quest-item.quest-header:hover {
-	background:transparent;
-}
-.card.quests .quest-list .quest-item.quest-stage {
-	padding-left:20px;
-	font-size:10px;
-}
-.card.quests .quest-list .separator {
-	border-top:1px solid rgba(64,0,0,0.2);
-	margin:6px 8px;
 }
 .card.quests .quest-details {
-	flex:1;
-	padding:12px;
-	display:flex;
-	flex-direction:column;
+	width:400px;
+	padding:0 8px 0 16px;
+	animation-name: open;
+	animation-duration: 500ms;
+	animation-timing-function: ease-out;
+	animation-iteration-count: 1;
+	animation-fill-mode: both;
+	overflow: scroll;
 }
-.card.quests .quest-details h3 {
-	margin:0 0 8px 0;
-	font-size:14px;
+@keyframes open {
+	0% { opacity:0; margin-left:-400px }
+	50% { opacity:0; margin-left:0; }
+	100% { opacity:1; margin-left:0; }
 }
 .card.quests .quest-details .description {
 	font-family:'Roboto Slab';
 	font-weight:400;
 	text-transform:none;
-	font-size:13px;
-	line-height:150%;
+	font-size:14px;
+	line-height:140%;
 	margin-bottom:12px;
-	color:#400000;
 }
 .card.quests .quest-details .section-label {
 	font-size:10px;
 	font-weight:700;
 	margin:8px 0 4px 0;
 	opacity:0.6;
+	border-top: 1px solid #40000020;
+    padding-top: 8px;
 }
 .card.quests .quest-details .objective {
 	display:flex;
 	align-items:center;
 	margin:4px 0;
 	font-size:11px;
-}
-.card.quests .quest-details .objective .checkbox {
-	margin-right:8px;
 }
 .card.quests .quest-details .objective .progress {
 	margin-left:auto;

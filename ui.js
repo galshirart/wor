@@ -291,6 +291,7 @@ const UI = {
      */
     toggleQuestsCard() {
         const card = $('.card.quests');
+        card.find('.quest-details').html('').hide();
         if (card.is(':visible')) {
             card.hide();
         } else {
@@ -315,22 +316,6 @@ const UI = {
 
         // Render active quests
         this._renderQuests(listEl, activeQuests, false);
-
-        // Add separator if we have both active and completed
-        if (activeQuests.length > 0 && state.player.questsCompleted.length > 0) {
-            listEl.append('<div class="separator"></div>');
-        }
-
-        // Render completed quests
-        this._renderQuests(listEl, state.player.questsCompleted, true);
-
-        // Show empty state if no quests
-        if (activeQuests.length === 0 && state.player.questsCompleted.length === 0) {
-            listEl.append('<div class="quest-item" style="opacity:0.5">NO QUESTS</div>');
-        }
-
-        // Reset details pane
-        $('.card.quests .quest-details').html('<div class="empty-state">SELECT A QUEST</div>');
     },
 
     /**
@@ -348,7 +333,6 @@ const UI = {
             if (!quest) return;
             const title = quest["Quest Title"];
             standaloneQuests.push({ questId, quest, title });
-
         });
         
         // Render standalone quests first
@@ -375,7 +359,7 @@ const UI = {
         if (!quest) return;
 
         const status = QuestManager.getStatus(questId);
-        const detailsEl = $('.card.quests .quest-details');
+        const detailsEl = $('.card.quests .quest-details').show();
         
         // Update selected state in list
         $('.card.quests .quest-list .quest-item').removeClass('selected');
@@ -383,9 +367,6 @@ const UI = {
 
         // Build details HTML
         let html = '';
-        const title = quest["Quest Title"];
-        // Title
-        html += `<h3>${title || spcDash(questId)}</h3>`;
 
         // Description
         const description = quest.description;
@@ -394,7 +375,7 @@ const UI = {
         }
 
         // Objectives
-        html += '<div class="section-label">OBJECTIVES</div>';
+        html += '<div class="section-label">TASKS</div>';
         const progress = QuestManager.getObjectiveProgress(questId);
         
         if (progress) {
@@ -404,7 +385,7 @@ const UI = {
                     const checkClass = completed ? 'checkbox completed' : 'checkbox';
                     html += `<div class="objective">
                         <div class="${checkClass}"></div>
-                        <span>Kill ${spcDash(enemy.name)}</span>
+                        <span>Slain ${enemy.total} ${spcDash(enemy.name)}</span>
                         <span class="progress">${enemy.killed}/${enemy.total}</span>
                     </div>`;
                 });
@@ -421,7 +402,7 @@ const UI = {
                     const checkClass = completed ? 'checkbox completed' : 'checkbox';
                     html += `<div class="objective">
                         <div class="${checkClass}"></div>
-                        <span>Collect ${spcDash(item.name)}</span>
+                        <span>Collect ${item.total} ${spcDash(item.name)}</span>
                         <span class="progress">${item.collected}/${item.total}</span>
                     </div>`;
                 });
@@ -464,7 +445,8 @@ const UI = {
         QuestManager.withdraw(questId);
         this.renderQuestList();
         this.log('Quest withdrawn', 'crown');
-        sound('click');
+        closeCard();
+        sound('withdraw');
     },
     
     /**
