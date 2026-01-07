@@ -103,25 +103,35 @@ const EnemyCombat = {
         
         // Set cooldown (telegraph phase)
         $enemy.attr('attack-cooldown', 'true');
-        
+
+        $enemy.attr('state', 'shoot');
+        $enemy.find('.image').css({
+            'animation-duration': attackData.charge*2 + 'ms',
+        });
+
         // Determine direction toward player
         const enemyX = i($enemy, 'left') + i($enemy, 'width') / 2;
         const direction = state.player.position > enemyX ? 1 : -1;
         
-        // Telegraph/charge the attack, then spawn projectile after cooldown
+        // Spwan projectile after the charge time
         setTimeout(() => {
             // Check if enemy is still active, in DOM, and on current map before firing
             if ($enemy.attr('active') === 'true' && $.contains(document, $enemy[0])) {
-                this._spawnEnemyProjectile($enemy, attackData, direction);
+                this._spawnEnemyProjectile($enemy, attackData, direction, enemyData.rangedAttack);
             }
-            
+        }, attackData.charge);
+
+        setTimeout(() => {
+            $enemy.attr('state', 'move').find('.image').css({
+                'animation-duration': '500ms',
+            });
             // Clear cooldown after another delay (total time = coolDown * 2)
             setTimeout(() => {
                 if ($.contains(document, $enemy[0])) {
                     $enemy.attr('attack-cooldown', 'false');
                 }
             }, attackData.coolDown);
-        }, attackData.charge);
+        }, attackData.charge*2);
     },
 
     /**
@@ -130,7 +140,7 @@ const EnemyCombat = {
      * @param {Object} attackData - Attack data from rangedAttacks table
      * @param {number} direction - 1 for right, -1 for left
      */
-    _spawnEnemyProjectile(enemyElement, attackData, direction) {
+    _spawnEnemyProjectile(enemyElement, attackData, direction, rangedAttack) {
         const state = GameState;
         const $enemy = $(enemyElement);
         const enemyX = i($enemy, 'left') + i($enemy, 'width') / 2;
@@ -140,27 +150,38 @@ const EnemyCombat = {
         const targetX = state.player.position;
         const distanceToTarget = Math.abs(targetX - enemyX);
 
-        $('<div class="enemy-projectile"></div>')
-        .appendTo('.field')
-        .css({
-            'left': enemyX,
-            'margin-bottom': enemyBottom + 'px',
-            'transform': 'scaleX(' + direction + ')'
-            //'background-image': 'url(assets/projectile-' + attackData.name + '.webp)'
-        })
-        .attr({
-            'direction': direction,
-            'damage': attackData.damage,
-            'speed': attackData.flightSpeed,
-            'range': attackData.flightRange,
-            'origin-x': enemyX,
-            'origin-y': enemyBottom,
-            'target-x': targetX,
-            'target-distance': distanceToTarget,
-            'flight-path': attackData.flightPath || 'straight'
-        });
-        
-        sound('rumble');
+        const img = new Image();
+        img.src = 'assets/projectile-' + rangedAttack + '.webp';
+        img.onload = function() {
+
+            left = i($enemy, 'left') + (direction === 1 ? i($enemy, 'width') - img.width/2 : 0);
+            let bottom = i(enemyElement, 'bottom')*1 + attackData['height']*1 + 'px';
+
+            $('<div class="enemy-projectile"></div>')
+            .appendTo('.field')
+            .css({
+                'left': left,
+                'bottom': bottom,
+                'transform': 'scaleX(' + direction + ')',
+                'width': img.width/2,
+                'height': img.height/2,
+                'background-image': 'url(assets/projectile-' + rangedAttack + '.webp)',
+                'background-size': 'contain'
+            })
+            .attr({
+                'direction': direction,
+                'damage': attackData.damage,
+                'speed': attackData.flightSpeed,
+                'range': attackData.flightRange,
+                'origin-x': enemyX,
+                'origin-y': enemyBottom,
+                'target-x': targetX,
+                'target-distance': distanceToTarget,
+                'flight-path': attackData.flightPath || 'straight'
+            });
+            
+            sound(attackData.sound);
+        };
     },
     
     /**
@@ -251,6 +272,7 @@ const EnemyCombat = {
         const damage = Number($projectile.attr('damage'));
         Combat._applyDamageToPlayer(damage);  
         $projectile.remove();
+        sound('hit-4');
     },
 
 };
