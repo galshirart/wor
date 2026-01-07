@@ -269,6 +269,9 @@ const MapManager = {
             if (state.enemies[type].item) {
                 images.push(`assets/item-${state.enemies[type].item}.webp`);
             }
+			if (state.enemies[type].rangedAttack) {
+                images.push(`assets/projectile-${state.enemies[type].rangedAttack}.webp`);
+            }
         });
         
         Object.keys(currentMap.npc || {}).forEach(npc => {

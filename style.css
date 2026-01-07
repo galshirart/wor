@@ -1287,6 +1287,11 @@ input:focus {
 	50% { background-position:-900% 0 }
 	100% { background-position:-900% 0 }
 }
+.enemy-projectile {
+	position: absolute;
+	z-index: 6;
+	transition: 0;
+}
 .enemy.dead .image {
 	animation-name: enemy-hit;
 	background-position:-600% 0;
@@ -1397,17 +1402,6 @@ input:focus {
 	0% { transform: translateY(-13px) }
 	50% { transform:translateY(-32px) }
 	100% { transform: translateY(-13px); opacity:0 }
-}
-
-
-.enemy-projectile {
-	position: absolute;
-	width: 10px;
-	height: 10px;
-	background: linear-gradient(-90deg, #149cf7, rgb(0, 34, 255));
-	bottom:349px;
-	z-index: 6;
-	transition: 0;
 }
 
 

@@ -29,7 +29,7 @@ const EnemyManager = {
             .appendTo('.field')
             .css({
                 'left': destination,
-                'margin-bottom': yOffset + 'px',
+                'bottom': 321 + yOffset + 'px',
                 'z-index': state.hero.css('z-index') - yOffset
             })
             .attr({
@@ -62,11 +62,6 @@ const EnemyManager = {
         
         if ($enemy.attr('active') === 'false' || hitCount < Number($enemy.attr('hit-count'))) {
             return;
-        }
-
-        // Check for ranged attack opportunity
-        if (EnemyCombat.canAttack($enemy)) {
-            EnemyCombat.attack($enemy);
         }
         
         const enemyType = $enemy.attr('type');
@@ -121,6 +116,11 @@ const EnemyManager = {
         
         $enemy.find('.hpBar').css('transform', 'scaleX(' + sign(distance) + ')');
         
+        // Check for ranged attack opportunity
+        if (EnemyCombat.canAttack($enemy)) {
+            EnemyCombat.attack($enemy);
+        }
+
         setTimeout(() => {
             this.move($enemy, hitCount);
         }, abs(distance) * speed + standTime);
