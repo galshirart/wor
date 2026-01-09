@@ -1245,6 +1245,18 @@ input:focus {
 .enemy.dead .hpBar {
 	display: none;
 }
+.enemy[hover=TRUE] {
+	animation-name: enemy-hover;
+	animation-duration: 1000ms;
+	animation-timing-function: ease-in-out;
+	animation-iteration-count: infinite;
+	animation-direction: alternate;
+}
+@keyframes enemy-hover {
+	0% { margin-bottom:10px}
+	100% { margin-bottom:-10px }
+}
+
 .hit {
 	position: absolute;
 	display: flex;
