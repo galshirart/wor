@@ -30,12 +30,15 @@ const EnemyManager = {
             .css({
                 'left': destination,
                 'bottom': 321 + yOffset + 'px',
-                'z-index': state.hero.css('z-index') - yOffset
+                'z-index': state.hero.css('z-index') - yOffset,
+                'animation-delay': random(0, 1000) + 'ms'
             })
             .attr({
                 'hp': enemyData.hp,
                 'hit-count': 0,
-                'hitable': enemyData.hitable
+                'hitable': enemyData.hitable,
+                'hover': enemyData.hover,
+                'stand': enemyData.stand
             });
         
         enemy.find('.image').css({
@@ -98,6 +101,10 @@ const EnemyManager = {
                 Math.min(maxX - currentX, random(0-Constants.ENEMY_WANDER_RANGE, Constants.ENEMY_WANDER_RANGE))
             );
             standTime = random(Constants.ENEMY_STAND_MIN_MS, Constants.ENEMY_STAND_MAX_MS);
+
+            if ($enemy.attr('stand') === 'FALSE') {
+                standTime = 0;
+            }
             
             setTimeout(() => {
                 if ($enemy.attr('angry') === 'true') return;
@@ -107,12 +114,13 @@ const EnemyManager = {
         
         if (distance === 0) distance = 1;
         
-        $enemy.attr('state', 'move')
-            .css({
-                'left': i($enemy, 'left') + distance,
-                'transform': 'scaleX(' + sign(distance) + ')',
-                'transition-duration': abs(distance) * speed + 'ms'
-            });
+        $enemy.attr('state', 'move').css({
+            'left': i($enemy, 'left') + distance,
+            'transform': 'scaleX(' + sign(distance) + ')',
+            'transition-duration': abs(distance) * speed + 'ms'
+        });
+
+        $enemy.find('.image').css('animation-duration', state.enemies[enemyType].animationDuration + 'ms');
         
         $enemy.find('.hpBar').css('transform', 'scaleX(' + sign(distance) + ')');
         
