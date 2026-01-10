@@ -13,13 +13,8 @@ const MenuUI = {
             return;
         }
 
-        // Close any other open cards first
         UI.closeCard();
-
-        // Pause the game
         this._pauseGame();
-
-        // Build and show menu
         const menu = this._buildMenu();
         $('.window').append(menu);
 
@@ -61,9 +56,8 @@ const MenuUI = {
         GameState.soundEnabled = !GameState.soundEnabled;
         this._updateSoundCheckbox();
         
-        // Play a sound to confirm (if sound is now enabled)
         if (GameState.soundEnabled) {
-            sound('click');
+            sound('click'); // Play sound if sound is enabled
         }
     },
 
@@ -131,17 +125,13 @@ const MenuUI = {
     _buildMenu() {
         const menu = $('<div class="card menu center"></div>');
 
-        // Title
         menu.append('<div class="menu-title"><h3>MENU</h3></div>');
-
-        // Continue button
         menu.append(`
             <div class="menu-item">
                 <div class="button yellow menu-button" onclick="MenuUI.close()">CONTINUE</div>
             </div>
         `);
 
-        // Sound toggle
         const soundChecked = GameState.soundEnabled ? 'checked' : '';
         menu.append(`
             <div class="menu-item flex menu-sound-row" onclick="MenuUI.toggleSound()">
@@ -169,7 +159,7 @@ const MenuUI = {
         teleportSection.append(select);
         menu.append(teleportSection);
 
-        // Shefa (debug items) button
+        // Shefa button
         menu.append(`
             <div class="menu-item">
                 <div class="button menu-button shefa-button" onclick="MenuUI.close(); shefa();">SHEFA</div>

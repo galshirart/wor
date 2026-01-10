@@ -240,19 +240,20 @@ const EnemyCombat = {
         const projectileX = i($projectile, 'left');
         const projectileWidth = i($projectile, 'width') || 20;
         
-        // Check horizontal overlap with player
+        // Check horizontal overlap
         const playerLeft = state.player.position - 20;
         const playerRight = state.player.position + 20;
         
         if (projectileX + projectileWidth < playerLeft || projectileX > playerRight) {
             return;
         }
-
+        
         const projectileBottom = i($projectile, 'margin-bottom');
         const heroBottom = i(state.hero, 'margin-bottom');
         const projectileHeight = i($projectile, 'height');
         const flightPath = $projectile.attr('flight-path');
         if(flightPath === 'ballistic'){
+            // Check y overlap
             const projectileTop = projectileBottom + projectileHeight;
             const heroHeight = i(state.hero, 'height');
             const heroTop = heroBottom + heroHeight;
@@ -273,13 +274,12 @@ const EnemyCombat = {
         const projectileDirection = Number($projectile.attr('direction'));
         
         // Block only works if facing the projectile (opposite directions)
-        // Projectile going right (1) is blocked by player facing left (-1), and vice versa
         const isFacingProjectile = state.blockDirection === -projectileDirection;
         
         if (state.isBlocking && isFacingProjectile) {
             damage = Math.round(damage * (1 - Constants.BLOCK_DAMAGE_REDUCTION));
             //damage = Math.max(1, damage);
-            //sound('block-1'); // Block sound
+            sound('block-1'); 
             
             // Apply reduced damage with reduced knockback
             state.player.hp -= damage;
