@@ -258,6 +258,28 @@ h3 {
 }
 .button.round {
 	width:36px;
+	position: relative;
+}
+.button.round.notification:after {
+    content: " ";
+    display: block;
+    width: 8px;
+    height: 8px;
+    background: #ffe233;
+    border: 1px solid #400000;
+    border-radius: 100%;
+    position: absolute;
+    right: -1px;
+    top: -1px;
+	animation-name: pop;
+	animation-duration: 500ms;
+	animation-timing-function: ease-out;
+	animation-iteration-count: 1;
+}
+@keyframes pop {
+	0% { transform: scale(0); }
+	50% { transform: scale(1.3); }
+	100% { transform: scale(1); }
 }
 label {
 	display: block;
@@ -456,14 +478,15 @@ input:focus {
 	position: relative;
 	top:14px;
 }
-.speech div {
+.npc-text {
+	border-top:0;
 	font-family: 'Roboto Slab';
 	font-weight:400;
 	text-transform: none;
 	letter-spacing: 0;
 	padding:8px;
-	font-size:16px;
-	margin:2px 0;
+	font-size:14px;
+	margin-top:16px;
 	line-height:150%;
 }
 .bar-container {
@@ -645,16 +668,39 @@ input:focus {
 	border-radius:6px;
 	cursor:pointer;
 	padding:8px 0;
-	color:rgba(64,0,0,0.5);
 	transition: all 100ms;
 }
 .card.quests .quest-list .quest-item:hover {
-	color:#400000;
+	color:rgba(64,0,0,0.6);
 }
+.card.quests .quest-list .quest-item:before {
+	margin-right:4px;
+	opacity:0.5;
+}
+.card.quests .quest-list .quest-item:nth-child(1):before { content:"1."; }
+.card.quests .quest-list .quest-item:nth-child(2):before { content:"2."; }
+.card.quests .quest-list .quest-item:nth-child(3):before { content:"3"; }
+.card.quests .quest-list .quest-item:nth-child(4):before { content:"4."; }
+.card.quests .quest-list .quest-item:nth-child(5):before { content:"5."; }
+.card.quests .quest-list .quest-item:nth-child(6):before { content:"6."; }
+.card.quests .quest-list .quest-item:nth-child(7):before { content:"7."; }
+.card.quests .quest-list .quest-item:nth-child(8):before { content:"8."; }
+.card.quests .quest-list .quest-item:nth-child(9):before { content:"9."; }
+.card.quests .quest-list .quest-item:nth-child(10):before { content:"10."; }
+.card.quests .quest-list .quest-item:nth-child(11):before { content:"11."; }
+.card.quests .quest-list .quest-item:nth-child(12):before { content:"12."; }
+.card.quests .quest-list .quest-item:nth-child(13):before { content:"13."; }
+.card.quests .quest-list .quest-item:nth-child(14):before { content:"14."; }
+.card.quests .quest-list .quest-item:nth-child(15):before { content:"15."; }
+.card.quests .quest-list .quest-item:nth-child(16):before { content:"16."; }
+.card.quests .quest-list .quest-item:nth-child(17):before { content:"17."; }
+.card.quests .quest-list .quest-item:nth-child(18):before { content:"18."; }
+.card.quests .quest-list .quest-item:nth-child(19):before { content:"19."; }
+.card.quests .quest-list .quest-item:nth-child(20):before { content:"20."; }
+
 .card.quests .quest-list .quest-item.selected {
-	padding:8px 10px;
-	color:#400000;
-	background:rgba(64,0,0,0.1);
+	color:rgba(64,0,0,0.6);
+	background: linear-gradient(90deg, rgba(64,0,0,0), rgba(64,0,0,0.1));
 }
 .card.quests .quest-details {
 	width:400px;
@@ -774,16 +820,16 @@ input:focus {
 	width:120px;
 	font-weight:700;
 }
-.card .amount-available {
-	text-align: right;
-    margin-top: -37px;
-    border-bottom: 0;
-    position: absolute;
-    right: 0;
-    border-bottom: 0;
-}
-.card .amount-available.false {
-	color:#FF426E;
+.price-value:before {
+	content:"";
+	display:inline-block;
+	width:14px;
+	height:14px;
+	background:url('assets/icon-gold-small.webp') no-repeat center center;
+	background-size:14px;
+	margin-right:3px;
+	position:relative;
+	top:3px;
 }
 .actions {
 	text-align: right;

@@ -178,6 +178,8 @@ const QuestManager = {
      */
     accept(quest) {
         GameState.player.questsAccepted.push(quest);
+		$('.quests.button').addClass('notification');
+		UI.log('Quest accepted', 'exclamation-mark');
         UI.closeCard();
         MapManager.placePorts();
         sound('quest');
@@ -193,9 +195,11 @@ const QuestManager = {
         
         // Handle collect quests
         if (questData.type === 'collect') {
-            state.player.backpack[questData.requirement] -= questData.amount;
+			requirementItem = Object.keys(questData.requirement)[0];
+            state.player.backpack[requirementItem] -= questData.requirement[requirementItem];
+			setBackpack();
             const amountText = questData.amount > 1 ? questData.amount + ' ' : '';
-            UI.log('Delivered ' + amountText + questData.requirement, questData.requirement);
+            UI.log('Delivered ' + amountText + requirementItem, requirementItem);
         }
         
         // Grant rewards
@@ -210,6 +214,7 @@ const QuestManager = {
         state.player.questsCompleted.push(quest);
         UI.log('Quest completed', 'crown');
         UI.closeCard();
+		MapManager.placePorts();
         sound('quest');
     },
     

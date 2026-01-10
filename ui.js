@@ -296,8 +296,9 @@ const UI = {
             card.hide();
         } else {
             this.closeCard();
-            card.show();
             this.renderQuestList();
+            card.show();
+            $('.quests.button').removeClass('notification');
         }
     },
 
