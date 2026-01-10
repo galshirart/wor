@@ -227,6 +227,10 @@ const Player = {
      */
     consume(slot) {
         const state = GameState;
+
+        //prevent consuming if sell menu is open (to allow typing amount in sell menu)
+        if ($('.card.npc.sell').is(':visible')) { return; }
+
         const itemType = $('.consumables .icon:nth-child(' + slot + ')').attr('type');
         
         if (!itemType) return;
