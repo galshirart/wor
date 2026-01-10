@@ -62,13 +62,13 @@ const Game = {
     
     /**
      * Debug: Set attack pose
-     * @param {number} atkType - Attack type
+     * @param {number} attackType - Attack type
      */
-    pose(atkType) {
+    pose(attackType) {
         Player.setMode('fight');
-        GameState.hero.attr('atkType', atkType);
+        GameState.hero.attr('attackType', attackType);
         $('.hero, .weapon').css('animation-duration', '4000ms');
-        $('.weapon').css('animation-name', 'weapon-' + atkType);
+        $('.weapon').css('animation-name', 'weapon-' + attackType);
     },
     
     /**
@@ -83,6 +83,8 @@ const Game = {
         Player.acquire('speed-potion', 20);
         Player.acquire('turbo-berry', 20);
         Player.acquire('focus-potion', 20);
+        GameState.player.maxHp=100;
+        GameState.player.hp=100;
         $('.card.backpack').show();
     }
 };
@@ -93,7 +95,7 @@ Game.init();
 // Legacy aliases
 const save = () => Game.save();
 const showRange = (x1, x2) => Game.showRange(x1, x2);
-const pose = (atkType) => Game.pose(atkType);
+const pose = (attackType) => Game.pose(attackType);
 const shefa = () => Game.shefa();
 const resetPlayer = () => GameState.resetPlayer();
 const setStats = () => GameState.recalculateStats();
@@ -141,18 +143,6 @@ Object.defineProperty(window, 'quests', {
 
 Object.defineProperty(window, 'consumables', {
     get: () => GameState.consumables
-});
-
-Object.defineProperty(window, 'totalAtkSpeed', {
-    get: () => GameState.totalAtkSpeed
-});
-
-Object.defineProperty(window, 'totalCritical', {
-    get: () => GameState.totalCritical
-});
-
-Object.defineProperty(window, 'totalWalkSpeed', {
-    get: () => GameState.totalWalkSpeed
 });
 
 Object.defineProperty(window, 'mapWidth', {

@@ -33,6 +33,24 @@ const Input = {
         document.onkeydown = (e) => {
             const K = Constants.KEYS;
             
+            // Handle ESC specially - close cards first, then toggle menu
+            if (e.keyCode === K.ESCAPE) {
+                // Check if any card (except menu) is open
+                const openCards = $('.card:visible').not('.menu');
+                if (openCards.length > 0) {
+                    UI.closeCard();
+                    sound('click');
+                } else {
+                    MenuUI.toggle();
+                }
+                return;
+            }
+            
+            // Block all other inputs when game is paused (menu open)
+            if (GameState.paused) {
+                return;
+            }
+            
             switch (e.keyCode) {
                 case K.RIGHT:
                     GameState.keyState.right = true;
@@ -46,8 +64,11 @@ const Input = {
                 case K.ATTACK:
                     if (!Combat.attackCooldown) Combat.fight();
                     break;
+                case K.BLOCK:
+                    Player.startBlock();
+                    break;
                 // Uncomment to enable skills:
-                // case K.SKILL_S:
+                // case K.SKILL_W:
                 //     if (!Combat.skillCooldown) Combat.useSkill('s');
                 //     break;
                 // case K.SKILL_D:
@@ -61,9 +82,6 @@ const Input = {
                     break;
                 case K.BACKPACK:
                     UI.toggleBackpackCard();
-                    break;
-                case K.ESCAPE:
-                    UI.closeCard();
                     break;
                 case K.QUESTS:
                     UI.toggleQuestsCard();
@@ -93,6 +111,9 @@ const Input = {
                     break;
                 case K.LEFT:
                     GameState.keyState.left = false;
+                    break;
+                case K.BLOCK:
+                    Player.stopBlock();
                     break;
             }
         };

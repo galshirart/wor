@@ -269,8 +269,36 @@ const EnemyCombat = {
             return;
         }
         
-        const damage = Number($projectile.attr('damage'));
-        Combat._applyDamageToPlayer(damage);  
+        let damage = Number($projectile.attr('damage'));
+        const projectileDirection = Number($projectile.attr('direction'));
+        
+        // Block only works if facing the projectile (opposite directions)
+        // Projectile going right (1) is blocked by player facing left (-1), and vice versa
+        const isFacingProjectile = state.blockDirection === -projectileDirection;
+        
+        if (state.isBlocking && isFacingProjectile) {
+            damage = Math.round(damage * (1 - Constants.BLOCK_DAMAGE_REDUCTION));
+            //damage = Math.max(1, damage);
+            //sound('block-1'); // Block sound
+            
+            // Apply reduced damage with reduced knockback
+            state.player.hp -= damage;
+            $('body').append('<div class="hit self">' + prettyNumber(damage, 'red') + '</div>');
+            state.hero.attr('in-damage', 'true');
+            
+            const knockback = setInterval(() => {
+                state.player.position -= state.heroDirection * Constants.HERO_KNOCKBACK * Constants.BLOCK_KNOCKBACK_REDUCTION;
+            }, 10);
+            
+            setTimeout(() => clearInterval(knockback), 200);
+            setTimeout(() => {
+                state.hero.attr('in-damage', 'false');
+                $('.hit.self').remove();
+            }, Constants.DAMAGE_IMMUNITY_MS);
+        } else {
+            console.log("block failed. isFacingProjectile = " + isFacingProjectile + "blocking = " + state.isBlocking );
+            Combat._applyDamageToPlayer(damage);  
+        }
         $projectile.remove();
         sound('hit-4');
     },

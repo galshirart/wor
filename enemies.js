@@ -63,6 +63,12 @@ const EnemyManager = {
         const state = GameState;
         const $enemy = $(enemy);
         
+        // Skip movement if game is paused, retry later
+        if (state.paused) {
+            setTimeout(() => this.move(enemy, hitCount), 100);
+            return;
+        }
+        
         if ($enemy.attr('active') === 'false' || hitCount < Number($enemy.attr('hit-count'))) {
             return;
         }
@@ -115,10 +121,10 @@ const EnemyManager = {
         if (distance === 0) distance = 1;
         
         $enemy.attr('state', 'move').css({
-            'left': i($enemy, 'left') + distance,
-            'transform': 'scaleX(' + sign(distance) + ')',
-            'transition-duration': abs(distance) * speed + 'ms'
-        });
+                'left': i($enemy, 'left') + distance,
+                'transform': 'scaleX(' + sign(distance) + ')',
+                'transition-duration': abs(distance) * speed + 'ms'
+            });
 
         $enemy.find('.image').css('animation-duration', state.enemies[enemyType].animationDuration + 'ms');
         
@@ -128,7 +134,7 @@ const EnemyManager = {
         if (EnemyCombat.canAttack($enemy)) {
             EnemyCombat.attack($enemy);
         }
-
+        
         setTimeout(() => {
             this.move($enemy, hitCount);
         }, abs(distance) * speed + standTime);

@@ -15,6 +15,11 @@ const Audio = {
      * @param {string} soundName - Name of sound file (without extension)
      */
     play(soundName) {
+        // Check if sound is enabled
+        if (!GameState.soundEnabled) {
+            return;
+        }
+        
         const audio = new window.Audio(`sounds/${soundName}.wav`);
         
         if (this.VOLUME_OVERRIDES[soundName]) {

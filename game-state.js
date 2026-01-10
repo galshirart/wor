@@ -26,6 +26,8 @@ const GameState = {
     heroDirection: 1,
     keyState: { left: false, right: false },
     activeConsumables: [],
+    paused: false,
+    soundEnabled: true,
     
     // ========== DOM REFERENCES ==========
     hero: null,  // Set after DOM ready
@@ -41,9 +43,9 @@ const GameState = {
     dialogInterval: null,
     
     // ========== COMPUTED STATS ==========
-    totalWalkSpeed: 1.5,
-    totalCritical: 10,
-    totalAtkSpeed: 800,
+    // totalWalkSpeed: 1.5,
+    // totalCritical: 10,
+    // totalAttackSpeed: 800,
     
     // ========== INITIALIZATION ==========
     
@@ -95,17 +97,20 @@ const GameState = {
             backpack: { gold: 0 },
             equipments: { weapon: 'none' },
             location: 'a-box',
-            position: 905,
-            hp: 10,
-            mp: 10,
-            maxHp: 10,
-            maxMp: 10,
+            position: Constants.INITIAL_PLAYER_POSITION,
+            hp: Constants.BASE_MAX_HP,
+            mp: Constants.BASE_MAX_MP,
+            maxHp: Constants.BASE_MAX_HP,
+            maxMp: Constants.BASE_MAX_MP,
+            critical: Constants.BASE_CRITICAL,
+            walkSpeed: Constants.BASE_WALK_SPEED,
+            attackSpeed: Constants.BASE_ATTACK_SPEED,
             questsCompleted: [],
             questsAccepted: [],
             enemiesSlained: {},
             mapsVisited: [],
             reviveMap: 'a-box',
-            criticalMultiplier: 1.5
+            criticalMultiplier: Constants.BASE_CRITICAL_MULTIPLIER
         };
         this.save();
         location.reload();
@@ -116,43 +121,42 @@ const GameState = {
      */
     recalculateStats() {
         // Base stats
-        this.totalWalkSpeed = 1.5;
-        this.totalCritical = 10;
-        
-        const weapon = this.player.equipments.weapon || 'none';
-        const weaponData = this.equipments[weapon];
-        this.totalAtkSpeed = 800 - (weaponData ? weaponData.attackSpeed * 50 : 0);
-        
+        let totalWalkSpeed = Constants.BASE_WALK_SPEED;
+        let totalCritical = Constants.BASE_CRITICAL;
+        let totalAttackSpeed = Constants.BASE_ATTACK_SPEED;
+        let totalAttack = Constants.BASE_ATTACK;
+        let totalDefense = Constants.BASE_DEFENSE;
+        let totalMaxHp = Constants.BASE_MAX_HP;
+        let totalMaxMp = Constants.BASE_MAX_MP;
+
         // Equipment bonuses
         for (const slot in this.player.equipments) {
             const item = this.player.equipments[slot];
             if (item && this.equipments[item]) {
-                this.totalCritical += Number(this.equipments[item].critical || 0);
+                totalCritical += Number(this.equipments[item].critical || 0);
+                totalAttackSpeed += - Number(this.equipments[item].attackSpeed * 50 || 0);
+                totalWalkSpeed += Number(this.equipments[item].walkSpeed || 0);
+                totalMaxHp += Number(this.equipments[item].maxHp || 0);
+                totalMaxMp += Number(this.equipments[item].maxMp || 0);
+                totalAttack += Number(this.equipments[item].attack || 0);
+                totalDefense += Number(this.equipments[item].defense || 0);
             }
         }
         
         // Consumable bonuses
-        this.activeConsumables.forEach(item => {
-            const consumable = this.consumables[item];
-            if (!consumable) return;
-            
-            if (consumable.effect === 'walk speed') {
-                const bonus = Number(consumable.value.replace('%', '')) / 100;
-                this.totalWalkSpeed += this.totalWalkSpeed * bonus;
-            }
-            if (consumable.effect === 'attack speed') {
-                const bonus = Number(consumable.value.replace('%', '')) / 100;
-                this.totalAtkSpeed = this.totalAtkSpeed * (1 - bonus);
-            }
-            if (consumable.effect === 'critical') {
-                this.totalCritical += Number(consumable.value.replace('%', ''));
-            }
-        });
-        
-        // Minimums
-        if (this.totalAtkSpeed < 200) {
-            this.totalAtkSpeed = 200;
+        ({ totalWalkSpeed, totalAttackSpeed: totalAttackSpeed, totalCritical } = this._calculateConsumables(totalWalkSpeed, totalAttackSpeed, totalCritical));
+
+        if (totalAttackSpeed < Constants.MIN_ATTACK_SPEED) {
+            totalAttackSpeed = Constants.MIN_ATTACK_SPEED;
         }
+
+        this.player.walkSpeed = totalWalkSpeed;
+        this.player.attackSpeed = totalAttackSpeed;
+        this.player.critical = totalCritical;
+        this.player.maxHp = totalMaxHp;
+        this.player.maxMp = totalMaxMp;
+        this.player.attack = totalAttack;
+        this.player.defense = totalDefense;
     },
     
     /**
@@ -160,5 +164,34 @@ const GameState = {
      */
     initDOMReferences() {
         this.hero = $('.hero');
+    },
+
+    /**
+     * Calculate the effects of consumables on player stats
+     * @param {*} totalWalkSpeed 
+     * @param {*} totalAttackSpeed 
+     * @param {*} totalCritical 
+     * @returns 
+     */
+
+    _calculateConsumables(totalWalkSpeed, totalAttackSpeed, totalCritical) {
+        this.activeConsumables.forEach(item => {
+            const consumable = this.consumables[item];
+            if (!consumable) return;
+
+            if (consumable.effect === 'walk speed') {
+                const bonus = Number(consumable.value.replace('%', '')) / 100;
+                totalWalkSpeed += totalWalkSpeed * bonus;
+            }
+            if (consumable.effect === 'attack speed') {
+                const bonus = Number(consumable.value.replace('%', '')) / 100;
+                totalAttackSpeed = totalAttackSpeed * (1 - bonus);
+            }
+            if (consumable.effect === 'critical') {
+                totalCritical += Number(consumable.value.replace('%', ''));
+            }
+        });
+        return { totalWalkSpeed, totalAttackSpeed, totalCritical };
     }
-};
+}
+

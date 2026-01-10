@@ -762,6 +762,106 @@ input:focus {
 	opacity:0.5;
 	font-size:11px;
 }
+
+/************** MENU **************/
+
+.card.menu {
+	width:280px;
+	left:50%;
+	top:50%;
+	transform:translate(-50%, -50%);
+	margin-top:0;
+}
+.card.menu.center:after {
+	left:calc(50% - 32px);
+}
+.card.menu .menu-title {
+	text-align:center;
+	border-top:0;
+	padding-bottom:4px;
+}
+.card.menu .menu-item {
+	padding:8px 12px;
+}
+.card.menu .menu-button {
+	width:100%;
+	height:40px;
+	font-size:13px;
+}
+.card.menu .menu-sound-row {
+	justify-content:space-between;
+	cursor:pointer;
+}
+.card.menu .menu-sound-row:hover {
+	background:rgba(64,0,0,0.05);
+}
+.card.menu .menu-sound-row label {
+	pointer-events:none;
+}
+.card.menu .menu-checkbox {
+	width:20px;
+	height:20px;
+	border:1px solid #400000;
+	border-radius:4px;
+	background:rgba(64,0,0,0.05);
+	position:relative;
+}
+.card.menu .menu-checkbox.checked:after {
+	content:"";
+	position:absolute;
+	top:3px;
+	left:7px;
+	width:5px;
+	height:10px;
+	border:solid #400000;
+	border-width:0 2px 2px 0;
+	transform:rotate(45deg);
+}
+.card.menu .menu-select {
+	width:100%;
+	height:32px;
+	margin-top:6px;
+	border:1px solid #400000;
+	border-radius:4px;
+	background:#FFF6C1;
+	font-family:'Nunito';
+	font-weight:800;
+	font-size:11px;
+	text-transform:uppercase;
+	color:#400000;
+	padding:0 8px;
+	cursor:pointer;
+}
+.card.menu .menu-select:focus {
+	outline:none;
+	background:rgba(64,0,0,0.1);
+}
+.card.menu .restart-button {
+	background:#FF426E;
+	color:white;
+	border-color:#400000;
+}
+.card.menu .restart-button:hover {
+	filter:brightness(0.95);
+}
+.card.menu .shefa-button {
+	background:#9966FF;
+	color:white;
+	border-color:#400000;
+}
+
+/************** PAUSED STATE **************/
+
+.window.paused .hero,
+.window.paused .hero .weapon,
+.window.paused .hero .equipment,
+.window.paused .enemy .image {
+	animation-play-state: paused !important;
+}
+.window.paused .enemy {
+	transition: none !important;
+}
+
 .card.hover {
 	min-height: 0;
 	width:240px;
@@ -965,13 +1065,23 @@ input:focus {
 	animation-name: jump;
 	transition: margin-bottom 400ms cubic-bezier(.58,0,1,1) 
 }
-[mode=fight][atkType='1'], [mode=fight][atkType='1'] .equipment { animation-name:atk-1}
-[mode=fight][atkType='2'], [mode=fight][atkType='2'] .equipment { animation-name:atk-2 }
-[mode=fight][atkType='3'], [mode=fight][atkType='3'] .equipment { animation-name:atk-3 }
-[mode=fight][atkType='4'], [mode=fight][atkType='4'] .equipment { animation-name:atk-4 }
-[mode=fight][atkType='5'], [mode=fight][atkType='5'] .equipment { animation-name:atk-5 }
-[mode=fight][atkType='6'], [mode=fight][atkType='6'] .equipment { animation-name:atk-6 }
-[mode=fight][atkType='7'], [mode=fight][atkType='7'] .equipment { animation-name:atk-7 }
+[mode=fight][attackType='1'], [mode=fight][attackType='1'] .equipment { animation-name:attack-1}
+[mode=fight][attackType='2'], [mode=fight][attackType='2'] .equipment { animation-name:attack-2 }
+[mode=fight][attackType='3'], [mode=fight][attackType='3'] .equipment { animation-name:attack-3 }
+[mode=fight][attackType='4'], [mode=fight][attackType='4'] .equipment { animation-name:attack-4 }
+[mode=fight][attackType='5'], [mode=fight][attackType='5'] .equipment { animation-name:attack-5 }
+[mode=fight][attackType='6'], [mode=fight][attackType='6'] .equipment { animation-name:attack-6 }
+[mode=fight][attackType='7'], [mode=fight][attackType='7'] .equipment { animation-name:attack-7 }
+
+[mode=block] {
+	animation-name: block;
+}
+[mode=block] .equipment {
+	animation-name: block;
+}
+@keyframes block {
+	0%, 100% { background-position-x: -160px; }
+}
 
 .hero.jumping {
 	margin-bottom:100px;
@@ -1003,47 +1113,47 @@ input:focus {
 	60% { background-position-x: -800px; }
 	80% { background-position-x: -880px; }
 }
-@keyframes atk-1 {
+@keyframes attack-1 {
 	0% { background-position-x: -960px; }
 	15% { background-position-x: -1040px; }
 	30% { background-position-x: -1120px; }
 	55% { background-position-x: -1200px; }
 	85% { background-position-x: -1280px; }
 }
-@keyframes atk-2 {
+@keyframes attack-2 {
 	0% { background-position-x: -960px; }
 	15% { background-position-x: -1360px; }
 	30% { background-position-x: -1440px; }
 	55% { background-position-x: -1520px; }
 	85% { background-position-x: -1280px; }
 }
-@keyframes atk-3 {
+@keyframes attack-3 {
 	0% { background-position-x: -1600px; }
 	15% { background-position-x: -1680px; }
 	30% { background-position-x: -1760px; }
 	55% { background-position-x: -1520px; }
 	85% { background-position-x: -1280px; }
 }
-@keyframes atk-4 {
+@keyframes attack-4 {
 	0% { background-position-x: -1840px; }
 	15% { background-position-x: -1920px; }
 	30% { background-position-x: -2000px; }
 	55% { background-position-x: -2080px; }
 	85% { background-position-x: -1840px; }
 }
-@keyframes atk-5 {
+@keyframes attack-5 {
 	0% { background-position-x: -1840px; }
 	20% { background-position-x: -1920px; }
 	55% { background-position-x: -2000px; }
 	85% { background-position-x: -1280px; }
 }
-@keyframes atk-6 { /* BOW: */
+@keyframes attack-6 { /* BOW: */
 	0% { background-position-x: -960px; }
 	20% { background-position-x: -1040px; }
 	40% { background-position-x: -1120px; }
 	80% { background-position-x: -1040px; }
 }
-@keyframes atk-7 {
+@keyframes attack-7 {
 	0% { background-position-x: -960px; }
 	25% { background-position-x: -1040px; }
 	50% { background-position-x: -1040px; }
@@ -1099,6 +1209,12 @@ input:focus {
 }
 [mode=jump] .weapon {
 	animation-name: weapon-jump;
+}
+[mode=block] .weapon {
+	animation-name: weapon-block;
+}
+@keyframes weapon-block {
+	0%, 100% { left:-20px; bottom:-10px; transform: rotate(45deg); }
 }
 @keyframes weapon-rest {
 	0% { left:-10; bottom:-21; transform: rotate(65deg)}

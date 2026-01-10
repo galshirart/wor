@@ -13,13 +13,13 @@ const Combat = {
     
     /**
      * Execute a basic attack
-     * @param {number} atkType - Animation type (1-6)
+     * @param {number} attackType - Animation type (1-6)
      * @param {number} rangeStart - Attack range start offset
      * @param {number} rangeEnd - Attack range end offset  
-     * @param {number} atkMultiplier - Damage multiplier
+     * @param {number} attackMultiplier - Damage multiplier
      * @param {number} maxTargets - Max enemies to hit
      */
-    fight(atkType = random(1, 5), rangeStart = 0, rangeEnd = 0, atkMultiplier = 1, maxTargets = 1) {
+    fight(attackType = random(1, 5), rangeStart = 0, rangeEnd = 0, attackMultiplier = 1, maxTargets = 1) {
         const state = GameState;
         const hero = state.hero;
         
@@ -33,13 +33,13 @@ const Combat = {
         const weapon = state.equipments[state.player.equipments.weapon];
         
         if (weapon.type === 'melee') {
-            this._executeMeleeAttack(rangeStart, rangeEnd, atkMultiplier);
+            this._executeMeleeAttack(rangeStart, rangeEnd, attackMultiplier);
         } else if (weapon.type === 'range') {
-            this._executeRangedAttack(atkMultiplier, maxTargets);
-            atkType = 6;
+            this._executeRangedAttack(attackMultiplier, maxTargets);
+            attackType = 6;
         }
         
-        this._playAttackAnimation(atkType);
+        this._playAttackAnimation(attackType);
     },
     
     /**
@@ -57,8 +57,7 @@ const Combat = {
         if (!skillName) return;
         
         const skill = state.skills[skillName];
-        const weapon = state.equipments[state.player.equipments.weapon];
-        const mpCost = (weapon.attack * skill.atkMultiplier) / 2;
+        const mpCost = (state.player.attack * skill.attackMultiplier) / 2;
         
         if (state.player.mp < mpCost) {
             UI.shake($('.bar.mp').parent('.bar-container'));
@@ -68,7 +67,7 @@ const Combat = {
         state.player.mp -= mpCost;
         this.skillCooldown = true;
         
-        this._executeSkill(skillName, skill, weapon);
+        this._executeSkill(skillName, skill);
     },
     
     /**
@@ -107,7 +106,7 @@ const Combat = {
     
     // ========== PRIVATE HELPERS ==========
     
-    _executeMeleeAttack(rangeStart, rangeEnd, atkMultiplier) {
+    _executeMeleeAttack(rangeStart, rangeEnd, attackMultiplier) {
         const state = GameState;
         const weaponHeight = i('.weapon', 'height');
         let x1, x2;
@@ -120,26 +119,25 @@ const Combat = {
             x2 = state.player.position - rangeStart;
         }
         
-        setTimeout(() => sound('attack'), state.totalAtkSpeed / 4);
+        setTimeout(() => sound('attack'), state.player.attackSpeed / 4);
         
         setTimeout(() => {
-            this._hitEnemiesInRange(x1, x2, atkMultiplier);
-        }, state.totalAtkSpeed / 2);
+            this._hitEnemiesInRange(x1, x2, attackMultiplier);
+        }, state.player.attackSpeed / 2);
     },
     
-    _executeRangedAttack(atkMultiplier, maxTargets) {
+    _executeRangedAttack(attackMultiplier, maxTargets) {
         const state = GameState;
         
-        setTimeout(() => sound('bow'), state.totalAtkSpeed / 4);
+        setTimeout(() => sound('bow'), state.player.attackSpeed / 4);
         
         setTimeout(() => {
-            this._spawnProjectile(atkMultiplier, maxTargets);
-        }, state.totalAtkSpeed / 2);
+            this._spawnProjectile(attackMultiplier, maxTargets);
+        }, state.player.attackSpeed / 2);
     },
     
-    _hitEnemiesInRange(x1, x2, atkMultiplier) {
+    _hitEnemiesInRange(x1, x2, attackMultiplier) {
         const state = GameState;
-        const weapon = state.equipments[state.player.equipments.weapon];
         const self = this;
         
         $('.enemy[active=true][hitable=TRUE]').each(function() {
@@ -151,14 +149,13 @@ const Combat = {
                 return;
             }
             
-            self.hit(enemyElement, weapon.attack * atkMultiplier);
+            self.hit(enemyElement, state.player.attack * attackMultiplier);
             return false;
         });
     },
     
-    _spawnProjectile(atkMultiplier, maxTargets) {
+    _spawnProjectile(attackMultiplier, maxTargets) {
         const state = GameState;
-        const weapon = state.equipments[state.player.equipments.weapon];
         
         $('<div class="projectile"></div>')
             .appendTo('.field')
@@ -172,16 +169,16 @@ const Combat = {
                 'range': Constants.PROJECTILE_RANGE,
                 'originX': state.player.position,
                 'speed': Constants.PROJECTILE_SPEED,
-                'attack': weapon.attack * atkMultiplier,
+                'attack': state.player.attack * attackMultiplier,
                 'maxTargets': maxTargets
             });
     },
     
-    _playAttackAnimation(atkType) {
+    _playAttackAnimation(attackType) {
         const state = GameState;
         
-        state.hero.attr('atkType', atkType);
-        $('.weapon').css('animation-name', 'weapon-' + atkType);
+        state.hero.attr('attackType', attackType);
+        $('.weapon').css('animation-name', 'weapon-' + attackType);
         
         setTimeout(() => {
             Player.setMode('rest');
@@ -189,8 +186,8 @@ const Combat = {
             
             setTimeout(() => {
                 this.attackCooldown = false;
-            }, state.totalAtkSpeed / 4);
-        }, state.totalAtkSpeed);
+            }, state.player.attackSpeed / 4);
+        }, state.player.attackSpeed);
     },
     
     _getSkillFromKey(key) {
@@ -198,9 +195,10 @@ const Combat = {
         return skillMap[key] || null;
     },
     
-    _executeSkill(skillName, skill, weapon) {
+    _executeSkill(skillName, skill) {
         const state = GameState;
-        
+        const weapon = state.equipments[state.player.equipments.weapon];
+
         const skillSprite = $('<div class="skill"></div>').css({
             'transform': 'scaleX(' + state.heroDirection + ')',
             'background-image': 'url(assets/skill-' + skillName + '.webp)'
@@ -208,13 +206,13 @@ const Combat = {
         
         if (skillName === 'surge' && weapon.type === 'melee') {
             state.player.position += state.heroDirection * 100;
-            this.fight(1, 0, 120, skill.atkMultiplier, 2);
+            this.fight(1, 0, 120, skill.attackMultiplier, 2);
             sound('swoosh');
             state.hero.after(skillSprite);
         }
         
         if (skillName === 'impact' && weapon.type === 'melee') {
-            this.fight(6, -100, 80, skill.atkMultiplier, 6);
+            this.fight(6, -100, 80, skill.attackMultiplier, 6);
             sound('spell-1');
             setTimeout(() => {
                 state.hero.after(skillSprite);
@@ -234,7 +232,8 @@ const Combat = {
     _calculateDamage(baseAttack) {
         const state = GameState;
         let finalDamage = spread(baseAttack, Constants.DAMAGE_SPREAD);
-        const isCritical = random(1, 100) <= state.totalCritical;
+        const isCritical = random(1, 100) <= state.player.critical;
+        
         
         if (isCritical) {
             finalDamage = Math.round(finalDamage * state.player.criticalMultiplier);
@@ -314,14 +313,7 @@ const Combat = {
         const state = GameState;
         const enemyType = enemyElement.attr('type');
         let damage = spread(state.enemies[enemyType].attack, Constants.DAMAGE_SPREAD);
-        
-        for (const slot in state.player.equipments) {
-            const item = state.player.equipments[slot];
-            if (item && state.equipments[item]) {
-                damage -= state.equipments[item].defense || 0;
-            }
-        }
-        
+        damage -= state.player.defense || 0;
         return Math.max(1, damage);
     },
     
