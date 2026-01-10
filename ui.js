@@ -484,15 +484,15 @@ const UI = {
         setTimeout(() => {
             $(element).css({
                 'transition': 'all 400ms',
-                'transform': 'scale(1.5)',
-                'z-index': '1000'
+                'transform': 'scale(1.2)',
+                'z-index': '1000'            
             });
         }, 300);
         
         setTimeout(() => {
             $(element).css({
                 'transform': 'scale(1)',
-                'filter': 'brightness(150%)'
+                'filter': 'brightness(150%)',
             });
         }, 700);
         
