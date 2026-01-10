@@ -49,7 +49,8 @@ const NPCManager = {
     sell(item) {
         const state = GameState;
         
-        $('.npc.sell .speech ~ *').remove();
+		$('.npc.sell .npc-text ~ *').remove();
+        $('.npc.sell .tip').parent().remove();
         $('.npc.sell').append(UI.createItemRow(item));
         
         let amount = state.player.backpack[item];
@@ -61,18 +62,18 @@ const NPCManager = {
         const price = this.calcItemPrice(item);
         
         $('.npc.sell')
-            .append('<label>SELL FOR:</label>')
-            .append(UI.createItemRow('gold', amount * price).addClass('sell-price'))
+            .append('<label>SELL FOR <span class="price-value">' + amount * price + '</span></label>')
             .append('<div class="actions"><div class="button" onclick="UI.closeCard()">CANCEL</div><div class="button yellow sell">SELL</div></div>');
         
         // Amount input handler
-        $('.npc.sell input').on('input', function() {
+        $('.npc.sell input').on('input', function(e) {
             const maxAmount = state.player.backpack[item];
             if ($(this).val() > maxAmount) {
                 $(this).val(maxAmount);
             }
             amount = $(this).val();
-            $('.npc.sell .sell-price label').html(amount * price);
+            $('.npc.sell .price-value').html(amount * price);
+			e.preventDefault();
         });
         
         // Sell button handler
@@ -204,9 +205,10 @@ const NPCManager = {
         UI.log('Sold ' + amount + ' ' + item, item);
         UI.log('Received ' + amount * price + ' gold', 'gold');
         
-        $('.npc.sell .speech ~ *').remove();
-        $('.npc.sell .speech div').html("Deal done. Great doing business with you! Anything else you'd like to sell?");
-    }
+        $('.npc.sell .npc-text ~ *').remove();
+        $('.npc.sell .npc-text').html("Deal done. Great doing business with you! Anything else you'd like to sell?");
+		$('.npc.sell').append('<div><div class="tip">Click on an item from your backpack</div></div>');
+	},
 };
 
 // Legacy alias
