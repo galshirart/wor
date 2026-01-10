@@ -116,7 +116,7 @@ const NPCManager = {
     // ========== PRIVATE HELPERS ==========
     
     _setupShop(card, npcData) {
-        card.append('<div class="speech"><div>' + npcData.speech + '</div></div>');
+        card.append('<div class="npc-text">' + npcData.speech + '</div>');
         $('.backpack').show();
         
         for (const item in npcData.items) {
@@ -127,7 +127,7 @@ const NPCManager = {
     },
     
     _setupSellShop(card, npcData) {
-        card.append('<div class="speech"><div>' + npcData.speech + '</div></div>');
+        card.append('<div class="npc-text">' + npcData.speech + '</div>');
         $('.backpack').show();
         card.append('<div><div class="tip">Click on an item from your backpack</div></div>');
     },
@@ -136,12 +136,33 @@ const NPCManager = {
         const state = GameState;
         let targetQuest = '';
         
-        for (const quest in npcData.quests) {
-            if (!state.player.questsCompleted.includes(npcData.quests[quest])) {
-                targetQuest = npcData.quests[quest];
-                QuestManager.showDialog(targetQuest, card.attr('id'));
-                break;
+        // Loop through all NPC quests and pick the first valid quest that matches requirements
+        for (const questId of npcData.quests) {
+            const questData = state.quests[questId];
+            if (!questData) continue;
+
+            // Check if already completed
+            if (state.player.questsCompleted.includes(questId)) {
+                continue;
             }
+
+            // If this quest has a condition on *completing* another quest, check it
+            if (questData.condition && questData.condition.questCompleted) {
+                if (!state.player.questsCompleted.includes(questData.condition.questCompleted)) {
+                    continue;
+                }
+            }
+
+            // If this quest has a condition on *accepting* another quest, check it
+            if (questData.condition && questData.condition.questAccepted) {
+                if (!state.player.questsAccepted.includes(questData.condition.questAccepted)) {
+                    continue;
+                }
+            }
+
+            targetQuest = questId;
+            QuestManager.showDialog(targetQuest, card.attr('id'));
+            break;
         }
         
         if (targetQuest === '') {
