@@ -9,7 +9,7 @@ const Player = {
     
     /**
      * Get current player mode
-     * @returns {string} Current mode (rest, walk, jump, fight)
+     * @returns {string} Current mode (rest, walk, jump, fight, block)
      */
     getMode() {
         return GameState.hero.attr('mode');
@@ -29,10 +29,11 @@ const Player = {
         }
         
         const durations = {
-            walk: 400 / state.totalWalkSpeed + 'ms',
+            walk: 400 / state.player.walkSpeed + 'ms',
             rest: '2000ms',
             jump: '800ms',
-            fight: state.totalAtkSpeed + 'ms'
+            fight: state.player.attackSpeed + 'ms',
+            block: '200ms',
         };
         
         if (durations[newMode]) {
@@ -43,6 +44,39 @@ const Player = {
                 hero.find('.weapon').css('animation-duration', '400ms');
             }
         }
+    },
+    
+    // ========== BLOCKING ==========
+    
+    /**
+     * Start blocking
+     */
+    startBlock() {
+        const state = GameState;
+        if (this.getMode() === 'fight' || this.getMode() === 'jump' || state.isBlocking) {
+            return;
+        }
+        if (!state.player.equipments.shield) {
+            return;
+        }
+        
+        state.isBlocking = true;
+        state.blockDirection = state.heroDirection;  // Lock direction when starting block
+        this.setMode('block');
+    },
+    
+    /**
+     * Stop blocking
+     */
+    stopBlock() {
+        const state = GameState;
+        console.log("stopBlock");
+        if (!state.isBlocking) {
+            return;
+        }
+        
+        state.isBlocking = false;
+        this.setMode('rest');
     },
     
     // ========== MOVEMENT ==========
@@ -329,7 +363,8 @@ const Player = {
     MapManager.teleport(player.reviveMap);
     player.hp = player.maxHp;
     player.mp = player.maxMp;
-    }
+    },
+
 };
 
 // Legacy alias

@@ -416,9 +416,9 @@ const UI = {
             html += '<div class="rewards-list"></div>';
         }
 
-        html += `<div class="actions">
+            html += `<div class="actions">
             <div class="button" onclick="UI.withdrawQuest('${questId}')">Withdraw</div>
-        </div>`;
+            </div>`;
 
         detailsEl.html(html);
 
@@ -485,7 +485,7 @@ const UI = {
             $(element).css({
                 'transition': 'all 400ms',
                 'transform': 'scale(1.2)',
-                'z-index': '1000'            
+                'z-index': '1000'
             });
         }, 300);
         
@@ -527,7 +527,7 @@ const UI = {
         if (itemData.critical && itemData.critical !== 0) {
             stats += '<div class="flex columns"><label>CRITICAL</label><label>+' + itemData.critical + '%</label></div>';
         }
-        if (itemData.effect && itemData.effect !== '') {
+        if (itemData.effect && itemData.effect !== '') { //TODO: delete this?
             stats += '<div class="flex columns"><label>CRITICAL</label><label>+' + itemData.critical + '%</label></div>';
         }
         

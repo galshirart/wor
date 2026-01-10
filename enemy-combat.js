@@ -240,19 +240,20 @@ const EnemyCombat = {
         const projectileX = i($projectile, 'left');
         const projectileWidth = i($projectile, 'width') || 20;
         
-        // Check horizontal overlap with player
+        // Check horizontal overlap
         const playerLeft = state.player.position - 20;
         const playerRight = state.player.position + 20;
         
         if (projectileX + projectileWidth < playerLeft || projectileX > playerRight) {
             return;
         }
-
+        
         const projectileBottom = i($projectile, 'margin-bottom');
         const heroBottom = i(state.hero, 'margin-bottom');
         const projectileHeight = i($projectile, 'height');
         const flightPath = $projectile.attr('flight-path');
         if(flightPath === 'ballistic'){
+            // Check y overlap
             const projectileTop = projectileBottom + projectileHeight;
             const heroHeight = i(state.hero, 'height');
             const heroTop = heroBottom + heroHeight;
@@ -269,8 +270,35 @@ const EnemyCombat = {
             return;
         }
         
-        const damage = Number($projectile.attr('damage'));
-        Combat._applyDamageToPlayer(damage);  
+        let damage = Number($projectile.attr('damage'));
+        const projectileDirection = Number($projectile.attr('direction'));
+        
+        // Block only works if facing the projectile (opposite directions)
+        const isFacingProjectile = state.blockDirection === -projectileDirection;
+        
+        if (state.isBlocking && isFacingProjectile) {
+            damage = Math.round(damage * (1 - Constants.BLOCK_DAMAGE_REDUCTION));
+            //damage = Math.max(1, damage);
+            sound('block-1'); 
+            
+            // Apply reduced damage with reduced knockback
+            state.player.hp -= damage;
+            $('body').append('<div class="hit self">' + prettyNumber(damage, 'red') + '</div>');
+            state.hero.attr('in-damage', 'true');
+            
+            const knockback = setInterval(() => {
+                state.player.position -= state.heroDirection * Constants.HERO_KNOCKBACK * Constants.BLOCK_KNOCKBACK_REDUCTION;
+            }, 10);
+            
+            setTimeout(() => clearInterval(knockback), 200);
+            setTimeout(() => {
+                state.hero.attr('in-damage', 'false');
+                $('.hit.self').remove();
+            }, Constants.DAMAGE_IMMUNITY_MS);
+        } else {
+            console.log("block failed. isFacingProjectile = " + isFacingProjectile + "blocking = " + state.isBlocking );
+            Combat._applyDamageToPlayer(damage);  
+        }
         $projectile.remove();
         sound('hit-4');
     },

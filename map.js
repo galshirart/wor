@@ -65,9 +65,9 @@ const MapManager = {
         }
         
         let change = 0;
-        if (keyState.right) change = state.totalWalkSpeed;
-        else if (keyState.left) change = -state.totalWalkSpeed;
-        
+        if (keyState.right) change = state.player.walkSpeed;
+        else if (keyState.left) change = -state.player.walkSpeed;
+
         if (change) {
             state.heroDirection = Math.sign(change);
             state.hero
@@ -384,6 +384,11 @@ const MapManager = {
         const state = GameState;
         
         state.gameBeat = setInterval(() => {
+            // Skip game loop if paused
+            if (state.paused) {
+                return;
+            }
+            
             this.walk(state.keyState);
             this.slideMap();
             Combat.checkCollisions();

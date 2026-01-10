@@ -22,7 +22,7 @@ const Constants = {
 
     // TELEPORT
     PLAYER_POSITION_X: 630,
-    
+    INITIAL_PLAYER_POSITION: 905,
     // ========== COMBAT ==========
     PROJECTILE_SPEED: 10,
     PROJECTILE_RANGE: 500,
@@ -36,6 +36,19 @@ const Constants = {
     
     HIT_DISPLAY_MS: 800,        // How long damage numbers show
     
+    // ========== STATS ==========
+    BASE_ATTACK: 0,
+    BASE_DEFENSE: 0,
+    BASE_MAX_HP: 10,
+    BASE_MAX_MP: 10,
+    BASE_CRITICAL: 10,                
+    BASE_WALK_SPEED: 1.5,
+    BASE_ATTACK_SPEED: 800,
+    BASE_CRITICAL_MULTIPLIER: 1.5,
+    
+    // ========== MINIMUM STATS ==========
+    MIN_ATTACK_SPEED: 200,
+
     // ========== TIMING ==========
     SKILL_DURATION_MS: 600,
     JUMP_DURATION_MS: 790,
@@ -53,10 +66,10 @@ const Constants = {
     
     // ========== ANIMATION ==========
     MODE_DURATIONS: {
-        walk: 400,   // Will be divided by walkSpeed
+        walk: 400,  
         rest: 2000,
         jump: 800,
-        fight: 800   // Will use totalAtkSpeed
+        fight: 800   
     },
     
     // ========== UI ==========
@@ -78,13 +91,19 @@ const Constants = {
     ITEM_PICKUP_RANGE: 20,
     ITEM_PICKUP_ANIMATION_MS: 400,
     
+    // ========== BLOCKING ==========
+    BLOCK_DAMAGE_REDUCTION: 0.7,  // 70% damage reduction while blocking
+    BLOCK_WALK_SPEED_MULT: 0.3,   // 30% walk speed while blocking
+    BLOCK_KNOCKBACK_REDUCTION: 0.5, // 50% knockback reduction while blocking
+
     // ========== KEYS ==========
     KEYS: {
         LEFT: 37,
         UP: 38,
         RIGHT: 39,
         ATTACK: 65,       // A
-        SKILL_S: 83,      // S
+        BLOCK: 83,        // S
+        SKILL_W: 87,      // W
         SKILL_D: 68,      // D
         PICKUP: 90,       // Z
         INTERACT: 32,     // Space
