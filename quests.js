@@ -199,11 +199,12 @@ const QuestManager = {
         
         // Handle collect quests
         if (questData.type === 'collect') {
-			requirementItem = Object.keys(questData.requirement)[0];
-            state.player.backpack[requirementItem] -= questData.requirement[requirementItem];
-			setBackpack();
-            const amountText = questData.amount > 1 ? questData.amount + ' ' : '';
-            UI.log('Delivered ' + amountText + requirementItem, requirementItem);
+			for (const [item, amount] of Object.entries(questData.requirement)) {
+				state.player.backpack[item] -= amount;
+				const amountText = amount > 1 ? amount + ' ' : '';
+				UI.log('Delivered ' + amountText + item, item);
+			}
+            setBackpack();
         }
         
         // Grant rewards
