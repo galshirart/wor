@@ -728,7 +728,7 @@ input:focus {
 .card.quests .quest-details .section-label {
 	font-size:10px;
 	font-weight:700;
-	margin:8px 0 4px 0;
+	margin:12px 0 4px 0;
 	opacity:0.6;
 	border-top: 1px solid #40000020;
     padding-top: 8px;
