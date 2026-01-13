@@ -149,6 +149,13 @@ const MapManager = {
                         .css('left', portX)
                         .appendTo('.field');
                 }
+
+                if (condition === 'mapVisited' && !state.player.mapsVisited.includes(value)) {
+                    portElement.addClass('locked');
+                    $('<img src="assets/item-lock.webp" class="lock-icon" />')
+                        .css('left', portX)
+                        .appendTo('.field');
+                }
             }
             
             $('<div class="sparkles"></div>')
