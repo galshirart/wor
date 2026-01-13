@@ -289,10 +289,10 @@ const UI = {
     /**
      * Toggle quests card visibility
      */
-    toggleQuestsCard() {
+    toggleQuestsCard(forceOpen = false) {
         const card = $('.card.quests');
         card.find('.quest-details').html('').hide();
-        if (card.is(':visible')) {
+        if (card.is(':visible') && !forceOpen) {
             card.hide();
         } else {
             this.closeCard();
@@ -387,7 +387,7 @@ const UI = {
                     html += `<div class="objective">
                         <div class="${checkClass}"></div>
                         <span>Slain ${enemy.total} ${spcDash(enemy.name)}</span>
-                        <span class="progress">${enemy.killed}/${enemy.total}</span>
+                        <span class="progress">${enemy.killed}/${enemy.total} <img class="icon" src="assets/item-slain.webp" /></span>
                     </div>`;
                 });
             } else if (progress.type === 'visit') {
@@ -404,7 +404,7 @@ const UI = {
                     html += `<div class="objective">
                         <div class="${checkClass}"></div>
                         <span>Collect ${item.total} ${spcDash(item.name)}</span>
-                        <span class="progress">${item.collected}/${item.total}</span>
+                        <span class="progress">${item.collected}/${item.total} <img class="icon" src="assets/item-${item.name}.webp" /></span>
                     </div>`;
                 });
             }

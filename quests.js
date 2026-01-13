@@ -36,7 +36,7 @@ const QuestManager = {
         const quest = state.quests[targetQuest];
         
         // Check completion conditions
-        if (quest.type === 'kill') {
+        if (quest.type === 'kill' && state.player.questsAccepted.includes(targetQuest)) {
             let allKilled = true;
             for (const enemy in quest.requirement) {
                 if (!state.player.enemiesSlained[enemy] || 
@@ -52,7 +52,7 @@ const QuestManager = {
             }
         }
         
-        if (quest.type === 'visit') {
+        if (quest.type === 'visit' && state.player.questsAccepted.includes(targetQuest)) {
             if (state.player.mapsVisited.includes(quest.requirement)) {
                 step = 2;
                 buttonText = 'Complete Quest';
@@ -60,7 +60,7 @@ const QuestManager = {
             }
         }
 
-		if (quest.type === 'collect') {
+		if (quest.type === 'collect' && state.player.questsAccepted.includes(targetQuest)) {
             const requirementKey = Object.keys(quest.requirement)[0];
             if (state.player.backpack[requirementKey] >= quest.requirement[requirementKey]) {
                 step = 2;
@@ -178,10 +178,14 @@ const QuestManager = {
      */
     accept(quest) {
         GameState.player.questsAccepted.push(quest);
-		$('.quests.button').addClass('notification');
 		UI.log('Quest accepted', 'exclamation-mark');
         UI.closeCard();
         MapManager.placePorts();
+
+		// Open quests card and select the quest
+		UI.toggleQuestsCard(forceOpen = false)
+		$('.quests').show().find('[data-quest-id="'+quest+'"]').trigger('click');
+
         sound('quest');
     },
     
@@ -195,11 +199,12 @@ const QuestManager = {
         
         // Handle collect quests
         if (questData.type === 'collect') {
-			requirementItem = Object.keys(questData.requirement)[0];
-            state.player.backpack[requirementItem] -= questData.requirement[requirementItem];
-			setBackpack();
-            const amountText = questData.amount > 1 ? questData.amount + ' ' : '';
-            UI.log('Delivered ' + amountText + requirementItem, requirementItem);
+			for (const [item, amount] of Object.entries(questData.requirement)) {
+				state.player.backpack[item] -= amount;
+				const amountText = amount > 1 ? amount + ' ' : '';
+				UI.log('Delivered ' + amountText + item, item);
+			}
+            setBackpack();
         }
         
         // Grant rewards

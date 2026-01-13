@@ -636,7 +636,6 @@ input:focus {
 	color:#400000;
 	background:#FFF6C1;
 	border:1px solid #400000;
-	border-radius: 40px;
 }
 .bar.gold .icon {
 	margin-left:-9px;
@@ -728,7 +727,7 @@ input:focus {
 .card.quests .quest-details .section-label {
 	font-size:10px;
 	font-weight:700;
-	margin:8px 0 4px 0;
+	margin:12px 0 4px 0;
 	opacity:0.6;
 	border-top: 1px solid #40000020;
     padding-top: 8px;
@@ -739,9 +738,17 @@ input:focus {
 	margin:4px 0;
 	font-size:11px;
 }
+.card.quests .quest-details .objective .icon {
+	width:20px;
+    position: relative;
+    top: 6px;
+	margin-right:-2px;
+}
 .card.quests .quest-details .objective .progress {
 	margin-left:auto;
-	opacity:0.6;
+	color:rgba(64,0,0,0.6);
+	position: relative;
+	top: -5px;
 }
 .card.quests .quest-details .rewards-list {
 	margin-top:4px;
@@ -805,6 +812,7 @@ input:focus {
 	border-radius:4px;
 	background:rgba(64,0,0,0.05);
 	position:relative;
+	top:3px;
 }
 .card.menu .menu-checkbox.checked:after {
 	content:"";
