@@ -738,6 +738,12 @@ input:focus {
 	margin:4px 0;
 	font-size:11px;
 }
+.card.quests .quest-details .objective .icon {
+	width: 18px;
+    position: relative;
+    top: 5px;
+	margin-right:-2px;
+}
 .card.quests .quest-details .objective .progress {
 	margin-left:auto;
 	opacity:0.6;
@@ -804,6 +810,7 @@ input:focus {
 	border-radius:4px;
 	background:rgba(64,0,0,0.05);
 	position:relative;
+	top:3px;
 }
 .card.menu .menu-checkbox.checked:after {
 	content:"";
