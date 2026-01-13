@@ -70,7 +70,6 @@ const Player = {
      */
     stopBlock() {
         const state = GameState;
-        console.log("stopBlock");
         if (!state.isBlocking) {
             return;
         }

@@ -60,7 +60,7 @@ const MapManager = {
     walk(keyState) {
         const state = GameState;
         
-        if (Player.getMode() === 'fight' || Combat.skillCooldown) {
+        if (Player.getMode() === 'fight' || Player.getMode() === 'block' || Combat.skillCooldown) {
             return;
         }
         
