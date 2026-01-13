@@ -403,7 +403,7 @@ const UI = {
                     const checkClass = completed ? 'checkbox completed' : 'checkbox';
                     html += `<div class="objective">
                         <div class="${checkClass}"></div>
-                        <span>Collect ${item.total} ${spcDash(item.name)}</span>
+                        <span>Collect ${item.total} <img class="icon" src="assets/item-${item.name}.webp" /> ${spcDash(item.name)}</span>
                         <span class="progress">${item.collected}/${item.total}</span>
                     </div>`;
                 });
