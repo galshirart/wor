@@ -387,7 +387,7 @@ const UI = {
                     html += `<div class="objective">
                         <div class="${checkClass}"></div>
                         <span>Slain ${enemy.total} ${spcDash(enemy.name)}</span>
-                        <span class="progress">${enemy.killed}/${enemy.total}</span>
+                        <span class="progress">${enemy.killed}/${enemy.total} <img class="icon" src="assets/item-slain.webp" /></span>
                     </div>`;
                 });
             } else if (progress.type === 'visit') {
