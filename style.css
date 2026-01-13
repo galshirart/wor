@@ -739,14 +739,16 @@ input:focus {
 	font-size:11px;
 }
 .card.quests .quest-details .objective .icon {
-	width: 18px;
+	width:20px;
     position: relative;
-    top: 5px;
+    top: 6px;
 	margin-right:-2px;
 }
 .card.quests .quest-details .objective .progress {
 	margin-left:auto;
 	color:rgba(64,0,0,0.6);
+	position: relative;
+	top: -5px;
 }
 .card.quests .quest-details .rewards-list {
 	margin-top:4px;
