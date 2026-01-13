@@ -36,7 +36,7 @@ const QuestManager = {
         const quest = state.quests[targetQuest];
         
         // Check completion conditions
-        if (quest.type === 'kill') {
+        if (quest.type === 'kill' && state.player.questsAccepted.includes(targetQuest)) {
             let allKilled = true;
             for (const enemy in quest.requirement) {
                 if (!state.player.enemiesSlained[enemy] || 
@@ -52,7 +52,7 @@ const QuestManager = {
             }
         }
         
-        if (quest.type === 'visit') {
+        if (quest.type === 'visit' && state.player.questsAccepted.includes(targetQuest)) {
             if (state.player.mapsVisited.includes(quest.requirement)) {
                 step = 2;
                 buttonText = 'Complete Quest';
@@ -60,7 +60,7 @@ const QuestManager = {
             }
         }
 
-		if (quest.type === 'collect') {
+		if (quest.type === 'collect' && state.player.questsAccepted.includes(targetQuest)) {
             const requirementKey = Object.keys(quest.requirement)[0];
             if (state.player.backpack[requirementKey] >= quest.requirement[requirementKey]) {
                 step = 2;
