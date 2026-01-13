@@ -252,6 +252,10 @@ const Combat = {
         if (damage > state.enemies[enemyType].hp/10) {
             enemyKnockback = 10
         }
+        enemyKnockback = 0;
+        if (damage > state.enemies[enemyType].hp/20) {
+            enemyKnockback = 5
+        }
         
         enemyElement.attr({
             'state': 'enemy-hit',
