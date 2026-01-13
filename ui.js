@@ -289,10 +289,10 @@ const UI = {
     /**
      * Toggle quests card visibility
      */
-    toggleQuestsCard() {
+    toggleQuestsCard(forceOpen = false) {
         const card = $('.card.quests');
         card.find('.quest-details').html('').hide();
-        if (card.is(':visible')) {
+        if (card.is(':visible') && !forceOpen) {
             card.hide();
         } else {
             this.closeCard();

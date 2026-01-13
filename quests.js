@@ -178,10 +178,14 @@ const QuestManager = {
      */
     accept(quest) {
         GameState.player.questsAccepted.push(quest);
-		$('.quests.button').addClass('notification');
 		UI.log('Quest accepted', 'exclamation-mark');
         UI.closeCard();
         MapManager.placePorts();
+
+		// Open quests card and select the quest
+		UI.toggleQuestsCard(forceOpen = false)
+		$('.quests').show().find('[data-quest-id="'+quest+'"]').trigger('click');
+
         sound('quest');
     },
     
