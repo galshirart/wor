@@ -440,6 +440,7 @@ input:focus {
     position: relative;
     margin-right: 6px;
     background: #40000010;
+	top:3px;
 }
 .checkbox.completed:after {
 	content: " ";
