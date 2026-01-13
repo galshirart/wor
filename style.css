@@ -440,7 +440,6 @@ input:focus {
     position: relative;
     margin-right: 6px;
     background: #40000010;
-	top:3px;
 }
 .checkbox.completed:after {
 	content: " ";
@@ -747,7 +746,7 @@ input:focus {
 }
 .card.quests .quest-details .objective .progress {
 	margin-left:auto;
-	opacity:0.6;
+	color:rgba(64,0,0,0.6);
 }
 .card.quests .quest-details .rewards-list {
 	margin-top:4px;
