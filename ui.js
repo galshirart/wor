@@ -74,6 +74,8 @@ const UI = {
         const card = $('<div class="card middle buy"></div>')
             .appendTo('.window')
             .append(this.createItemRow(item).css('font-size', '16px'))
+
+        card.append(UI._getItemStats(item))
         
         card.append('<div class="flex columns"><label>PRICE</label><label class="price-value"></label></div>');
         
@@ -233,21 +235,15 @@ const UI = {
                 .appendTo('.window')
                 .append(UI.createItemRow(itemType));
             
-            if (state.equipments && state.equipments.hasOwnProperty(itemType)) {
+            if (state.equipments.hasOwnProperty(itemType)) {
                 card.append('<div><div class="tip">DOUBLE CLICK TO EQUIP</div></div>')
                     .append(UI._getItemStats(itemType));
             }
             
-            if (state.consumables && state.consumables.hasOwnProperty(itemType)) {
-                const consumableIndex = $('.consumables .icon[type=' + itemType + ']').index() + 1;
-                const consumable = state.consumables[itemType];
-                
+            if (state.consumables.hasOwnProperty(itemType)) {
+                const consumableIndex = $('.consumables .icon[type=' + itemType + ']').index() + 1;                
                 card.append('<div><div class="tip">PRESS ' + consumableIndex + ' TO CONSUME</div></div>');
-                card.append('<div class="flex columns"><label>' + consumable.effect + '</label><label>+' + consumable.value + '</label></div>');
-                
-                if (consumable.duration > 0) {
-                    card.append('<div class="flex columns"><label>DURATION</label><label>' + consumable.duration + ' minutes</label></div>');
-                }
+                card.append(UI._getItemStats(itemType));
             }
         }, function() {
             $('.card.hover').remove();
@@ -400,6 +396,7 @@ const UI = {
             } else if (progress.type === 'collect') {
                 progress.items.forEach(item => {
                     const completed = item.collected >= item.total;
+                    if (item.collected > item.total) { item.collected = item.total; }
                     const checkClass = completed ? 'checkbox completed' : 'checkbox';
                     html += `<div class="objective">
                         <div class="${checkClass}"></div>
@@ -416,9 +413,9 @@ const UI = {
             html += '<div class="rewards-list"></div>';
         }
 
-            html += `<div class="actions">
-            <div class="button" onclick="UI.withdrawQuest('${questId}')">Withdraw</div>
-            </div>`;
+        // html += `<div class="actions">
+        // <div class="button" onclick="UI.withdrawQuest('${questId}')">Withdraw</div>
+        // </div>`;
 
         detailsEl.html(html);
 
@@ -506,6 +503,8 @@ const UI = {
     _getItemStats(item) {
         const state = GameState;
 
+        console.log(item);
+
         if (state.equipments.hasOwnProperty(item)) {
          itemData = state.equipments[item];
         }
@@ -513,23 +512,30 @@ const UI = {
             itemData = state.consumables[item];
         }
 
+        console.log(itemData);
+
         let stats = '';
         
         if (itemData.description && itemData.description !== '') {
             stats += '<div class="flex"><div class="tip">' + itemData.description + '</div></div>';
         }
-        if (itemData.attack && itemData.attack !== 0) {
+        if (itemData.attack && itemData.attack !== '0') {
             stats += '<div class="flex columns"><label>ATTACK</label><label>' + itemData.attack + '</label></div>';
         }
-        if (itemData.defense && itemData.defense !== 0) {
+        if (itemData.defense && itemData.defense !== '0') {
             stats += '<div class="flex columns"><label>DEFENSE</label><label>' + itemData.defense + '</label></div>';
         }
-        if (itemData.critical && itemData.critical !== 0) {
+        if (itemData.critical && itemData.critical !== '0') {
             stats += '<div class="flex columns"><label>CRITICAL</label><label>+' + itemData.critical + '%</label></div>';
         }
-        if (itemData.effect && itemData.effect !== '') { //TODO: delete this?
-            stats += '<div class="flex columns"><label>CRITICAL</label><label>+' + itemData.critical + '%</label></div>';
+        if (itemData.effect) {
+            stats += '<div class="flex columns"><label>'+itemData.effect+'</label><label>+' + itemData.value + '</label></div>';
         }
+        if (itemData.duration && itemData.duration !== '0') {
+            stats += '<div class="flex columns"><label>DURATION</label><label>' + itemData.duration + ' minutes</label></div>';
+        }
+
+        console.log(stats);
         
         return stats;
     },
