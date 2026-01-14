@@ -503,17 +503,13 @@ const UI = {
     _getItemStats(item) {
         const state = GameState;
 
-        console.log(item);
-
         if (state.equipments.hasOwnProperty(item)) {
          itemData = state.equipments[item];
         }
         if (state.consumables.hasOwnProperty(item)) {
             itemData = state.consumables[item];
         }
-
-        console.log(itemData);
-
+        
         let stats = '';
         
         if (itemData.description && itemData.description !== '') {
@@ -534,8 +530,6 @@ const UI = {
         if (itemData.duration && itemData.duration !== '0') {
             stats += '<div class="flex columns"><label>DURATION</label><label>' + itemData.duration + ' minutes</label></div>';
         }
-
-        console.log(stats);
         
         return stats;
     },
