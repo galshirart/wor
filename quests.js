@@ -25,6 +25,7 @@ const QuestManager = {
         let step = 0;
         let buttonText = 'Accept Quest';
         let buttonAction = `QuestManager.accept("${targetQuest}")`;
+        let buttonColor = '';
         
         // Determine quest step
         if (state.player.questsAccepted.includes(targetQuest)) {
@@ -47,16 +48,12 @@ const QuestManager = {
             }
             if (allKilled) {
                 step = 2;
-                buttonText = 'Complete Quest';
-                buttonAction = `QuestManager.complete("${targetQuest}")`;
             }
         }
         
         if (quest.type === 'visit' && state.player.questsAccepted.includes(targetQuest)) {
             if (state.player.mapsVisited.includes(quest.requirement)) {
                 step = 2;
-                buttonText = 'Complete Quest';
-                buttonAction = `QuestManager.complete("${targetQuest}")`;
             }
         }
 
@@ -64,9 +61,13 @@ const QuestManager = {
             const requirementKey = Object.keys(quest.requirement)[0];
             if (state.player.backpack[requirementKey] >= quest.requirement[requirementKey]) {
                 step = 2;
-                buttonText = 'Complete Quest';
-                buttonAction = `QuestManager.complete("${targetQuest}")`;
             }
+        }
+
+        if (step === 2) {
+            buttonColor = 'yellow';
+            buttonText = 'Complete Quest';
+            buttonAction = `QuestManager.complete("${targetQuest}")`;
         }
         
         const card = $('.card#' + cardId);
@@ -100,10 +101,11 @@ const QuestManager = {
                 card.append(rewards);
             }
             
-            $(`<div class="actions"><div class="button yellow">${buttonText}</div></div>`)
+            $(`<div class="actions"><div class="button">${buttonText}</div></div>`)
                 .appendTo(card)
                 .find('.button')
-                .attr('onclick', buttonAction);
+                .attr('onclick', buttonAction)
+                .addClass(buttonColor ?? 'yellow');
         };
         
         const dialogLine = () => {

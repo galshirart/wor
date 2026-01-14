@@ -175,7 +175,7 @@ const NPCManager = {
             UI.typeWriterEffect(text, speech, 0);
             
             setTimeout(() => {
-                $('<div class="actions"><div class="button yellow">CLOSE</div></div>')
+                $('<div class="actions"><div class="button">CLOSE</div></div>')
                     .appendTo(card)
                     .find('.button')
                     .attr('onclick', 'UI.closeCard()');
