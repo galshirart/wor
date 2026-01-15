@@ -392,20 +392,17 @@ const MapManager = {
         
         state.gameBeat = setInterval(() => {
             // Skip game loop if paused
-            if (state.paused) {
+            if (state.paused || state.heroDeath) {
                 return;
             }
-            
-            this.walk(state.keyState);
-            this.slideMap();
-            if(!state.heroDeath) {
+                this.slideMap();
+                this.walk(state.keyState);
                 Combat.checkCollisions();
                 Player.updateProjectiles();
                 EnemyCombat.updateProjectiles();
                 Player.recover();
                 PenaltyManager.updateTimers(10);    
                 GameState.save();
-            }
         }, 10);
     },
     
