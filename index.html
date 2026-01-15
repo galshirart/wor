@@ -23,14 +23,17 @@
     10. npcs.js      - Depends on: Constants, GameState, Utils, Player, UI, QuestManager
     11. quests.js    - Depends on: Constants, GameState, Utils, Player, UI, MapManager
     12. map.js       - Depends on: Constants, GameState, Utils, Player, Combat, EnemyManager, NPCManager, UI
-    13. game.js      - Entry point, depends on everything
+    13. penalties.js - Depends on: Constants, GameState, Utils, UI
+    14. game.js      - Entry point, depends on everything
 -->
 <script src="constants.js" defer></script>
 <script src="utils.js" defer></script>
 <script src="audio.js" defer></script>
 <script src="game-state.js" defer></script>
+<script src="penalties.js" defer></script>
 <script src="ui.js" defer></script>
-<script src="menu-ui.js" defer></script>
+<script src="ui-menu.js" defer></script>
+<script src="ui-death.js" defer></script>
 <script src="combat.js" defer></script>
 <script src="player.js" defer></script>
 <script src="enemy-combat.js" defer></script>
@@ -71,6 +74,16 @@
 			<div class="bar-container flex">
 				<div class="icon"><img src="assets/icon-mana.webp" /></div>
 				<div class="bar mp">
+					<div class="fill"></div>
+					<div class="flex">
+						<span class="value"></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="bar-container flex">
+				<div class="icon"><img src="assets/icon-mana.webp" /></div>
+				<div class="bar stamina">
 					<div class="fill"></div>
 					<div class="flex">
 						<span class="value"></span>

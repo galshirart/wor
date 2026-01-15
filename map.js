@@ -398,11 +398,14 @@ const MapManager = {
             
             this.walk(state.keyState);
             this.slideMap();
-            Combat.checkCollisions();
-            Player.updateProjectiles();
-            EnemyCombat.updateProjectiles();
-            Player.recover();
-            GameState.save();
+            if(!state.heroDeath) {
+                Combat.checkCollisions();
+                Player.updateProjectiles();
+                EnemyCombat.updateProjectiles();
+                Player.recover();
+                PenaltyManager.updateTimers(10);    
+                GameState.save();
+            }
         }, 10);
     },
     
