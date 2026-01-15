@@ -182,7 +182,6 @@ const NPCManager = {
         
         // Handle post-choice action
         if (npcData.afterChoice === 'revive') {
-            // Teleport to revive map and restore player
             state.player.hp = state.player.maxHp;
             state.player.mp = state.player.maxMp;
             state.player.stamina = state.player.maxStamina;

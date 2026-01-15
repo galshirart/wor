@@ -36,10 +36,9 @@ const DeathUI = {
         const state = GameState;
 
         $('.card.death').remove();        
-        // // Reset flags that would otherwise cause immediate re-hit
+        // Reset flags that would otherwise cause immediate re-hit
         state.hero?.attr('in-damage', 'false');
         state.isBlocking = false;
-        Player.setMode('rest');
         
         setTimeout(() => {
             MapManager.teleport(Constants.DEATH_MAP);
