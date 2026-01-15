@@ -79,7 +79,6 @@ const Player = {
             state.player.stamina -= drainPerTick;
             
             // Update stamina bar immediately for smooth drain
-            $('.bar.stamina').find('.value').html(Math.floor(state.player.stamina));
             $('.bar.stamina').find('.fill').css('width', state.player.stamina / state.player.maxStamina * 100 + '%');
             
             // Stop blocking when stamina runs out
@@ -393,7 +392,6 @@ const Player = {
         $('.bar.hp').find('.fill').css('width', state.player.hp / state.player.maxHp * 100 + '%');
         $('.bar.mp').find('.value').html(Math.floor(state.player.mp));
         $('.bar.mp').find('.fill').css('width', state.player.mp / state.player.maxMp * 100 + '%');
-        $('.bar.stamina').find('.value').html(Math.floor(state.player.stamina));
         $('.bar.stamina').find('.fill').css('width', state.player.stamina / state.player.maxStamina * 100 + '%');
     },
     /**
