@@ -1,0 +1,192 @@
+<title>Duck Delivery | Dialog Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Nunito:wght@200..1000&family=Roboto+Slab:wght@400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Nunito:wght@200..1000&family=Roboto+Slab:wght@400;600&display=swap" rel="stylesheet"></noscript>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/jquery-ui.min.js" integrity="sha512-MSOo1aY+3pXCOCdGAYoBZ6YGI0aragoQsg1mKKBHXCYPIWxamwOE7Drh+N5CPgGI5SA9IEKJiPjdfqWFWmZtRA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<style>
+body {
+	font-family: 'Nunito';
+	margin-top:50px;
+}
+.flex {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.step {
+	width:400px;
+	border:1px solid #40000020;
+	border-radius: 8px;
+	padding:10px;
+	margin:4px;
+}
+.step span {
+	display: block;
+	width:60px;
+	font-size:12px;
+}
+input {
+	display: block;
+	width:100%;
+	height:30px;
+	border:1px solid #40000020;
+	border-radius: 4px;
+	padding:0 8px;
+	font-size:12px;
+	font-family: 'Roboto Slab';
+	font-weight:400;
+	color:#400000;
+	background:rgba(64,0,0,0.05);
+	outline: none;
+	margin:4px 0;
+}
+.step .flex:nth-child(odd) input {
+	background:rgba(64,0,0,0.15);
+}
+button {
+	display: block;
+	margin:0 auto;
+	width:200px;
+	height:30px;
+}
+.clear {
+	font-size:14px;
+	cursor:pointer;
+	text-decoration: underline;
+	display:block;
+	margin:0 auto;
+	width:fit-content;
+	margin-top:20px;
+}
+</style>
+
+<button onclick="importDialogJSON()">Import Dialog JSON</button>
+
+
+<div style="margin-top:30px;"></div>
+
+<div class="container flex">
+	<div class="proposed step">
+		<p>Introduction</p>
+	</div>
+	<div class="accepted step">
+		<p>Quest In Progress</p>
+	</div>
+	<div class="completed step">
+		<p>Requirements Met</p>
+	</div>
+</div>
+
+<div style="margin-top:16px;"></div>
+
+<button onclick="copyDialogJSON()">Copy Dialog JSON</button>
+
+<span class="clear" onclick="clearDialog()">Clear All</span>
+
+
+<script>
+$('.step').each(function() {
+	for (let i = 0; i < 14; i++) {
+		div = $('<div class="flex"></div>').appendTo(this);
+		if (i % 2 === 1) {
+			div.append('<span>HERO</span>');
+		} else {
+			div.append('<span>NPC</span>');
+		}
+
+			div.append('<input />');
+	
+	}
+})
+
+function importDialogJSON() {
+	let pasted = prompt("Paste the dialog JSON here:");
+	if (!pasted) return;
+	try {
+		let dialogJSON = JSON.parse(pasted);
+		$('.step').each(function(stepIdx) {
+			let values = dialogJSON[stepIdx] || [];
+			$(this).find('input').each(function(inputIdx) {
+				$(this).val(values[inputIdx] || '');
+			});
+		});
+		// Optionally save to localStorage as well
+		localStorage.setItem('dialogJSON', JSON.stringify(dialogJSON));
+	} catch (e) {
+		alert("Invalid JSON format!");
+	}
+}
+
+function copyDialogJSON() {
+	let dialogJSON = [];
+	$('.step').each(function() {
+		let values = $(this).find('input').map(function() {
+			return $(this).val();
+		}).get().filter(function(val) {
+			return val.trim() !== '';
+		});
+		// Only push if at least one input is non-empty
+		if (values.length > 0) {
+			dialogJSON.push(values);
+		}
+	});
+	navigator.clipboard.writeText(JSON.stringify(dialogJSON));
+}
+
+// Save the dialog JSON to local storage on input
+$('.step input').on('input', function() {
+	let dialogJSON = [];
+	$('.step').each(function() {
+		let values = $(this).find('input').map(function() {
+			return $(this).val();
+		}).get().filter(function(val) {
+			return val.trim() !== '';
+		});
+		// Only push if at least one input is non-empty
+		if (values.length > 0) {
+			dialogJSON.push(values);
+		}
+	});
+	try {
+		localStorage.setItem('dialogJSON', JSON.stringify(dialogJSON));
+	} catch (e) {
+		// Fail silently
+	}
+});
+
+// On page load, prefill from local storage if possible
+$(function() {
+	let saved = localStorage.getItem('dialogJSON');
+	if (saved) {
+		try {
+			let dialogJSON = JSON.parse(saved);
+			$('.step').each(function(stepIdx) {
+				let values = dialogJSON[stepIdx] || [];
+				// Don't fill the step if all of its dialog is empty (triggered on loading blank step in JSON)
+				let allEmpty = values.length === 0 || values.every(v => (v == null) || v.trim() === "");
+				if (allEmpty) return;
+				$(this).find('input').each(function(inputIdx) {
+					if (values[inputIdx] !== undefined) {
+						$(this).val(values[inputIdx]);
+					} else {
+						$(this).val('');
+					}
+				});
+			});
+		} catch(e) {
+			// Ignore malformed JSON
+		}
+	}
+});
+
+function clearDialog() {
+	localStorage.removeItem('dialogJSON');
+	$('.step').each(function() {
+		$(this).find('input').val('');
+	});
+}
+
+</script>
