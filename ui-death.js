@@ -10,12 +10,9 @@ const DeathUI = {
      */
     showDeathCard() {
         const state = GameState;
-        
-        // Prevent duplicates
         if ($('.card.death').is(':visible')) {
             return;
         }
-        // Close other UI
         UI.closeCard();
 
         // Visual effect
@@ -43,7 +40,7 @@ const DeathUI = {
         setTimeout(() => {
             MapManager.teleport(Constants.DEATH_MAP);
             state.heroDeath = false;
-            $('.window').removeClass('death-screen');
+            $('.window').removeClass('death-screen'); //back to original colors
         }, 100);
     },
 };

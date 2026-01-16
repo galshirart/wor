@@ -13,26 +13,12 @@ const PenaltyManager = {
     getRandomPenalties(count = 3) {
         const state = GameState;
         const penalties = state.penalties;
-        
-        if (!penalties) {
-            console.error('Penalties not loaded');
-            return [];
-        }
-        
-        // Filter to only penalties that are active
-        const activePenalties = {};
-        for (const id in penalties) {
-            const penalty = penalties[id];
-            if (penalty && penalty.active === "TRUE") {
-                activePenalties[id] = penalty;
-            }
-        }
 
         // Group penalties by category
         const byCategory = {};
-        for (const id in activePenalties) {
-            const penalty = activePenalties[id];
-            if (!byCategory[penalty.category]) {
+        for (const id in penalties) {
+            const penalty = penalties[id];
+            if (penalty.active === "TRUE" && !byCategory[penalty.category]) {
                 byCategory[penalty.category] = [];
             }
             byCategory[penalty.category].push({ id, ...penalty });
