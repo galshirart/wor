@@ -1082,15 +1082,8 @@ input:focus {
 [mode=fight][attackType='7'], [mode=fight][attackType='7'] .equipment { animation-name:attack-7 }
 
 [mode=block] {
-	animation-name: block;
+	background-position-x: -2160px;
 }
-[mode=block] .equipment {
-	animation-name: block;
-}
-@keyframes block {
-	0%, 100% { background-position-x: -160px; }
-}
-
 .hero.jumping {
 	margin-bottom:100px;
 	transition-timing-function: cubic-bezier(0,0,.42,1);
@@ -1219,10 +1212,10 @@ input:focus {
 	animation-name: weapon-jump;
 }
 [mode=block] .weapon {
-	animation-name: weapon-block;
-}
-@keyframes weapon-block {
-	0%, 100% { left:-20px; bottom:-10px; transform: rotate(45deg); }
+	animation-name: none;
+	left:-12px; 
+	bottom:-11px; 
+	transform: rotate(20deg);
 }
 @keyframes weapon-rest {
 	0% { left:-10; bottom:-21; transform: rotate(65deg)}
