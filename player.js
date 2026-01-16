@@ -48,6 +48,9 @@ const Player = {
     
     // ========== BLOCKING ==========
     
+    // Interval for draining stamina while blocking
+    blockDrainInterval: null,
+    
     /**
      * Start blocking
      */
@@ -60,9 +63,31 @@ const Player = {
             return;
         }
         
+        // Check if player has stamina to block
+        if (state.player.stamina <= 0) {
+            UI.shake($('.bar.stamina'));
+            return;
+        }
+        
         state.isBlocking = true;
         state.blockDirection = state.heroDirection;  // Lock direction when starting block
         this.setMode('block');
+        
+        // Start draining stamina while blocking
+        const drainPerTick = Constants.STAMINA_DRAIN_RATE / 60; // 60 ticks per second
+        this.blockDrainInterval = setInterval(() => {
+            state.player.stamina -= drainPerTick;
+            
+            // Update stamina bar immediately for smooth drain
+            $('.bar.stamina').find('.fill').css('width', state.player.stamina / state.player.maxStamina * 100 + '%');
+            
+            // Stop blocking when stamina runs out
+            if (state.player.stamina <= 0) {
+                state.player.stamina = 0;
+                state.lastStaminaDrainTime = Date.now(); // Only delay recovery if it hit 0
+                this.stopBlock();
+            }
+        }, 1000 / 60);
     },
     
     /**
@@ -72,6 +97,12 @@ const Player = {
         const state = GameState;
         if (!state.isBlocking) {
             return;
+        }
+        
+        // Clear the stamina drain interval
+        if (this.blockDrainInterval) {
+            clearInterval(this.blockDrainInterval);
+            this.blockDrainInterval = null;
         }
         
         state.isBlocking = false;
@@ -344,6 +375,14 @@ const Player = {
             state.player.maxMp
         );
         
+        // Recover stamina only when not blocking and after delay
+        if (!state.isBlocking && Date.now() - state.lastStaminaDrainTime > Constants.STAMINA_RECOVERY_DELAY_MS) {
+            state.player.stamina = Math.min(
+                state.player.stamina + state.player.maxStamina * Constants.STAMINA_RECOVERY_RATE,
+                state.player.maxStamina
+            );
+        }
+        
         if (state.player.hp <= 0) { 
 		this.heroDeath();
 	    }
@@ -353,15 +392,18 @@ const Player = {
         $('.bar.hp').find('.fill').css('width', state.player.hp / state.player.maxHp * 100 + '%');
         $('.bar.mp').find('.value').html(Math.floor(state.player.mp));
         $('.bar.mp').find('.fill').css('width', state.player.mp / state.player.maxMp * 100 + '%');
+        $('.bar.stamina').find('.fill').css('width', state.player.stamina / state.player.maxStamina * 100 + '%');
     },
     /**
      * Handle hero death
      */
     heroDeath() {
-	sound('squeak-3');
-    MapManager.teleport(player.reviveMap);
-    player.hp = player.maxHp;
-    player.mp = player.maxMp;
+        const state = GameState;
+        state.heroDeath = true;       
+        sound('squeak-3');
+        state.player.hp = 0;
+        Player.stopBlock();
+        DeathUI.showDeathCard();
     },
 
 };

@@ -39,6 +39,10 @@ const NPCManager = {
             this._setupQuestGiver(card, npcData);
         }
         
+        if (npcData.type === 'choice') {
+            this._setupMultipleChoice(card, npcData);
+        }
+        
         UI.zoom('in');
     },
     
@@ -131,6 +135,66 @@ const NPCManager = {
         card.append('<div class="npc-text">' + npcData.speech + '</div>');
         $('.backpack').show();
         card.append('<div><div class="tip">Click on an item from your backpack</div></div>');
+    },
+    
+    _setupMultipleChoice(card, npcData) {
+        const state = GameState;
+        
+        card.append('<div class="npc-text">' + npcData.speech + '</div>');
+        // Get choices based on choiceSource
+        let choices = [];
+        
+        if (npcData.choiceSource === 'penalties') {
+            choices = PenaltyManager.getRandomPenalties(3);
+        }
+        
+        const choicesContainer = $('<div class="choices"></div>').appendTo(card);
+        choices.forEach(choice => {
+            const row = $('<div class="item-row flex choice-row"></div>')
+                .appendTo(choicesContainer)
+                .attr('data-choice-id', choice.id);
+            
+            $('<div class="thumb"></div>')
+                .css('background-image', 'url(assets/item-' + choice.category + '.webp)')
+                .appendTo(row);
+            
+            const textContainer = $('<div class="choice-text"></div>').appendTo(row);
+            $('<label>' + choice.name + '</label>').appendTo(textContainer);
+            
+            
+                const desc = PenaltyManager.formatDescription(choice);
+                $('<div class="choice-desc">' + desc + '</div>').appendTo(textContainer);
+            
+            row.on('click', () => {
+                this._handleMultipleChoiceSelection(choice, npcData);
+            });
+        });
+    },
+    
+    _handleMultipleChoiceSelection(choice, npcData) {
+        const state = GameState;
+        
+        // Apply the choice based on source
+        if (npcData.choiceSource === 'penalties') {
+            PenaltyManager.apply(choice.id);
+        }
+        UI.closeCard();
+        
+        // Handle post-choice action
+        if (npcData.afterChoice === 'revive') {
+            state.player.hp = state.player.maxHp;
+            state.player.mp = state.player.maxMp;
+            state.player.stamina = state.player.maxStamina;
+            state.heroDeath = false;
+            
+            // Remove death screen effect
+            $('.window').removeClass('death-screen');
+            
+            MapManager.teleport(state.player.reviveMap);
+            Player.setMode('rest');
+        }
+        
+        sound('click');
     },
     
     _setupQuestGiver(card, npcData) {
