@@ -21,6 +21,7 @@ const GameState = {
     quests: null,
     consumables: null,
     rangedAttacks: null,
+    penalties: null,
     
     // ========== RUNTIME STATE ==========
     heroDirection: 1,
@@ -28,6 +29,7 @@ const GameState = {
     activeConsumables: [],
     paused: false,
     soundEnabled: true,
+    lastStaminaDrainTime: 0,
     
     // ========== DOM REFERENCES ==========
     hero: null,  // Set after DOM ready
@@ -65,6 +67,7 @@ const GameState = {
         this.quests = data.quests;
         this.consumables = data.consumables;
         this.rangedAttacks = data.rangedAttacks;
+        this.penalties = data.penalties;
         
         return data;
     },
@@ -100,8 +103,10 @@ const GameState = {
             position: Constants.INITIAL_PLAYER_POSITION,
             hp: Constants.BASE_MAX_HP,
             mp: Constants.BASE_MAX_MP,
+            stamina: Constants.BASE_MAX_STAMINA,
             maxHp: Constants.BASE_MAX_HP,
             maxMp: Constants.BASE_MAX_MP,
+            maxStamina: Constants.BASE_MAX_STAMINA,
             critical: Constants.BASE_CRITICAL,
             walkSpeed: Constants.BASE_WALK_SPEED,
             attackSpeed: Constants.BASE_ATTACK_SPEED,
@@ -110,7 +115,8 @@ const GameState = {
             enemiesSlained: {},
             mapsVisited: [],
             reviveMap: 'a-box',
-            criticalMultiplier: Constants.BASE_CRITICAL_MULTIPLIER
+            criticalMultiplier: Constants.BASE_CRITICAL_MULTIPLIER,
+            activePenalties: [],
         };
         this.save();
         location.reload();
@@ -128,6 +134,7 @@ const GameState = {
         let totalDefense = Constants.BASE_DEFENSE;
         let totalMaxHp = Constants.BASE_MAX_HP;
         let totalMaxMp = Constants.BASE_MAX_MP;
+        let totalMaxStamina = Constants.BASE_MAX_STAMINA;
 
         // Equipment bonuses
         for (const slot in this.player.equipments) {
@@ -138,6 +145,7 @@ const GameState = {
                 totalWalkSpeed += Number(this.equipments[item].walkSpeed || 0);
                 totalMaxHp += Number(this.equipments[item].maxHp || 0);
                 totalMaxMp += Number(this.equipments[item].maxMp || 0);
+                totalMaxStamina += Number(this.equipments[item].maxStamina || 0);
                 totalAttack += Number(this.equipments[item].attack || 0);
                 totalDefense += Number(this.equipments[item].defense || 0);
             }
@@ -145,6 +153,30 @@ const GameState = {
         
         // Consumable bonuses
         ({ totalWalkSpeed, totalAttackSpeed: totalAttackSpeed, totalCritical } = this._calculateConsumables(totalWalkSpeed, totalAttackSpeed, totalCritical));
+
+        // Apply penalty effects
+        let stats = {
+            totalWalkSpeed,
+            totalAttackSpeed,
+            totalCritical,
+            totalAttack,
+            totalDefense,
+            totalMaxHp,
+            totalMaxMp,
+            totalMaxStamina
+        };
+        
+        if (typeof PenaltyManager !== 'undefined') {
+            stats = PenaltyManager.applyToStats(stats);
+            totalWalkSpeed = stats.totalWalkSpeed;
+            totalAttackSpeed = stats.totalAttackSpeed;
+            totalCritical = stats.totalCritical;
+            totalAttack = stats.totalAttack;
+            totalDefense = stats.totalDefense;
+            totalMaxHp = stats.totalMaxHp;
+            totalMaxMp = stats.totalMaxMp;
+            totalMaxStamina = stats.totalMaxStamina;
+        }
 
         if (totalAttackSpeed < Constants.MIN_ATTACK_SPEED) {
             totalAttackSpeed = Constants.MIN_ATTACK_SPEED;
@@ -155,6 +187,7 @@ const GameState = {
         this.player.critical = totalCritical;
         this.player.maxHp = totalMaxHp;
         this.player.maxMp = totalMaxMp;
+        this.player.maxStamina = totalMaxStamina;
         this.player.attack = totalAttack;
         this.player.defense = totalDefense;
     },

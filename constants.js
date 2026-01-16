@@ -95,6 +95,15 @@ const Constants = {
     BLOCK_DAMAGE_REDUCTION: 0.7,  // 70% damage reduction while blocking
     BLOCK_WALK_SPEED_MULT: 0.3,   // 30% walk speed while blocking
     BLOCK_KNOCKBACK_REDUCTION: 0.5, // 50% knockback reduction while blocking
+    
+    // ========== STAMINA ==========
+    BASE_MAX_STAMINA: 100,
+    STAMINA_DRAIN_RATE: 100,       // Stamina drained per second while blocking (100 = full drain in 1 sec)
+    STAMINA_RECOVERY_RATE: 0.001,  // Per game tick, as fraction of max (similar to HP/MP)
+    STAMINA_RECOVERY_DELAY_MS: 300, // Delay before stamina starts recovering after use
+
+    // ========== MAPS ==========
+    DEATH_MAP: 'mother-three',
 
     // ========== KEYS ==========
     KEYS: {

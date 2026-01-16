@@ -136,6 +136,27 @@ body {
 	justify-content: center;
 	color: #400000;
 }
+
+/************** DEATH SCREEN **************/
+
+/* When the hero dies, we apply a grayscale filter and a dark overlay */
+.window.death-screen .screen {
+	filter: grayscale(1) contrast(1.05);
+}
+
+.window.death-screen:after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: rgba(0,0,0,0.65);
+	z-index: 80;
+	pointer-events: none;
+}
+
+/* Ensure the death card appears above the overlay */
+.card.death {
+	z-index: 90;
+}
 .mapsign {
 	position: absolute;
 	z-index: 13;
@@ -514,14 +535,14 @@ input:focus {
 	transition: transform 100ms;
 	border-radius: 8px;
 }
-.bar.hp, .bar.mp {
+.bar.hp, .bar.mp, .bar.stamina {
 	border-radius: 0 7px 7px 0;
 	border:0;
 	padding:0;
 	font-size:12px;
 	background:#40000050
 }
-.bar.hp .flex, .bar.mp .flex {
+.bar.hp .flex, .bar.mp .flex, .bar.stamina .flex {
 	position: absolute;
 	padding:0 8px;
 	width:100%;
@@ -552,6 +573,26 @@ input:focus {
 }
 .bar.mp .fill {
 	background:#00AAFF;
+}
+.bar.stamina .fill {
+	background:#FFD700;
+}
+.icon.stamina-icon {
+	width: 30px;
+	height: 30px;
+	background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+	border-radius: 50%;
+	position: relative;
+	box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2);
+}
+.icon.stamina-icon:after {
+	content: "⚡";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 16px;
+	color: #8B4513;
 }
 .bar-container.consumables {
 	transition: all 100ms;
@@ -921,6 +962,42 @@ input:focus {
 .item-row .thumb {
 	margin-right:8px;
 }
+
+/************** MULTIPLE CHOICE (Penalties/Bonuses) **************/
+
+.npc.choice .choices {
+	margin-top: 8px;
+}
+.npc.choice .choice-row {
+	padding: 8px;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background 0.15s ease;
+	margin-bottom: 4px;
+}
+.npc.choice .choice-row:hover {
+	background: rgba(64, 0, 0, 0.08);
+}
+.npc.choice .choice-row:active {
+	background: rgba(64, 0, 0, 0.15);
+}
+.npc.choice .choice-text {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+.npc.choice .choice-text label {
+	font-weight: 600;
+	margin-bottom: 2px;
+	cursor: pointer;
+}
+.npc.choice .choice-desc {
+	font-size: 11px;
+	color: #666;
+	line-height: 1.3;
+}
+
 .flex.columns {
 	align-items: flex-start;
 }

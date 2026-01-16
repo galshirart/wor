@@ -277,6 +277,10 @@ const EnemyCombat = {
         const isFacingProjectile = state.blockDirection === -projectileDirection;
         
         if (state.isBlocking && isFacingProjectile) {
+            if (state.player.stamina <= 0) {
+                state.player.stamina = 0;
+                state.lastStaminaDrainTime = Date.now(); // Delay recovery if it hit 0
+            }
             damage = Math.round(damage * (1 - Constants.BLOCK_DAMAGE_REDUCTION));
             //damage = Math.max(1, damage);
             sound('block-1'); 
