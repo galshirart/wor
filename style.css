@@ -1333,6 +1333,9 @@ input:focus {
 	60% { left:-9 ; bottom:-16; transform:rotate(140deg) }
 	80% { left:-9 ; bottom:-20; transform:rotate(150deg) }
 }
+[mode=block] .weapon[type='range'] {
+	transform: rotate(130deg);
+}
 .projectile {
 	position: absolute;
 	width: 80px;
