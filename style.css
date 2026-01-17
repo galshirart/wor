@@ -575,24 +575,8 @@ input:focus {
 	background:#00AAFF;
 }
 .bar.stamina .fill {
-	background:#FFD700;
-}
-.icon.stamina-icon {
-	width: 30px;
-	height: 30px;
-	background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-	border-radius: 50%;
-	position: relative;
-	box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2);
-}
-.icon.stamina-icon:after {
-	content: "⚡";
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	font-size: 16px;
-	color: #8B4513;
+	background:white;
+	transition: all 0ms;
 }
 .bar-container.consumables {
 	transition: all 100ms;
