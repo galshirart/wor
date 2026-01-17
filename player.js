@@ -383,7 +383,7 @@ const Player = {
             );
         }
         
-        if (state.player.hp <= 0) { 
+        if (state.player.hp < 1 && state.player.location !== Constants.DEATH_MAP) { 
 		this.heroDeath();
 	    }
         
@@ -399,7 +399,7 @@ const Player = {
      */
     heroDeath() {
         const state = GameState;
-        state.heroDeath = true;       
+        state.heroIsDead = true;       
         sound('squeak-3');
         state.player.hp = 0;
         Player.stopBlock();

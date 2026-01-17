@@ -33,9 +33,8 @@ const Input = {
         document.onkeydown = (e) => {
             const K = Constants.KEYS;
             
-            // Handle ESC specially - close cards first, then toggle menu
+            // Handle ESC - close cards first, then toggle menu
             if (e.keyCode === K.ESCAPE) {
-                // Check if any card (except menu) is open
                 const openCards = $('.card:visible').not('.menu');
                 if (openCards.length > 0) {
                     UI.closeCard();
@@ -47,7 +46,7 @@ const Input = {
             }
             
             // Block all other inputs when game is paused (menu open)
-            if (GameState.paused) {
+            if (GameState.paused || GameState.heroIsDead) {
                 return;
             }
             

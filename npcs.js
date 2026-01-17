@@ -185,7 +185,6 @@ const NPCManager = {
             state.player.hp = state.player.maxHp;
             state.player.mp = state.player.maxMp;
             state.player.stamina = state.player.maxStamina;
-            state.heroDeath = false;
             state.choices = null;
             // Remove death screen effect
             $('.window').removeClass('death-screen');

@@ -392,7 +392,7 @@ const MapManager = {
         
         state.gameBeat = setInterval(() => {
             // Skip game loop if paused
-            if (state.paused || state.heroDeath) {
+            if (state.paused || state.heroIsDead) {
                 return;
             }
                 this.slideMap();
