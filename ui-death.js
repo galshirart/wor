@@ -5,6 +5,7 @@
  */
 
 const DeathUI = {
+    isOpen: false,
     /**
      * Show the death card and teleport to death-gate.
      */
@@ -14,6 +15,8 @@ const DeathUI = {
             return;
         }
         UI.closeCard();
+
+        this.isOpen = true;
 
         // Visual effect
         $('.window').addClass('death-screen');
@@ -32,6 +35,7 @@ const DeathUI = {
     continueAfterDeath() {
         const state = GameState;
 
+        this.isOpen = false;
         $('.card.death').remove();        
         // Reset flags that would otherwise cause immediate re-hit
         state.hero?.attr('in-damage', 'false');
@@ -39,7 +43,7 @@ const DeathUI = {
         
         setTimeout(() => {
             MapManager.teleport(Constants.DEATH_MAP);
-            state.heroDeath = false;
+            state.heroIsDead = false;
             $('.window').removeClass('death-screen'); //back to original colors
         }, 100);
     },

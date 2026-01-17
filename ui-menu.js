@@ -9,6 +9,9 @@ const MenuUI = {
      * Open the game menu and pause the game
      */
     open() {
+        if(DeathUI.isOpen) {
+            return; // Do not allow opening on death screen
+        }
         if ($('.card.menu').is(':visible')) {
             return;
         }

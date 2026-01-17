@@ -255,6 +255,10 @@ const UI = {
      * @param {string} element - Optional specific element to close
      */
     closeCard(element) {
+
+        if(DeathUI.isOpen) {
+            return; // Prevent closing death card
+        } 
         this.zoom('out');
         clearInterval(GameState.dialogInterval);
         
@@ -273,6 +277,9 @@ const UI = {
      * Toggle backpack card visibility
      */
     toggleBackpackCard() {
+        if(DeathUI.isOpen) {
+            return; // Do not allow opening on death screen
+        } 
         const card = $('.card.backpack');
         if (card.is(':visible')) {
             card.hide();
@@ -286,6 +293,9 @@ const UI = {
      * Toggle quests card visibility
      */
     toggleQuestsCard(forceOpen = false) {
+        if(DeathUI.isOpen) {
+            return; // Do not allow opening on death screen
+        } 
         const card = $('.card.quests');
         card.find('.quest-details').html('').hide();
         if (card.is(':visible') && !forceOpen) {
@@ -565,6 +575,9 @@ const UI = {
 
 // Set up global click handler
 $(document).on('click', function(e) {
+    if(DeathUI.isOpen) {
+        return; // Prevent closing death card
+    }
     if (!$(e.target).closest('.card').length &&
         !$(e.target).closest('.button.sell').length &&
         !$(e.target).closest('.backpack').length &&

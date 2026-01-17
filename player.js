@@ -383,8 +383,8 @@ const Player = {
             );
         }
         
-        if (state.player.hp <= 0) { 
-		    this.heroDeath();
+        if (state.player.hp < 1 && state.player.location !== Constants.DEATH_MAP) { 
+		this.heroDeath();
 	    }
         
         // Update UI
@@ -400,7 +400,7 @@ const Player = {
     heroDeath() {
         const state = GameState;
         hero.css('transform', 'scale(' + heroDirection + ', 1) rotate(-90deg) translate(-21px, -14px)');
-        state.heroDeath = true;
+        state.heroIsDead = true;
              
         sound('squeak-3');
         state.player.hp = 0;
