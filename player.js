@@ -384,7 +384,7 @@ const Player = {
         }
         
         if (state.player.hp <= 0) { 
-		this.heroDeath();
+		    this.heroDeath();
 	    }
         
         // Update UI
@@ -399,7 +399,9 @@ const Player = {
      */
     heroDeath() {
         const state = GameState;
-        state.heroDeath = true;       
+        hero.css('transform', 'scale(' + heroDirection + ', 1) rotate(-90deg) translate(-21px, -14px)');
+        state.heroDeath = true;
+             
         sound('squeak-3');
         state.player.hp = 0;
         Player.stopBlock();
