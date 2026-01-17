@@ -18,10 +18,12 @@ const PenaltyManager = {
         const byCategory = {};
         for (const id in penalties) {
             const penalty = penalties[id];
-            if (penalty.active === "TRUE" && !byCategory[penalty.category]) {
-                byCategory[penalty.category] = [];
+            if (penalty && penalty.active === "TRUE") {
+                if (!byCategory[penalty.category]) {
+                    byCategory[penalty.category] = [];
+                }
+                byCategory[penalty.category].push({ id, ...penalty });
             }
-            byCategory[penalty.category].push({ id, ...penalty });
         }
         
         const categories = Object.keys(byCategory);
@@ -207,7 +209,6 @@ const PenaltyManager = {
         for (let i = state.player.activePenalties.length - 1; i >= 0; i--) {
             const activePenalty = state.player.activePenalties[i];
             activePenalty.remainingMs -= deltaMs;
-            
             if (activePenalty.remainingMs <= 0) {
                 // Penalty expired
                 const penalty = state.penalties[activePenalty.id];
