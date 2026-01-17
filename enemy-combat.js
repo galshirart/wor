@@ -300,7 +300,6 @@ const EnemyCombat = {
                 $('.hit.self').remove();
             }, Constants.DAMAGE_IMMUNITY_MS);
         } else {
-            console.log("block failed. isFacingProjectile = " + isFacingProjectile + "blocking = " + state.isBlocking );
             Combat._applyDamageToPlayer(damage);  
         }
         $projectile.remove();

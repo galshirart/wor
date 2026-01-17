@@ -144,12 +144,12 @@ const NPCManager = {
         // Get choices based on choiceSource
         let choices = [];
         
-        if (npcData.choiceSource === 'penalties') {
-            choices = PenaltyManager.getRandomPenalties(3);
+        if (npcData.choiceSource === 'penalties' && !state.choices) {
+            state.choices = PenaltyManager.getRandomPenalties(3);
         }
         
         const choicesContainer = $('<div class="choices"></div>').appendTo(card);
-        choices.forEach(choice => {
+        state.choices.forEach(choice => {
             const row = $('<div class="item-row flex choice-row"></div>')
                 .appendTo(choicesContainer)
                 .attr('data-choice-id', choice.id);
@@ -186,7 +186,7 @@ const NPCManager = {
             state.player.mp = state.player.maxMp;
             state.player.stamina = state.player.maxStamina;
             state.heroDeath = false;
-            
+            state.choices = null;
             // Remove death screen effect
             $('.window').removeClass('death-screen');
             
