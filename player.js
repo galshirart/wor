@@ -399,7 +399,9 @@ const Player = {
      */
     heroDeath() {
         const state = GameState;
-        state.heroIsDead = true;       
+        hero.css('transform', 'scale(' + heroDirection + ', 1) rotate(-90deg) translate(-21px, -14px)');
+        state.heroIsDead = true;
+             
         sound('squeak-3');
         state.player.hp = 0;
         Player.stopBlock();

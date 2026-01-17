@@ -136,26 +136,9 @@ body {
 	justify-content: center;
 	color: #400000;
 }
-
-/************** DEATH SCREEN **************/
-
-/* When the hero dies, we apply a grayscale filter and a dark overlay */
 .window.death-screen .screen {
-	filter: grayscale(1) contrast(1.05);
-}
-
-.window.death-screen:after {
-	content: "";
-	position: absolute;
-	inset: 0;
-	background: rgba(0,0,0,0.65);
-	z-index: 80;
-	pointer-events: none;
-}
-
-/* Ensure the death card appears above the overlay */
-.card.death {
-	z-index: 90;
+	transition: filter 3s ease-out;
+	filter: grayscale(1) brightness(0.5);
 }
 .mapsign {
 	position: absolute;
@@ -1252,6 +1235,13 @@ input:focus {
 	opacity:0.3;
 	transition: bottom 400ms ease-in;
 }
+.death-screen .hero {
+	animation-name: none;
+	background-position-x: -160px;
+}
+.death-screen .hero .equipment {
+	animation-name: none;
+}
 
 /************** WEAPON **************/
 
@@ -1346,6 +1336,10 @@ input:focus {
 .weapon[name='none']:after {
 	display: none;
 }
+.death-screen .weapon {
+	animation-name: none;
+	left:-10; bottom:-21; transform: rotate(200deg)
+}
 
 /************** BOW **************/
 
@@ -1396,6 +1390,10 @@ input:focus {
 }
 [mode=block] .weapon[type='range'] {
 	transform: rotate(130deg);
+}
+.death-screen .weapon[type='range'] {
+	animation-name: none;
+	left:-10; bottom:-21; transform: rotate(120deg)
 }
 .projectile {
 	position: absolute;
