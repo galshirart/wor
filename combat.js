@@ -183,10 +183,7 @@ const Combat = {
         setTimeout(() => {
             Player.setMode('rest');
             $('.weapon').css('animation-name', '');
-            
-            setTimeout(() => {
-                this.attackCooldown = false;
-            }, state.player.attackSpeed / 4);
+            this.attackCooldown = false;
         }, state.player.attackSpeed);
     },
     
