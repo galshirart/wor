@@ -784,6 +784,15 @@ input:focus {
 	right:0;
 	margin:auto;
 	top:72px;
+	animation-name: map-open;
+	animation-duration: 300ms;
+	animation-timing-function: ease-out;
+	animation-iteration-count: 1;
+	animation-fill-mode: both;
+}
+@keyframes map-open {
+	0% { width:0 }
+	100% { width:832px }
 }
 .card.continent-map .map-container {
 	position:relative;
@@ -857,10 +866,9 @@ input:focus {
 
 .card.menu {
 	width:280px;
-	left:50%;
-	top:50%;
+	left:calc(50% - 140px);
+	top:20px;
 	transform:translate(-50%, -50%);
-	margin-top:0;
 }
 .card.menu.center:after {
 	left:calc(50% - 32px);
