@@ -173,7 +173,7 @@ const UI = {
                 if (state.player.backpack[item] > 1) {
                     thumb.html('<span class="amount">' + state.player.backpack[item] + '</span>');
                 }
-            } else if (item !== 'gold') {
+            } else if (item !== 'gold' && !item.includes('-map')) {
                 delete state.player.backpack[item];
             }
         }
