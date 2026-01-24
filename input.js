@@ -85,6 +85,9 @@ const Input = {
                 case K.QUESTS:
                     UI.toggleQuestsCard();
                     break;
+                case K.CONTINENT_MAP:
+                    UI.toggleMapCard();
+                    break;
                 case K.NUM_1:
                 case K.NUM_2:
                 case K.NUM_3:
