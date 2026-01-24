@@ -215,7 +215,12 @@ const QuestManager = {
             const amountText = amount > 1 ? amount + ' ' : '';
             UI.log('Rewarded ' + amountText + reward, reward);
             Player.acquire(reward, amount);
-            setTimeout(() => $('.card.backpack').show(), 500);
+
+            if (reward.includes('-map')) {
+                $('.button.continent-map').show();
+            } else {
+                setTimeout(() => $('.card.backpack').show(), 500);
+            }
         }
         
         state.player.questsCompleted.push(quest);
