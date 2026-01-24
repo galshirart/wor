@@ -31,7 +31,7 @@ const EnemyManager = {
                 'left': destination,
                 'bottom': 321 + yOffset + 'px',
                 'z-index': state.hero.css('z-index') - yOffset,
-                'animation-delay': random(0, 1000) + 'ms'
+                'animation-delay': random(0, 1000) + 'ms',
             })
             .attr({
                 'hp': enemyData.hp,
@@ -78,8 +78,6 @@ const EnemyManager = {
         
         // Static enemies
         if (Number(enemyData.speed) === 0) {
-            $enemy.attr('state', 'move').find('.image').css('animation-duration', '500ms');
-            
             if (enemyType === 'burning-plank') {
                 $enemy.css('left', '1300px');
             }
