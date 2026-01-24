@@ -162,7 +162,7 @@ const UI = {
         $('.backpack .thumb').remove();
         
         for (const item in state.player.backpack) {
-            if (state.player.backpack[item] >= 1 && item !== 'gold') {
+            if (state.player.backpack[item] >= 1 && item !== 'gold' && !item.includes('-map')) {
                 const thumb = $('<div class="thumb tooltip"></div>')
                     .appendTo('.backpack .grid')
                     .attr('type', item)
@@ -255,7 +255,6 @@ const UI = {
      * @param {string} element - Optional specific element to close
      */
     closeCard(element) {
-
         if(DeathUI.isOpen) {
             return; // Prevent closing death card
         } 
@@ -270,6 +269,8 @@ const UI = {
             $('.card.middle').remove();
             $('.card.backpack').hide();
             $('.card.quests').hide();
+            $('.card.continent-map').hide();
+            $('.mapsign').remove();
         }
     },
 
@@ -285,7 +286,7 @@ const UI = {
             card.hide();
         } else {
             this.closeCard();
-            card.show();
+            setTimeout(() => card.show(), 0);
         }
     },
 
@@ -303,10 +304,54 @@ const UI = {
         } else {
             this.closeCard();
             this.renderQuestList();
-            card.show();
+            setTimeout(() => card.show(), 0);
             $('.quests.button').removeClass('notification');
         }
     },
+
+        /**
+     * Toggle map card visibility
+     */
+    toggleMapCard() {
+            if(DeathUI.isOpen) {
+                return; // Do not allow opening on death screen
+            }             
+            const card = $('.card.continent-map');
+            $('img.continent-map-image').attr('src', 'assets/continent-' + GameState.maps[GameState.player.location].continent + '.webp');
+            playerContinent = GameState.maps[GameState.player.location].continent;
+            for (map in GameState.maps) {
+                if (GameState.maps[map].continent !== playerContinent) {
+                    continue;
+                }
+                if (GameState.maps[map].submap === "TRUE") {
+                    continue;
+                }
+                pinpoint = GameState.maps[map]['pinpoint'];
+    
+                $('<div class="checkpoint"></div>')
+                    .css({ left: pinpoint[0]*32, top: pinpoint[1]*32 })
+                    .appendTo('.card.continent-map .map-container');
+                $('<div class="map-label"></div>')
+                    .css({ left: pinpoint[0]*32, top: pinpoint[1]*32 })
+                    .text(spcDash(map))
+                    .appendTo('.card.continent-map .map-container');
+            }
+
+            playerCheckpoint= GameState.maps[GameState.player.location]['pinpoint'];
+            $('<div class="player-checkpoint"></div>')
+            .css({ left: playerCheckpoint[0]*32, top: playerCheckpoint[1]*32 })
+            .appendTo('.card.continent-map .map-container');
+
+            if (card.is(':visible')) {
+                card.hide();
+                $('.mapsign').remove();
+            } else {
+                this.closeCard();
+                setTimeout(() => card.show(), 0);
+                setTimeout(() => MapManager._showMapSign(playerContinent), 100);
+                sound('paper')
+            }
+        },
 
     /**
      * Render the quest list in the left pane

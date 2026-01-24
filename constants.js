@@ -118,6 +118,7 @@ const Constants = {
         INTERACT: 32,     // Space
         BACKPACK: 66,     // B
         QUESTS: 81,       // Q
+        CONTINENT_MAP: 77, // M
         ESCAPE: 27,
         NUM_1: 49,
         NUM_2: 50,

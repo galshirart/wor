@@ -156,7 +156,6 @@ body {
 	animation-name: mapsign;
 	animation-timing-function: ease-out;
 	animation-duration:3s;
-	animation-delay: .5s;
 }
 @keyframes mapsign {
 	0% { top: -70px }
@@ -185,7 +184,6 @@ body {
  	animation-name: mapsign-middle;
  	animation-timing-function: ease-out;
  	animation-duration:2s;
- 	animation-delay: .5s
  }
  @keyframes mapsign-middle {
  	0% { max-width:3% }
@@ -655,6 +653,9 @@ input:focus {
 .button.quests {
 	background-image:url('assets/button-quests.webp');
 }
+.button.continent-map {
+	background-image:url('assets/button-map.webp');
+}
 .card.backpack {
 	max-height:300px;
 	min-height:240px;
@@ -776,7 +777,82 @@ input:focus {
 	opacity:0.5;
 	font-size:11px;
 }
-
+.card.continent-map {	
+	width:832px;
+	height:auto;
+	left:0;
+	right:0;
+	margin:auto;
+	top:72px;
+}
+.card.continent-map .map-container {
+	position:relative;
+	padding:0;
+	border-radius:4px;
+	overflow:hidden;
+}
+.card.continent-map .continent-map-image {
+	width:832px;
+}
+.checkpoint {
+	background:white;
+	width:16px;
+	height:16px;
+	margin-left:-8px;
+	margin-top:-8px;
+	border-radius:100%;
+	border:1px solid #400000;
+	position:absolute;
+	box-shadow: inset -2px -3px 0 0px #40000030;
+	transition: all 200ms;
+}
+.checkpoint:hover {
+	width:18px;
+	height:18px;
+	margin-left:-9px;
+	margin-top:-9px;
+}
+.player-checkpoint {
+	width:18px;
+	height:18px;
+	margin-left:-9px;
+	margin-top:-9px;
+	background:#ffe233;
+	border:1px solid #400000;
+	position:absolute;
+	box-shadow: inset -2px -3px 0 0px #40000030;
+	border-radius:100%;
+	pointer-events:none;
+}
+.player-checkpoint:after {
+	content:"";
+	background:#400000;
+	width:4px;
+	height:4px;
+	border-radius:100%;
+	position:absolute;
+	left:50%;
+	top:50%;
+	transform:translate(-50%, -50%);
+}
+.map-label {
+	position:absolute;
+	font-size:10px;
+	font-weight:700;
+	text-transform:uppercase;
+	color:#400000;
+	padding:2px 4px;
+	border:1px solid #400000;
+	border-radius:4px;
+	background:white;
+	transform:translate(-50%, 10px);
+	opacity:0;
+	transition: all 200ms;
+}
+.checkpoint:hover + .map-label {
+	opacity:1;
+	transform:translate(-50%, 14px);
+}
 /************** MENU **************/
 
 .card.menu {

@@ -406,12 +406,16 @@ const MapManager = {
         }, 10);
     },
     
-    _showMapSign() {
+    _showMapSign(text) {
         const state = GameState;
+
+        if (!text) {
+            text = spcDash(state.player.location);
+        }
         
         $('.overlay').css('opacity', 0);
         $('.mapsign').remove();
-        $('.window').append(`<div class="mapsign"><span></span><span>${spcDash(state.player.location)}</span><span></span></div>`);
+        $('.window').append(`<div class="mapsign"><span></span><span>${text}</span><span></span></div>`);
         UI.updateMetaTitle();
     },
     
