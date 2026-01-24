@@ -53,7 +53,7 @@ const MapManager = {
             });
 
         if (player.backpack.hasOwnProperty(GameState.maps[player.location].continent+'-map')) {
-           $('.button.continent-map').show('active');
+           $('.button.continent-map').show()
         } else {
             $('.button.continent-map').hide();
         }
