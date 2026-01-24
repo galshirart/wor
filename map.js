@@ -51,6 +51,12 @@ const MapManager = {
                     this._showMapSign();
                 }, 250);
             });
+
+        if (player.backpack.hasOwnProperty(GameState.maps[player.location].continent+'-map')) {
+           $('.button.continent-map').show('active');
+        } else {
+            $('.button.continent-map').hide();
+        }
     },
     
     /**
