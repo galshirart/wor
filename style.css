@@ -717,7 +717,6 @@ input:focus {
 	animation-timing-function: ease-out;
 	animation-iteration-count: 1;
 	animation-fill-mode: both;
-	overflow: scroll;
 }
 @keyframes open {
 	0% { opacity:0; margin-left:-400px }
