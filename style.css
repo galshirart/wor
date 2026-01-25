@@ -218,10 +218,10 @@ body {
 	justify-content: space-between;
 }
 .ui.bottom > div > div {
-	margin-right:10px;
+	margin-left:6px;
 }
-.ui.bottom > div > div:last-of-type {
-	margin-right:0;
+.ui.bottom > div > div:first-of-type {
+	margin:0;
 }
 .hide {
 	display: none;
@@ -792,7 +792,7 @@ input:focus {
 }
 @keyframes map-open {
 	0% { width:0 }
-	100% { width:832px }
+	100% { width:832px; }
 }
 .card.continent-map .map-container {
 	position:relative;
