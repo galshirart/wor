@@ -331,7 +331,9 @@ const UI = {
 
                 $('<div class="checkpoint"></div>')
                 .css({ left: mapData['pinpoint'][0]*32, top: mapData['pinpoint'][1]*32 })
-                .appendTo('.card.continent-map .map-container');
+                .appendTo('.card.continent-map .map-container')
+                .attr('data-map', map)
+                .attr('revive', mapData['isReviveMap']);
                 $('<div class="map-label"></div>')
                 .css({ left: mapData['pinpoint'][0]*32, top: mapData['pinpoint'][1]*32 })
                 .text(spcDash(map))
@@ -339,7 +341,7 @@ const UI = {
             }
 
             playerCheckpoint= GameState.maps[GameState.player.location]['pinpoint'];
-            $('<div class="player-checkpoint"></div>')
+            $('<div class="checkpoint player-checkpoint"></div>')
             .css({ left: playerCheckpoint[0]*32, top: playerCheckpoint[1]*32 })
             .appendTo('.card.continent-map .map-container');
 
