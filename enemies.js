@@ -79,7 +79,7 @@ const EnemyManager = {
         // Static enemies
         if (Number(enemyData.speed) === 0) {
             if (enemyType === 'burning-plank') {
-                $enemy.css('left', '1300px');
+                $enemy.css('left', '1300px').attr('state', 'move');
             }
             return;
         }
