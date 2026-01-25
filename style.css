@@ -822,16 +822,16 @@ input:focus {
 	margin-top:-9px;
 }
 .player-checkpoint {
-	width:18px;
-	height:18px;
-	margin-left:-9px;
-	margin-top:-9px;
+	width:20px;
+	height:20px;
+	margin-left:-10px;
+	margin-top:-10px;
 	background:#ffe233;
 	border:1px solid #400000;
 	position:absolute;
 	box-shadow: inset -2px -3px 0 0px #40000030;
 	border-radius:100%;
-	pointer-events:none;
+	transition: all 200ms;
 }
 .player-checkpoint:after {
 	content:"";
@@ -843,6 +843,9 @@ input:focus {
 	left:50%;
 	top:50%;
 	transform:translate(-50%, -50%);
+}
+.player-checkpoint:hover {
+	transform:scale(1.1)
 }
 .map-label {
 	position:absolute;
@@ -858,10 +861,12 @@ input:focus {
 	opacity:0;
 	transition: all 200ms;
 }
-.checkpoint:hover + .map-label {
+.checkpoint:hover + .map-label,
+.player-checkpoint:hover + .map-label {
 	opacity:1;
 	transform:translate(-50%, 14px);
 }
+
 /************** MENU **************/
 
 .card.menu {
