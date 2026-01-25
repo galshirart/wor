@@ -317,29 +317,35 @@ const UI = {
                 return; // Do not allow opening on death screen
             }             
             const card = $('.card.continent-map');
-            $('img.continent-map-image').attr('src', 'assets/continent-' + GameState.maps[GameState.player.location].continent + '.webp');
+            card.find('.map-container').empty()
+            .append('<img class="continent-map-image" src="assets/continent-' + GameState.maps[GameState.player.location].continent + '.webp" />');
             playerContinent = GameState.maps[GameState.player.location].continent;
-            for (map in GameState.maps) {
-                if (GameState.maps[map].continent !== playerContinent) {
+            for (const map of GameState.player.mapsVisited) {
+                const mapData = GameState.maps[map];
+                if (!mapData || mapData.continent !== playerContinent) {
                     continue;
                 }
-                if (GameState.maps[map].submap === "TRUE") {
+                if (mapData.submap === "TRUE") {
                     continue;
                 }
-                pinpoint = GameState.maps[map]['pinpoint'];
-    
+
                 $('<div class="checkpoint"></div>')
-                    .css({ left: pinpoint[0]*32, top: pinpoint[1]*32 })
-                    .appendTo('.card.continent-map .map-container');
+                .css({ left: mapData['pinpoint'][0]*32, top: mapData['pinpoint'][1]*32 })
+                .appendTo('.card.continent-map .map-container');
                 $('<div class="map-label"></div>')
-                    .css({ left: pinpoint[0]*32, top: pinpoint[1]*32 })
-                    .text(spcDash(map))
-                    .appendTo('.card.continent-map .map-container');
+                .css({ left: mapData['pinpoint'][0]*32, top: mapData['pinpoint'][1]*32 })
+                .text(spcDash(map))
+                .appendTo('.card.continent-map .map-container');
             }
 
             playerCheckpoint= GameState.maps[GameState.player.location]['pinpoint'];
             $('<div class="player-checkpoint"></div>')
             .css({ left: playerCheckpoint[0]*32, top: playerCheckpoint[1]*32 })
+            .appendTo('.card.continent-map .map-container');
+
+            $('<div class="map-label"></div>')
+            .css({ left: playerCheckpoint[0]*32, top: playerCheckpoint[1]*32 })
+            .text(spcDash(GameState.player.location))
             .appendTo('.card.continent-map .map-container');
 
             if (card.is(':visible')) {
