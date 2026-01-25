@@ -805,35 +805,30 @@ input:focus {
 }
 .checkpoint {
 	background:white;
-	width:16px;
-	height:16px;
-	margin-left:-8px;
-	margin-top:-8px;
+	width:14px;
+	height:14px;
+	margin-left:-7px;
+	margin-top:-7px;
 	border-radius:100%;
 	border:1px solid #400000;
 	position:absolute;
-	box-shadow: inset -2px -3px 0 0px #40000030;
+	box-shadow: inset -3px -3px 0 0px #40000030, 1px 1px 0 0 #40000030;
 	transition: all 200ms;
 }
 .checkpoint:hover {
-	width:18px;
-	height:18px;
-	margin-left:-9px;
-	margin-top:-9px;
+	transform:scale(1.1);
 }
-.player-checkpoint {
+.checkpoint[revive='TRUE'], .checkpoint.player-checkpoint {
 	width:20px;
 	height:20px;
 	margin-left:-10px;
 	margin-top:-10px;
-	background:#ffe233;
-	border:1px solid #400000;
-	position:absolute;
-	box-shadow: inset -2px -3px 0 0px #40000030;
-	border-radius:100%;
-	transition: all 200ms;
+	box-shadow: inset -4px -4px 0 0 #40000030, 2px 2px 0 0 #40000030;
 }
-.player-checkpoint:after {
+.checkpoint.player-checkpoint {
+	background:#ffe233;
+}
+.checkpoint.player-checkpoint:after {
 	content:"";
 	background:#400000;
 	width:4px;
@@ -843,9 +838,6 @@ input:focus {
 	left:50%;
 	top:50%;
 	transform:translate(-50%, -50%);
-}
-.player-checkpoint:hover {
-	transform:scale(1.1)
 }
 .map-label {
 	position:absolute;
@@ -860,9 +852,9 @@ input:focus {
 	transform:translate(-50%, 10px);
 	opacity:0;
 	transition: all 200ms;
+	z-index: 10;
 }
-.checkpoint:hover + .map-label,
-.player-checkpoint:hover + .map-label {
+.checkpoint:hover + .map-label {
 	opacity:1;
 	transform:translate(-50%, 14px);
 }
@@ -1575,7 +1567,7 @@ input:focus {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	z-index:20;
+	z-index:9;
 	animation-name: hit;
 	animation-duration: 800ms;
 	animation-timing-function: ease-out;

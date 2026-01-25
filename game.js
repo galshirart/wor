@@ -79,7 +79,7 @@ const Game = {
         Player.acquire('wood-bow');
         Player.acquire('wood-shield');
         Player.acquire('red-bandana');
-        Player.acquire('coconut-water', 20);
+        Player.acquire('big-coconut-water', 20);
         Player.acquire('speed-potion', 20);
         Player.acquire('turbo-berry', 20);
         Player.acquire('focus-potion', 20);
