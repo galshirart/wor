@@ -7,7 +7,7 @@
 
 const GameState = {
     // ========== VERSION ==========
-    LATEST_VERSION: 6,
+    LATEST_VERSION: 7,
     
     // ========== PLAYER DATA ==========
     player: {},
