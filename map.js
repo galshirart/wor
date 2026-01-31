@@ -103,19 +103,10 @@ const MapManager = {
     
     /**
      * Slide map to follow player
+     * Now delegates to Camera module for proper edge-aware scrolling
      */
     slideMap() {
-        const state = GameState;
-        
-        const offset = (i('.window', 'width') / 2) - state.player.position;
-        $('.field').css('left', offset + 'px');
-        
-        const parallaxRatio = (state.mapWidth - i('.window', 'width')) > 0
-            ? (offset / (state.mapWidth - i('.window', 'width')))
-            : 0;
-        
-        $('.back').css('left', parallaxRatio * (state.backWidth - i('.window', 'width')) + 'px');
-        $('.front').css('left', parallaxRatio * (state.frontWidth - i('.window', 'width')) + 'px');
+        Camera.follow();
     },
     
     /**

@@ -22,9 +22,10 @@
     9. enemies.js    - Depends on: Constants, GameState, Utils
     10. npcs.js      - Depends on: Constants, GameState, Utils, Player, UI, QuestManager
     11. quests.js    - Depends on: Constants, GameState, Utils, Player, UI, MapManager
-    12. map.js       - Depends on: Constants, GameState, Utils, Player, Combat, EnemyManager, NPCManager, UI
-    13. penalties.js - Depends on: Constants, GameState, Utils, UI
-    14. game.js      - Entry point, depends on everything
+    12. camera.js    - Depends on: Constants, GameState
+    13. map.js       - Depends on: Constants, GameState, Utils, Player, Combat, EnemyManager, NPCManager, UI, Camera
+    14. penalties.js - Depends on: Constants, GameState, Utils, UI
+    15. game.js      - Entry point, depends on everything
 -->
 <script src="constants.js" defer></script>
 <script src="utils.js" defer></script>
@@ -40,6 +41,7 @@
 <script src="enemies.js" defer></script>
 <script src="npcs.js" defer></script>
 <script src="quests.js" defer></script>
+<script src="camera.js" defer></script>
 <script src="map.js" defer></script>
 <script src="input.js" defer></script>
 <script src="game.js" defer></script>
