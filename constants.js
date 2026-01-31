@@ -11,8 +11,12 @@ const Constants = {
     HERO_GROUND_Y: 321,         // Hero's bottom position
     FIELD_HEIGHT: 800,          // Total field height
     
+    // Hero dimensions (for camera positioning)
+    HERO_WIDTH: 80,
+    HERO_SHADOW_WIDTH: 50,
+    
     // Map boundaries
-    MAP_EDGE_BUFFER: 610,       // Distance from edge where player stops
+    MAP_EDGE_BUFFER: 40,        // Distance from map edge where player stops (just enough to keep sprite on screen)
     PORT_X_OFFSET: 590,         // Base X offset for ports
     MAP_EDGE_CALCULATION: 1270, // Used in port position calculation
     
